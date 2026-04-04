@@ -58,6 +58,7 @@
 
             .detailSection {
                 flex: 1;
+                order: 1;
 
                 >h1 {
                     font-size: $text-section-lg;
@@ -66,6 +67,7 @@
 
             .imageWrapper {
                 flex: 1;
+                order: 2;
             }
         }
     }
