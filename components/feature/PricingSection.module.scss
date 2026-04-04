@@ -1,0 +1,123 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.pricingSection {
+    background-color: $white;
+
+    .pricingSectionInner {
+        padding-block: 27px;
+
+        .pricingList {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 26px;
+
+            .package {
+                position: relative;
+                border-radius: $radius-base;
+                padding: $space-lg;
+                border: 2px solid $card-border;
+
+                .packageBadge {
+                    position: absolute;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    top: -16px;
+                    background-color: $secondary;
+                    border-radius: $radius-full;
+                    padding: 5px $space-base;
+                }
+
+                .packageName {
+                    font-size: $text-md;
+                }
+
+                .packagePrice {
+                    margin-top: 18px;
+                    font-size: $text-3xl;
+                }
+
+                .packageValidty {
+                    display: inline-block;
+                    margin-top: $space-lg;
+                    font-size: $text-sm;
+                    color: $grayish-blue-800;
+                }
+
+                .packageDescription {
+                    margin-top: $space-lg;
+                    font-size: $text-sm;
+                    line-height: $line-height-xs;
+                }
+
+                .packageSummaryList {
+                    margin-top: $space-lg;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+
+                    .summaryItem {
+                        display: flex;
+                        align-items: center;
+                        gap: $space-sm;
+                        font-size: $text-sm;
+                        color: $grayish-blue-900;
+                        line-height: $line-height-xs;
+                    }
+                }
+
+                >button {
+                    margin-top: $space-lg;
+                    font-size: $text-sm;
+                    width: 100%;
+                }
+            }
+
+            .singleReleasePackage {
+                >button {
+                    background-color: $primary;
+                    color: $white;
+                }
+
+                .packageDescription {
+                    width: 80%;
+                }
+            }
+
+            .threeReleasePackage {
+                border-color: $soft-blue-100;
+
+                >button {
+                    background-color: $soft-blue-100;
+                    color: $white;
+                }
+            }
+
+            .featuredPlacement {
+                .packageName {
+                    display: flex;
+                    align-items: center;
+                    gap: $space-sm;
+                }
+            }
+
+            .professionalCampaigns {
+                >button {
+                    background-color: $primary;
+                    color: $white;
+                }
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .pricingSectionInner {
+            padding-block: $space-5xl;
+
+            .pricingList {
+                grid-template-columns: repeat(auto-fit, minmax(277px, 1fr));
+            }
+        }
+    }
+}

@@ -1,1 +1,1 @@
-export { default as HeroSection } from "../composed/HomeHeroSection";
+export { default as PricingSection } from "./PricingSection";

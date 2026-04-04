@@ -35,6 +35,10 @@
             gap: $space-xl;
 
             .news {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+
                 .newsHeader {
                     height: 192px;
                     position: relative;
@@ -67,6 +71,7 @@
                     gap: $space-md;
                     background-color: $white;
                     border-radius: $radius-base;
+                    flex: 1;
 
                     .newsMeta {
                         display: flex;

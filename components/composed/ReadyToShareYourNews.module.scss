@@ -3,7 +3,11 @@
 @use "../../styles/breakpoints" as *;
 
 .footerCTA {
-    background: url("/images/ready-to-share-your-news.jpg") no-repeat center / cover;
+    background-image: $linear-gradient-blue-600, url("/images/ready-to-share-your-news.jpg");
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 
     .footerCTAInner {
         padding-block: $space-5xl;
@@ -28,6 +32,7 @@
         }
 
         .ctaBtns {
+            width: 100%;
             margin-top: $space-md;
             display: flex;
             flex-direction: column;

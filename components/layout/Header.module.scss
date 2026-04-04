@@ -4,6 +4,7 @@
 
 .header {
     background-color: $white;
+    position: relative;
 
     .headerInner {
         display: flex;
@@ -11,43 +12,146 @@
         align-items: center;
         height: 81px;
 
+        .logoLink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+
         .logoImg {
             height: auto;
             margin-left: -5.55px;
         }
 
-        .navList {
-            display: none;
-            gap: $space-xl;
+        .desktopNav {
+            .navList {
+                display: none;
+                gap: $space-xl;
 
-            >li>a {
-                font-size: $text-md;
-                color: $grayish-blue-800;
+                >li>a {
+                    font-size: $text-md;
+                    color: $grayish-blue-800;
+                    transition: color 0.3s ease;
+
+                    &:hover {
+                        color: $grayish-blue-900;
+                    }
+                }
             }
         }
 
         .submitReleasebtn {
             display: none;
         }
+
+        .menuToggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            color: $grayish-blue-800;
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+
+    /* Mobile Menu Styles */
+    .mobileMenu {
+        position: absolute;
+        top: 81px;
+        left: 0;
+        right: 0;
+        background-color: $white;
+        animation: slideDown 0.3s ease;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+        .mobileNav {
+            .mobileNavList {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+
+                >li {
+                    padding: $space-md $space-lg;
+                    border-bottom: 1px solid $grayish-blue-100;
+
+                    >a {
+                        font-size: $text-md;
+                        color: $grayish-blue-800;
+                        text-decoration: none;
+                        display: block;
+                        transition: color 0.3s ease;
+
+                        &:active {
+                            color: $grayish-blue-900;
+                        }
+                    }
+                }
+            }
+        }
+
+        .mobileButtonWrapper {
+            padding: $space-lg;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .mobileSubmitBtn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @media(min-width: map-get($breakpoints, 'md')) {
-        .menuWrapper {
-            display: none;
-        }
-
         .headerInner {
+            .menuToggle {
+                display: none;
+            }
+
             .logoImg {
                 width: 206px;
             }
 
-            .navList {
-                display: flex;
+            .desktopNav {
+                .navList {
+                    display: flex;
+                }
             }
 
             .submitReleasebtn {
                 display: block;
             }
+        }
+
+        .mobileMenu {
+            display: none;
         }
     }
 }

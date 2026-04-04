@@ -1,0 +1,80 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.footerCTA {
+    background: $linear-gradient-blue-700;
+
+    .footerCTAInner {
+        padding-block: 35px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        >h1 {
+            font-size: $text-section;
+            color: $white;
+            text-align: center;
+            width: 90%;
+            margin-inline: auto;
+        }
+
+        >P {
+            margin-top: $space-lg;
+            font-size: $text-lg;
+            color: $grayish-blue-100;
+            line-height: $line-height-md;
+            text-align: center;
+        }
+
+        .ctaBtns {
+            width: 100%;
+            margin-top: 26px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: $space-base;
+
+            .pressReleaseBtn {
+                width: 100%;
+                padding-inline: 40px;
+            }
+
+            .viewPricingBtn {
+                width: 100%;
+                padding-inline: 40px;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .footerCTAInner {
+            padding-block: $space-4xl;
+
+            >h1 {
+                font-size: $text-4xl;
+                width: 100%;
+            }
+
+            >P {
+                margin-top: 20px;
+                font-size: $text-xl;
+                margin-inline: auto;
+            }
+
+            .ctaBtns {
+                margin-top: 40px;
+                flex-direction: row;
+                width: fit-content;
+
+                .pressReleaseBtn {
+                    width: auto;
+                }
+
+                .viewPricingBtn {
+                    width: auto;
+                }
+            }
+        }
+    }
+}

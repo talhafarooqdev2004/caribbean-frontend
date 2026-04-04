@@ -10,13 +10,15 @@ export default function Footer() {
             <Container className={styles.footerInner}>
                 <ul className={styles.footerList}>
                     <li>
-                        <Image
-                            src="/images/brand-logo-white.svg"
-                            alt=""
-                            width={160}
-                            height={100}
-                            className={styles.footerBrandLogo}
-                        />
+                        <Link href="/" className={styles.footerBrandLogoLink}>
+                            <Image
+                                src="/images/brand-logo-white.svg"
+                                alt="Brand Logo"
+                                width={160}
+                                height={100}
+                                className={styles.footerBrandLogo}
+                            />
+                        </Link>
 
                         <p>Premium press distribution for the Caribbean and its global diaspora.</p>
                     </li>
