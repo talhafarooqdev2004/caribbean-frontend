@@ -1,0 +1,78 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.footerCTA {
+    background: url("/images/ready-to-share-your-news.jpg") no-repeat center / cover;
+
+    .footerCTAInner {
+        padding-block: $space-5xl;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        >h1 {
+            font-size: $text-section;
+            color: $white;
+            text-align: center;
+            width: 90%;
+            margin-inline: auto;
+        }
+
+        >P {
+            margin-top: $space-lg;
+            font-size: $text-lg;
+            color: $grayish-blue-100;
+            line-height: $line-height-md;
+            text-align: center;
+        }
+
+        .ctaBtns {
+            margin-top: $space-md;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: $space-base;
+
+            .pressReleaseBtn {
+                width: 100%;
+                padding-inline: 40px;
+            }
+
+            .viewPricingBtn {
+                width: 100%;
+                padding-inline: 40px;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'lg')) {
+        .footerCTAInner {
+            >h1 {
+                font-size: $text-5xl;
+                width: 100%;
+            }
+
+            >P {
+                margin-top: $space-lg;
+                font-size: $text-xl;
+                width: 40%;
+                margin-inline: auto;
+            }
+
+            .ctaBtns {
+                margin-top: 40px;
+                flex-direction: row;
+                width: fit-content;
+
+                .pressReleaseBtn {
+                    width: auto;
+                }
+
+                .viewPricingBtn {
+                    width: auto;
+                }
+            }
+        }
+    }
+}

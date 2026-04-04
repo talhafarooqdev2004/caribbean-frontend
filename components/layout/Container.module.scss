@@ -1,0 +1,21 @@
+@use "../../styles/semantic" as *;
+@use "../../styles//breakpoints" as *;
+
+.container {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: $space-mobile;
+    max-width: $container-lg;
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        padding-inline: $space-tablet;
+    }
+
+    @media(min-width: map-get($breakpoints, 'lg')) {
+        padding-inline: $space-desktop;
+    }
+
+    @media(min-width: map-get($breakpoints, 'xl')) {
+        padding-inline: $space-desktop-lg;
+    }
+}

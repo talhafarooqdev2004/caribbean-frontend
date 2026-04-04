@@ -1,0 +1,51 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.brandMetrics {
+    background-color: $white;
+    border: 1px solid $grayish-blue-100;
+
+    .brandMetricsInner {
+        padding-block: $space-xl;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        justify-content: space-between;
+        align-items: center;
+        row-gap: $space-xl;
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: $space-sm;
+
+            .metricCount {
+                font-size: 36px;
+            }
+
+            .metricLabel {
+                font-size: $text-sm;
+                color: $grayish-blue-800;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .brandMetricsInner {
+            padding-block: $space-2xl;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+            .metric {
+                .metricCount {
+                    font-size: $text-4xl;
+                }
+
+                .metricLabel {
+                    font-size: $text-sm;
+                    color: $grayish-blue-800;
+                }
+            }
+        }
+    }
+}

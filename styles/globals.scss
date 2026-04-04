@@ -1,0 +1,33 @@
+@use './primitive' as *;
+@use './semantic' as *;
+@use './variable' as *;
+
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: $font-inter;
+    color: $primary;
+}
+
+p {
+    color: $grayish-blue-800;
+}
+
+h1,
+h2 {
+    font-weight: $weight-md;
+}
+
+a {
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}

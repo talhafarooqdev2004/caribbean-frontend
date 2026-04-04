@@ -1,0 +1,49 @@
+@use "../../styles/primitive" as *;
+@use '../../styles/semantic' as *;
+@use "../../styles/breakpoints" as *;
+
+.header {
+    background-color: $white;
+
+    .headerInner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 81px;
+
+        .logoImg {
+            height: auto;
+            margin-left: -5.55px;
+        }
+
+        .navList {
+            display: none;
+            gap: $space-xl;
+
+            >li>a {
+                font-size: $text-md;
+                color: $grayish-blue-800;
+            }
+        }
+
+        .submitReleasebtn {
+            display: none;
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .menuWrapper {
+            display: none;
+        }
+
+        .headerInner {
+            .navList {
+                display: flex;
+            }
+
+            .submitReleasebtn {
+                display: block;
+            }
+        }
+    }
+}

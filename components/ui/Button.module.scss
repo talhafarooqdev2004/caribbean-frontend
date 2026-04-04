@@ -1,0 +1,44 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: $text-base;
+    border-radius: $radius-sm;
+    padding-inline: $space-base;
+    outline: none;
+    border: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.primary {
+    color: $primary;
+    background-color: $secondary;
+}
+
+.secondary {
+    height: 36px;
+    line-height: 36px;
+    border: 2px solid $primary;
+    color: $primary;
+    background-color: $white;
+}
+
+.outline {
+    background-color: $white-100;
+    color: $white;
+    border: 2px solid $white;
+}
+
+.md {
+    height: 40px;
+    line-height: 40px;
+}
+
+.lg {
+    height: $space-2xl;
+    line-height: $space-2xl;
+}

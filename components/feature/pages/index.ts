@@ -1,0 +1,1 @@
+export { default as HomeClientPage } from "./HomeClientPage";
