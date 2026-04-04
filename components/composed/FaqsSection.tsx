@@ -14,7 +14,7 @@ export default function FaqsSection() {
                     <Faq question="How quickly will my release be published?" answer="Most press releases are published within 24-48 hours of submission. During peak times, it may take up to 72 hours." />
                     <Faq question="Do you guarantee media pickups?" answer="We don't guarantee pickups, but our experienced team works to maximize your release's visibility to relevant media outlets." />
                     <Faq question="Can I schedule my release for a specific date?" answer="Yes, you can schedule your release to go out on a specific date. This is useful for coordinating announcements with product launches." />
-                    <Faq question="Do credits expire?" answer="No, your credits do not expire. You can use them anytime, giving you flexibility in managing your PR campaigns." />
+                    <Faq question="Do credits expire?" answer="Credits are valid for 6 months from the date of purchase. We recommend using them within that period to maximize your PR efforts." />
                 </Faqs>
             </Container>
         </section>
