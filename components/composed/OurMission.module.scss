@@ -1,0 +1,43 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.ourMission {
+    background: $linear-gradient-soft-blue-300;
+
+    .ourMissionInner {
+        padding-block: $space-lg;
+
+        >h1 {
+            font-size: $text-section;
+            color: $white;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: 23px;
+            font-size: $text-lg;
+            color: $grayish-blue-300;
+            line-height: $line-height-base;
+            text-align: center;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .ourMissionInner {
+            padding-block: 95px;
+
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            >p {
+                margin-top: $space-lg;
+                font-size: $text-xl;
+                line-height: 39px;
+                width: 70%;
+                margin-inline: auto;
+            }
+        }
+    }
+}

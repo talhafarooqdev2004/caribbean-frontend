@@ -1,9 +1,8 @@
 "use client";
 
-import { Footer, Header } from "@/components/layout";
-import HeroSection from "../HeroSection";
 import {
     BrandMetrics,
+    HomeHeroSection,
     HowItWorks,
     LatestNews,
     ReadyToShareYourNews,
@@ -13,14 +12,12 @@ import {
 export default function HomeClientPage() {
     return (
         <>
-            <Header />
-            <HeroSection />
+            <HomeHeroSection />
             <BrandMetrics />
             <WhatIsCaribNewsWire />
             <HowItWorks />
             <LatestNews />
             <ReadyToShareYourNews />
-            <Footer />
         </>
     );
 };

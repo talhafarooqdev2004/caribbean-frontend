@@ -1,0 +1,57 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.heroSection {
+    background-image: $hero-section-gradient , url("/images/about-hero-section.jpg");
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
+    .heroSectionInner {
+        padding-block: 90px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        >span {
+            background-color: $white-100;
+            border: 1px solid $white-200;
+            color: $white;
+            height: 34px;
+            padding-inline: $space-base;
+            border-radius: $radius-full;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: $text-sm;
+        }
+
+        >h1 {
+            margin-top: $space-md;
+            font-size: $text-section-lg;
+            color: $white;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            font-size: $text-lg;
+            color: $grayish-blue-100;
+            text-align: center;
+            width: 95%;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .heroSectionInner {
+            padding-block: $space-5xl;
+
+            >h1 {
+                margin-top: 10px;
+                font-size: $text-5xl;
+            }
+        }
+    }
+}

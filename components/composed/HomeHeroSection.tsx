@@ -3,7 +3,7 @@ import { Container } from "../layout";
 import styles from "./HeroSection.module.scss";
 import { Button, SvgIcon } from "../ui";
 
-export default function HeroSection() {
+export default function HomeHeroSection() {
     return (
         <section className={styles.heroSection}>
             <Container className={styles.heroSectionInner}>

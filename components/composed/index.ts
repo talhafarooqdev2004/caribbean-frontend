@@ -1,6 +1,13 @@
+export { default as HomeHeroSection } from "./HomeHeroSection";
 export { default as BrandMetrics } from "./BrandMetrics";
 export { default as WhatIsCaribNewsWire } from "./WhatIsCaribNewsWire";
 export { default as HowItWorks } from "./HowItWorks";
 export { default as LatestNews } from "./LatestNews";
 export { default as FooterCTA } from "./FooterCTA";
 export { default as ReadyToShareYourNews } from "./ReadyToShareYourNews";
+export { default as AboutHeroSection } from "./AboutHeroSection";
+export { default as AboutWhatIsCaribNews } from "./AboutWhatIsCaribNews";
+export { default as WhyWeExist } from "./WhyWeExist";
+export { default as WhatMakesUsDifferent } from "./WhatMakesUsDifferent";
+export { default as NotificationNote } from "./NotificationNote";
+export { default as OurMission } from "./OurMission";

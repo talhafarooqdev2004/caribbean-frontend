@@ -1,0 +1,75 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.whatMakesUsDifferent {
+    background-color: $white;
+
+    .whatMakesUsDifferentInner {
+        padding-block: $section-padding-sm;
+
+        >h1 {
+            font-size: $text-section;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            font-size: $text-base;
+            text-align: center;
+        }
+
+        .cards {
+            margin-top: $space-2xl;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: $space-lg;
+
+            .card {
+                border: 2px solid $card-border;
+                height: 115px;
+                padding: $space-xl;
+                border-radius: $radius-base;
+                display: flex;
+                align-items: center;
+                gap: $space-base;
+
+                .iconWrapper {
+                    width: 56px;
+                    height: 56px;
+                    background: $linear-gradient-soft-blue-300;
+                    border-radius: $radius-base;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-shrink: 0;
+                }
+
+                >span {
+                    font-size: $text-lg;
+                    line-height: $line-height-md;
+                }
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .whatMakesUsDifferentInner {
+            padding-top: 96px;
+            max-width: 1200px;
+
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            >p {
+                width: 55%;
+                margin-inline: auto;
+            }
+
+            .cards {
+                grid-template-columns: repeat(auto-fit, minmax(468px, 1fr));
+            }
+        }
+    }
+}

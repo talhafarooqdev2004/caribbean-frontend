@@ -1,0 +1,37 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.notificationNote {
+    background-color: $white;
+
+    .notificationNoteInner {
+        padding-block: $section-padding-sm;
+
+        .note {
+            border-radius: $radius-base;
+            border: 2px solid $secondary;
+            background:
+                linear-gradient(225deg, rgba(255, 196, 0, 0.3) 0%, transparent 50%),
+                linear-gradient(45deg, rgba(255, 196, 0, 0.3) 0%, #FFFFFF 100%);
+            padding: $space-xl;
+            font-size: $text-lg;
+            line-height: $line-height-base;
+            text-align: center;
+
+            .prominentLine {
+                font-weight: $weight-semi-bold;
+                color: $soft-blue-100;
+            }
+        }
+
+        @media (min-width: map-get($breakpoints, 'md')) {
+            max-width: 1200px;
+
+            .note {
+                text-align: left;
+
+            }
+        }
+    }
+}
