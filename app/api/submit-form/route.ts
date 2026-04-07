@@ -54,14 +54,8 @@ export async function POST(request: NextRequest) {
 
         try {
             await storeEnquiryBackup(enquiry);
-        } catch {
-            return Response.json(
-                {
-                    error: "Your enquiry was saved, but the backup step failed. Please submit again so we can store the backup copy.",
-                    enquiry,
-                },
-                { status: 503 }
-            );
+        } catch (error) {
+            console.error("Failed to write S3 enquiry backup.", error);
         }
 
         return Response.json(

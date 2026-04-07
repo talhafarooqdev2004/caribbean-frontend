@@ -17,13 +17,29 @@ function getS3BucketName() {
 }
 
 function getS3Region() {
-    const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION;
+    const region = process.env.S3_REGION;
 
     if (!region) {
-        throw new Error("Missing AWS_REGION environment variable.");
+        throw new Error("Missing S3_REGION environment variable.");
     }
 
     return region;
+}
+
+function getS3Credentials() {
+    const accessKeyId = process.env.S3_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
+    const sessionToken = process.env.S3_SESSION_TOKEN;
+
+    if (!accessKeyId || !secretAccessKey) {
+        return undefined;
+    }
+
+    return {
+        accessKeyId,
+        secretAccessKey,
+        ...(sessionToken ? { sessionToken } : {}),
+    };
 }
 
 function getS3Prefix() {
@@ -34,9 +50,12 @@ function getS3Prefix() {
 
 function getS3Client() {
     if (!s3Client) {
-        s3Client = new S3Client({
+        const config = {
             region: getS3Region(),
-        });
+            ...(getS3Credentials() ? { credentials: getS3Credentials() } : {}),
+        };
+
+        s3Client = new S3Client(config);
     }
 
     return s3Client;
