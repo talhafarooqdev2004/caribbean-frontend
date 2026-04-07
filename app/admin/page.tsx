@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 
 import AdminEnquiriesPanel from "@/components/admin/AdminEnquiriesPanel";
 import { isAdminSessionValidFromCookies } from "@/lib/admin-auth";
-import { listEnquiries, type EnquiryRecord } from "@/lib/enquiries";
+import { listEnquiries } from "@/lib/enquiries";
+import { type EnquiryRecord } from "@/lib/enquiry-types";
 
 export default async function AdminPage() {
     const isAuthenticated = await isAdminSessionValidFromCookies();

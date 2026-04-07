@@ -5,19 +5,15 @@ import { ObjectId, type WithId } from "mongodb";
 import { getDb } from "./mongodb";
 import { validateEnquiryInput, type EnquiryErrors } from "./enquiry-validation";
 import { type EnquiryFormValues, type EnquirySubmissionValues } from "./enquiry-options";
+import {
+    type EnquiryRecord,
+    type EnquiryStatus,
+    type StoredEnquiry,
+    type StoredEnquiryStatus,
+} from "./enquiry-types";
 
-export type StoredEnquiry = EnquirySubmissionValues & {
+type StoredEnquiryDocument = StoredEnquiry & {
     _id: ObjectId;
-    source: "media-signup";
-    status: "new";
-    createdAt: Date;
-    updatedAt: Date;
-};
-
-export type EnquiryRecord = Omit<StoredEnquiry, "_id" | "createdAt" | "updatedAt"> & {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
 };
 
 const COLLECTION_NAME = "enquiries";
@@ -31,6 +27,7 @@ async function ensureEnquiryIndexes() {
 
             await Promise.all([
                 collection.createIndex({ source: 1, createdAt: -1 }),
+                collection.createIndex({ source: 1, status: 1, createdAt: -1 }),
                 collection.createIndex(
                     { source: 1, requestId: 1 },
                     {
@@ -51,11 +48,20 @@ async function ensureEnquiryIndexes() {
     await enquiryIndexesPromise;
 }
 
+function normalizeEnquiryStatus(status: StoredEnquiryStatus | undefined | null): EnquiryStatus {
+    if (status === "approved" || status === "rejected") {
+        return status;
+    }
+
+    return "pending";
+}
+
 function serializeEnquiry(enquiry: WithId<StoredEnquiry>): EnquiryRecord {
     const { _id, createdAt, updatedAt, ...rest } = enquiry;
 
     return {
         ...rest,
+        status: normalizeEnquiryStatus(rest.status),
         id: _id.toHexString(),
         createdAt: createdAt.toISOString(),
         updatedAt: updatedAt.toISOString(),
@@ -68,12 +74,12 @@ export async function insertEnquiry(input: EnquirySubmissionValues) {
     await ensureEnquiryIndexes();
     const now = new Date();
 
-    const document: StoredEnquiry = {
+    const document: StoredEnquiryDocument = {
         ...input,
         _id: new ObjectId(),
         requestId: input.requestId,
         source: "media-signup",
-        status: "new",
+        status: "pending",
         createdAt: now,
         updatedAt: now,
     };
@@ -133,6 +139,65 @@ export async function deleteEnquiryById(id: string) {
         deleted: result.deletedCount === 1,
         invalidId: false,
     } as const;
+}
+
+export async function setEnquiryStatusById(id: string, status: EnquiryStatus) {
+    if (!ObjectId.isValid(id)) {
+        return {
+            updated: false,
+            invalidId: true,
+            notFound: false,
+            enquiry: null,
+        } as const;
+    }
+
+    const db = await getDb();
+    const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
+    await ensureEnquiryIndexes();
+
+    const updatedEnquiry = await collection.findOneAndUpdate(
+        {
+            _id: new ObjectId(id),
+            source: "media-signup",
+        },
+        {
+            $set: {
+                status,
+                updatedAt: new Date(),
+            },
+        },
+        {
+            returnDocument: "after",
+        }
+    );
+
+    if (!updatedEnquiry) {
+        return {
+            updated: false,
+            invalidId: false,
+            notFound: true,
+            enquiry: null,
+        } as const;
+    }
+
+    return {
+        updated: true,
+        invalidId: false,
+        notFound: false,
+        enquiry: serializeEnquiry(updatedEnquiry),
+    } as const;
+}
+
+export async function approveEnquiryById(id: string) {
+    return setEnquiryStatusById(id, "approved");
+}
+
+export async function rejectEnquiryById(id: string) {
+    return setEnquiryStatusById(id, "rejected");
+}
+
+export async function revertEnquiryById(id: string) {
+    return setEnquiryStatusById(id, "pending");
 }
 
 export function validateAndInsertableEnquiry(input: Partial<EnquiryFormValues>) {

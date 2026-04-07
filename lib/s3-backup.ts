@@ -2,7 +2,7 @@ import "server-only";
 
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
-import { type EnquiryRecord } from "./enquiries";
+import { type EnquiryRecord } from "./enquiry-types";
 
 let s3Client: S3Client | null = null;
 

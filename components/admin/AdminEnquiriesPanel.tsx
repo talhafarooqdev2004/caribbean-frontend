@@ -1,14 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 import styles from "./AdminEnquiriesPanel.module.scss";
 
 import { Button } from "@/components/ui";
 import { Container } from "@/components/layout";
-import { type EnquiryRecord } from "@/lib/enquiries";
+import { ENQUIRY_STATUSES, type EnquiryRecord, type EnquiryStatus } from "@/lib/enquiry-types";
 import { roleOptions, territoryOptions } from "@/lib/enquiry-options";
 
 type ToastState = {
@@ -20,6 +20,35 @@ type AdminEnquiriesPanelProps = {
     initialEnquiries: EnquiryRecord[];
     initialLoadError?: string;
 };
+
+type StatusConfig = {
+    label: string;
+    description: string;
+    className: string;
+};
+
+const statusConfig: Record<EnquiryStatus, StatusConfig> = {
+    pending: {
+        label: "Pending",
+        description: "Awaiting review",
+        className: styles.statusPending,
+    },
+    approved: {
+        label: "Approved",
+        description: "Accepted by admin",
+        className: styles.statusApproved,
+    },
+    rejected: {
+        label: "Rejected",
+        description: "Declined by admin",
+        className: styles.statusRejected,
+    },
+};
+
+const statusTabs = ENQUIRY_STATUSES.map((status) => ({
+    status,
+    ...statusConfig[status],
+}));
 
 function getRoleLabel(value: string) {
     return roleOptions.find((option) => option.value === value)?.label ?? value;
@@ -36,24 +65,92 @@ function formatDate(value: string) {
     }).format(new Date(value));
 }
 
+function getActionLabel(status: EnquiryStatus) {
+    if (status === "pending") {
+        return "Approve enquiry";
+    }
+
+    return "Move back to pending";
+}
+
+function getActionLoadingLabel(status: EnquiryStatus) {
+    if (status === "pending") {
+        return "Updating...";
+    }
+
+    return "Reverting...";
+}
+
 export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError }: AdminEnquiriesPanelProps) {
     const router = useRouter();
     const [enquiries, setEnquiries] = useState(initialEnquiries);
-    const [expandedId, setExpandedId] = useState<string | null>(initialEnquiries[0]?.id ?? null);
+    const [activeTab, setActiveTab] = useState<EnquiryStatus>("pending");
+    const [expandedId, setExpandedId] = useState<string | null>(initialEnquiries.find((enquiry) => enquiry.status === "pending")?.id ?? initialEnquiries[0]?.id ?? null);
     const [toast, setToast] = useState<ToastState | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [statusAction, setStatusAction] = useState<{ id: string; status: EnquiryStatus } | null>(null);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const selectedEnquiry = useMemo(
-        () => enquiries.find((enquiry) => enquiry.id === expandedId) ?? enquiries[0] ?? null,
-        [enquiries, expandedId]
+    const counts = useMemo(() => {
+        const initialCounts: Record<"total" | EnquiryStatus, number> = {
+            total: 0,
+            pending: 0,
+            approved: 0,
+            rejected: 0,
+        };
+
+        return enquiries.reduce((accumulator, enquiry) => {
+            accumulator[enquiry.status] += 1;
+            accumulator.total += 1;
+            return accumulator;
+        }, initialCounts);
+    }, [enquiries]);
+
+    const visibleEnquiries = useMemo(
+        () => enquiries.filter((enquiry) => enquiry.status === activeTab),
+        [enquiries, activeTab]
     );
+
+    const selectedEnquiry = useMemo(
+        () => visibleEnquiries.find((enquiry) => enquiry.id === expandedId) ?? visibleEnquiries[0] ?? null,
+        [visibleEnquiries, expandedId]
+    );
+
+    const emptyStateCopy = useMemo(() => {
+        if (activeTab === "approved") {
+            return {
+                title: "No approved enquiries",
+                description: "Use the approve action on a pending enquiry to move it here.",
+            };
+        }
+
+        if (activeTab === "rejected") {
+            return {
+                title: "No rejected enquiries",
+                description: "Rejected enquiries will appear here until you move them back to pending.",
+            };
+        }
+
+        return {
+            title: "No pending enquiries",
+            description: "Applications submitted through the early access form will appear here for review.",
+        };
+    }, [activeTab]);
 
     useEffect(() => {
         setEnquiries(initialEnquiries);
-        setExpandedId(initialEnquiries[0]?.id ?? null);
     }, [initialEnquiries]);
+
+    useEffect(() => {
+        setExpandedId((current) => {
+            if (current && visibleEnquiries.some((enquiry) => enquiry.id === current)) {
+                return current;
+            }
+
+            return visibleEnquiries[0]?.id ?? null;
+        });
+    }, [visibleEnquiries]);
 
     useEffect(() => {
         if (!toast) {
@@ -92,13 +189,6 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
             const nextEnquiries = Array.isArray(payload?.enquiries) ? payload.enquiries : [];
 
             setEnquiries(nextEnquiries);
-            setExpandedId((current) => {
-                if (current && nextEnquiries.some((enquiry: EnquiryRecord) => enquiry.id === current)) {
-                    return current;
-                }
-
-                return nextEnquiries[0]?.id ?? null;
-            });
 
             setToast({
                 tone: "success",
@@ -111,6 +201,64 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
             });
         } finally {
             setIsRefreshing(false);
+        }
+    }
+
+    async function syncStatusChange(enquiryId: string, nextStatus: EnquiryStatus) {
+        setStatusAction({ id: enquiryId, status: nextStatus });
+
+        try {
+            const response = await fetch(`/api/enquiries/${enquiryId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: nextStatus,
+                }),
+            });
+
+            if (response.status === 401) {
+                router.replace("/admin/login");
+                return;
+            }
+
+            const payload = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                setToast({
+                    tone: "error",
+                    message: typeof payload?.error === "string" ? payload.error : "We could not update that enquiry.",
+                });
+                return;
+            }
+
+            const updatedEnquiry = payload?.enquiry as EnquiryRecord | undefined;
+
+            if (updatedEnquiry) {
+                setEnquiries((current) =>
+                    current.map((enquiry) => (enquiry.id === updatedEnquiry.id ? updatedEnquiry : enquiry))
+                );
+            } else {
+                await refreshEnquiries();
+            }
+
+            setToast({
+                tone: "success",
+                message:
+                    nextStatus === "approved"
+                        ? "Enquiry approved successfully."
+                        : nextStatus === "rejected"
+                            ? "Enquiry rejected successfully."
+                            : "Enquiry moved back to pending.",
+            });
+        } catch {
+            setToast({
+                tone: "error",
+                message: "We could not update that enquiry right now.",
+            });
+        } finally {
+            setStatusAction(null);
         }
     }
 
@@ -141,13 +289,7 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                 return;
             }
 
-            setEnquiries((current) => {
-                const next = current.filter((enquiry) => enquiry.id !== enquiryId);
-                if (expandedId === enquiryId) {
-                    setExpandedId(next[0]?.id ?? null);
-                }
-                return next;
-            });
+            setEnquiries((current) => current.filter((enquiry) => enquiry.id !== enquiryId));
 
             setToast({
                 tone: "success",
@@ -176,6 +318,62 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
         }
     }
 
+    function renderCardActions(enquiry: EnquiryRecord) {
+        const actionBusy = statusAction?.id === enquiry.id;
+        const isPending = enquiry.status === "pending";
+
+        return (
+            <div className={styles.cardActions}>
+                <div className={styles.actionGroup}>
+                    {isPending ? (
+                        <>
+                            <Button
+                                type="button"
+                                variant="primary"
+                                size="md"
+                                onClick={() => syncStatusChange(enquiry.id, "approved")}
+                                disabled={actionBusy || deletingId === enquiry.id}
+                            >
+                                {actionBusy && statusAction?.status === "approved" ? "Approving..." : "Approve"}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="md"
+                                onClick={() => syncStatusChange(enquiry.id, "rejected")}
+                                disabled={actionBusy || deletingId === enquiry.id}
+                            >
+                                {actionBusy && statusAction?.status === "rejected" ? "Rejecting..." : "Reject"}
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="md"
+                            onClick={() => syncStatusChange(enquiry.id, "pending")}
+                            disabled={actionBusy || deletingId === enquiry.id}
+                        >
+                            {actionBusy && statusAction?.status === "pending"
+                                ? getActionLoadingLabel(enquiry.status)
+                                : getActionLabel(enquiry.status)}
+                        </Button>
+                    )}
+
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        size="md"
+                        onClick={() => handleDelete(enquiry.id)}
+                        disabled={deletingId === enquiry.id || actionBusy}
+                    >
+                        {deletingId === enquiry.id ? "Deleting..." : "Delete"}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <section className={styles.adminPanel}>
             {initialLoadError ? (
@@ -199,7 +397,10 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                     <div>
                         <span className={styles.kicker}>Admin enquiries</span>
                         <h1>Manage media signup enquiries</h1>
-                        <p>Review submissions, open individual enquiry details, and remove spam or duplicates when needed.</p>
+                        <p>
+                            Review submissions, approve or reject them, and move them back to pending whenever you need
+                            to correct a decision.
+                        </p>
                     </div>
 
                     <div className={styles.heroActions}>
@@ -215,30 +416,52 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                 <div className={styles.statsGrid}>
                     <article className={styles.statCard}>
                         <span>Total enquiries</span>
-                        <strong>{enquiries.length}</strong>
+                        <strong>{counts.total}</strong>
                     </article>
                     <article className={styles.statCard}>
-                        <span>Latest submission</span>
-                        <strong>{selectedEnquiry ? formatDate(selectedEnquiry.createdAt) : "No enquiries yet"}</strong>
+                        <span>Pending</span>
+                        <strong>{counts.pending}</strong>
                     </article>
                     <article className={styles.statCard}>
-                        <span>Quick access</span>
-                        <strong>
-                            <Link href="/media-signup">Public application page</Link>
-                        </strong>
+                        <span>Approved</span>
+                        <strong>{counts.approved}</strong>
+                    </article>
+                    <article className={styles.statCard}>
+                        <span>Rejected</span>
+                        <strong>{counts.rejected}</strong>
                     </article>
                 </div>
 
-                {enquiries.length === 0 ? (
+                <nav className={styles.tabBar} aria-label="Enquiry status tabs">
+                    {statusTabs.map((tab) => {
+                        const isActive = activeTab === tab.status;
+
+                        return (
+                            <button
+                                key={tab.status}
+                                type="button"
+                                className={`${styles.tabButton} ${isActive ? styles.tabButtonActive : ""}`}
+                                onClick={() => setActiveTab(tab.status)}
+                                aria-pressed={isActive}
+                            >
+                                <span>{tab.label}</span>
+                                <strong>{counts[tab.status]}</strong>
+                            </button>
+                        );
+                    })}
+                </nav>
+
+                {visibleEnquiries.length === 0 ? (
                     <div className={styles.emptyState}>
-                        <h2>No enquiries yet</h2>
-                        <p>Applications submitted through the early access form will appear here automatically.</p>
+                        <h2>{emptyStateCopy.title}</h2>
+                        <p>{emptyStateCopy.description}</p>
                     </div>
                 ) : (
                     <div className={styles.contentGrid}>
                         <div className={styles.listPanel}>
-                            {enquiries.map((enquiry) => {
+                            {visibleEnquiries.map((enquiry) => {
                                 const isExpanded = enquiry.id === expandedId;
+                                const status = statusConfig[enquiry.status];
 
                                 return (
                                     <article key={enquiry.id} className={`${styles.enquiryCard} ${isExpanded ? styles.enquiryCardActive : ""}`}>
@@ -248,12 +471,14 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                                             onClick={() => setExpandedId(isExpanded ? null : enquiry.id)}
                                         >
                                             <div>
-                                                <span className={styles.enquiryName}>{enquiry.firstName} {enquiry.lastName}</span>
+                                                <span className={styles.enquiryName}>
+                                                    {enquiry.firstName} {enquiry.lastName}
+                                                </span>
                                                 <span className={styles.enquiryMeta}>{enquiry.publicationName}</span>
                                             </div>
 
                                             <div className={styles.enquirySummarySide}>
-                                                <span className={styles.badge}>{getRoleLabel(enquiry.role)}</span>
+                                                <span className={`${styles.statusBadge} ${status.className}`}>{status.label}</span>
                                                 <span className={styles.timestamp}>{formatDate(enquiry.createdAt)}</span>
                                             </div>
                                         </button>
@@ -264,6 +489,10 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                                                     <div>
                                                         <dt>Email</dt>
                                                         <dd>{enquiry.email}</dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt>Role</dt>
+                                                        <dd>{getRoleLabel(enquiry.role)}</dd>
                                                     </div>
                                                     <div>
                                                         <dt>Region</dt>
@@ -286,22 +515,12 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                                                         </dd>
                                                     </div>
                                                     <div>
-                                                        <dt>Interests</dt>
+                                                        <dt>Notes</dt>
                                                         <dd>{enquiry.notes || "Not provided"}</dd>
                                                     </div>
                                                 </dl>
 
-                                                <div className={styles.cardActions}>
-                                                    <Button
-                                                        type="button"
-                                                        variant="secondary"
-                                                        size="md"
-                                                        onClick={() => handleDelete(enquiry.id)}
-                                                        disabled={deletingId === enquiry.id}
-                                                    >
-                                                        {deletingId === enquiry.id ? "Deleting..." : "Delete enquiry"}
-                                                    </Button>
-                                                </div>
+                                                {renderCardActions(enquiry)}
                                             </div>
                                         ) : null}
                                     </article>
@@ -313,14 +532,32 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                             <span className={styles.detailLabel}>Selected enquiry</span>
                             {selectedEnquiry ? (
                                 <>
-                                    <h2>{selectedEnquiry.firstName} {selectedEnquiry.lastName}</h2>
-                                    <p>{selectedEnquiry.publicationName}</p>
+                                    <div className={styles.detailHeading}>
+                                        <div>
+                                            <h2>
+                                                {selectedEnquiry.firstName} {selectedEnquiry.lastName}
+                                            </h2>
+                                            <p>{selectedEnquiry.publicationName}</p>
+                                        </div>
+
+                                        <span className={`${styles.statusBadge} ${statusConfig[selectedEnquiry.status].className}`}>
+                                            {statusConfig[selectedEnquiry.status].label}
+                                        </span>
+                                    </div>
 
                                     <ul className={styles.detailList}>
-                                        <li><strong>Email:</strong> {selectedEnquiry.email}</li>
-                                        <li><strong>Role:</strong> {getRoleLabel(selectedEnquiry.role)}</li>
-                                        <li><strong>Region:</strong> {getRegionLabel(selectedEnquiry.region)}</li>
-                                        <li><strong>Submitted:</strong> {formatDate(selectedEnquiry.createdAt)}</li>
+                                        <li>
+                                            <strong>Email:</strong> {selectedEnquiry.email}
+                                        </li>
+                                        <li>
+                                            <strong>Role:</strong> {getRoleLabel(selectedEnquiry.role)}
+                                        </li>
+                                        <li>
+                                            <strong>Region:</strong> {getRegionLabel(selectedEnquiry.region)}
+                                        </li>
+                                        <li>
+                                            <strong>Submitted:</strong> {formatDate(selectedEnquiry.createdAt)}
+                                        </li>
                                     </ul>
 
                                     <div className={styles.detailCopy}>
@@ -345,6 +582,8 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                                         <strong>Notes</strong>
                                         <p>{selectedEnquiry.notes || "Not provided"}</p>
                                     </div>
+
+                                    {renderCardActions(selectedEnquiry)}
                                 </>
                             ) : (
                                 <p className={styles.detailEmpty}>Select an enquiry to view the full details.</p>
@@ -352,6 +591,10 @@ export default function AdminEnquiriesPanel({ initialEnquiries, initialLoadError
                         </aside>
                     </div>
                 )}
+
+                <div className={styles.footerLink}>
+                    <Link href="/media-signup">Open the public application page</Link>
+                </div>
             </Container>
         </section>
     );

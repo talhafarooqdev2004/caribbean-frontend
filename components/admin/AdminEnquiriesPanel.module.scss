@@ -61,6 +61,61 @@
     gap: $space-lg;
 }
 
+.tabBar {
+    display: grid;
+    gap: $space-sm;
+}
+
+.tabButton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-base;
+    width: 100%;
+    border: 1px solid rgba(88, 153, 226, 0.14);
+    border-radius: $radius-xl;
+    background: rgba(255, 255, 255, 0.82);
+    color: $dark-grey-900;
+    padding: 14px $space-lg;
+    box-shadow: 0 16px 30px rgba(39, 64, 96, 0.05);
+    cursor: pointer;
+    text-align: left;
+    transition:
+        transform 160ms ease,
+        border-color 160ms ease,
+        background-color 160ms ease,
+        box-shadow 160ms ease;
+
+    span {
+        font-size: $text-sm;
+        font-weight: $weight-semi-bold;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    strong {
+        min-width: 2.5rem;
+        border-radius: $radius-full;
+        background: rgba(88, 153, 226, 0.1);
+        color: $dark-blue-900;
+        padding: 6px 12px;
+        text-align: center;
+        font-size: $text-sm;
+        font-weight: $weight-semi-bold;
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+        border-color: rgba(88, 153, 226, 0.3);
+        box-shadow: 0 18px 34px rgba(39, 64, 96, 0.08);
+    }
+}
+
+.tabButtonActive {
+    border-color: rgba(88, 153, 226, 0.48);
+    background: rgba(88, 153, 226, 0.08);
+}
+
 .statCard,
 .detailPanel,
 .emptyState,
@@ -157,15 +212,28 @@
     gap: $space-sm;
 }
 
-.badge {
+.statusBadge {
     display: inline-flex;
     align-items: center;
     border-radius: $radius-full;
-    background: rgba(88, 153, 226, 0.1);
-    color: $dark-blue-900;
     padding: 6px 12px;
     font-size: $text-sm;
     font-weight: $weight-semi-bold;
+}
+
+.statusPending {
+    background: rgba(88, 153, 226, 0.1);
+    color: $dark-blue-900;
+}
+
+.statusApproved {
+    background: rgba(47, 133, 90, 0.12);
+    color: #1d4f3f;
+}
+
+.statusRejected {
+    background: rgba(185, 28, 28, 0.1);
+    color: #7f1d1d;
 }
 
 .timestamp {
@@ -204,6 +272,12 @@
     margin-top: $space-lg;
 }
 
+.actionGroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-sm;
+}
+
 .detailPanel {
     padding: $space-lg;
 
@@ -217,6 +291,13 @@
         margin-top: 6px;
         color: $grayish-blue-800;
     }
+}
+
+.detailHeading {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+    margin-top: $space-base;
 }
 
 .detailList {
@@ -255,6 +336,12 @@
     color: $grayish-blue-800;
 }
 
+.footerLink {
+    display: flex;
+    justify-content: center;
+    padding-top: $space-sm;
+}
+
 .toast {
     position: fixed;
     top: $space-lg;
@@ -288,7 +375,22 @@
     }
 
     .statsGrid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .tabBar {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .detailHeading {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: start;
+        gap: $space-lg;
+    }
+
+    .cardActions {
+        margin-top: $space-xl;
     }
 
     .contentGrid {
