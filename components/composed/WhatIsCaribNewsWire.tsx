@@ -10,7 +10,8 @@ export default function WhatIsCaribNewsWire() {
                 <div className={styles.detailSection}>
                     <h1>What is Carib Newswire?</h1>
 
-                    <p>Carib Newswire is a premium press distribution platform designed specifically for the Caribbean and its global diaspora. We help organizations share verified announcements with journalists, editors, and media professionals across the region through curated, targeted distribution.</p>
+                    <p>Carib Newswire is a press distribution platform created for the Caribbean media landscape.</p>
+                    <p>We help organizations share verified announcements with journalists, editors, and media professionals through curated, targeted distribution—so you receive stories that align with your work, not noise.</p>
 
                     <Tags>
                         <Tag>✓ Verified Submissions</Tag>

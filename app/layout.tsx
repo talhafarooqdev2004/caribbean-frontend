@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.scss";
-import { Footer, Header } from "@/components/layout";
+import { MainLayout } from "@/components/layout";
 
 const inter = Inter({
   variable: '--font-inter',
@@ -9,8 +9,16 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Caribbean News",
+  title: {
+    default: "Caribbean News",
+    template: "%s | Caribbean News",
+  },
   description: "Caribbean News",
+  icons: {
+    icon: "/images/brand-logo.svg",
+    shortcut: "/images/brand-logo.svg",
+    apple: "/images/brand-logo-white.svg",
+  },
 };
 
 export default function RootLayout({
@@ -21,9 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body>
-        <Header />
-        {children}
-        <Footer />
+        <MainLayout>
+          {children}
+        </MainLayout>
       </body>
     </html>
   );

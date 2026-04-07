@@ -7,6 +7,7 @@ import Container from "./Container";
 import { Button, SvgIcon } from "../ui";
 import Link from "next/link";
 import React from "react";
+import { smoothScrollToElement } from "@/utils/scroll";
 
 const navLinks = [
     { label: "About", href: "/about" },
@@ -15,7 +16,7 @@ const navLinks = [
     { label: "For Media", href: "/for-media" },
 ];
 
-export default function Header() {
+export default function Header({ variant = "default" }: { variant?: 'default' | 'media-sign-up' }) {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     return (
@@ -31,26 +32,34 @@ export default function Header() {
                     />
                 </Link>
 
-                <nav className={styles.desktopNav}>
-                    <ul className={styles.navList}>
-                        {navLinks.map((link) => (
-                            <li key={link.href}>
-                                <Link href={link.href}>{link.label}</Link>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
+                {variant === 'default' ? (
+                    <>
+                        <nav className={styles.desktopNav}>
+                            <ul className={styles.navList}>
+                                {navLinks.map((link) => (
+                                    <li key={link.href}>
+                                        <Link href={link.href}>{link.label}</Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
 
-                <Button className={styles.submitReleasebtn} size="md">Submit Release</Button>
+                        <Button className={styles.submitReleasebtn} size="md">Submit Release</Button>
 
-                <button
-                    className={styles.menuToggle}
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    type="button"
-                    aria-label="Toggle menu"
-                >
-                    <SvgIcon icon="menu" />
-                </button>
+                        <button
+                            className={styles.menuToggle}
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            type="button"
+                            aria-label="Toggle menu"
+                        >
+                            <SvgIcon icon="menu" />
+                        </button>
+                    </>
+                ) : (
+                    <Button size="md" className={styles.applyNowBtn} onClick={() => smoothScrollToElement("apply-for-early-access")}>
+                        Apply Now
+                    </Button>
+                )}
             </Container>
 
             {/* Mobile Menu */}

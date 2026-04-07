@@ -1,0 +1,53 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.joinTheCaribbeanMediaNetwork {
+    background-image: $linear-gradient-blue-600, url("/images/join-the-caribbean-media-network.jpg");
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
+    .joinTheCaribbeanMediaNetworkInner {
+        padding-block: 45px;
+
+        >h1 {
+            color: $white;
+            font-size: 30px;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            color: $grayish-blue-100;
+            font-size: $text-base;
+            text-align: center;
+            width: 90%;
+            margin-inline: auto;
+        }
+
+        >button {
+            margin-top: 40px;
+            gap: 15px;
+            margin-inline: auto;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .joinTheCaribbeanMediaNetworkInner {
+            padding-block: $space-4xl;
+
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            >p {
+                margin-top: $space-lg;
+                font-size: $text-lg;
+                line-height: $line-height-base;
+                width: 45%;
+            }
+        }
+    }
+}

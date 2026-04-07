@@ -1,0 +1,107 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.builtForTheCaribbean {
+    background-color: $white;
+
+    .builtForTheCaribbeanInner {
+        padding-block: 60px;
+        display: flex;
+        flex-direction: column;
+        gap: $space-4xl;
+
+        .detailSection {
+            >h1 {
+                color: $dark-grey-900;
+                font-size: 30px;
+            }
+
+            >p {
+                margin-top: $space-lg;
+                color: $grayish-blue-900;
+                font-size: $text-base;
+                line-height: $line-height-base;
+            }
+
+            .contactus {
+                margin-top: $space-lg;
+                display: flex;
+                gap: $space-md;
+                padding: $space-base $space-lg;
+                border-radius: $radius-md;
+                box-shadow: 0px 2px 4px -2px #0000001A;
+                box-shadow: 0px 4px 6px -1px #0000001A;
+
+                .contactusDetails {
+                    display: flex;
+                    flex-direction: column;
+                    gap: $space-sm;
+
+                    >span:first-of-type {
+                        color: $grayish-blue-700;
+                        font-size: $text-sm;
+                    }
+
+                    >a {
+                        color: $primary;
+                        font-size: $text-base;
+                    }
+                }
+            }
+        }
+
+        .imageWrapper {
+            position: relative;
+            border-radius: $radius-lg;
+            width: 100%;
+            height: 242px;
+            overflow: visible;
+            box-shadow: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+            z-index: 0;
+
+            &::before {
+                content: "";
+                position: absolute;
+                inset: -8px;
+                background: $linear-gradient-yellow-400;
+                filter: blur(20px);
+                opacity: 0.25;
+                z-index: -1;
+            }
+
+            .image {
+                object-fit: cover;
+                border-radius: $radius-lg;
+            }
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .builtForTheCaribbeanInner {
+            padding-block: $space-5xl;
+            flex-direction: row;
+            align-items: center;
+            gap: $space-2xl;
+            max-width: 1370px;
+
+            .detailSection {
+                >h1 {
+                    font-size: $text-section-lg;
+                }
+
+                >p {
+                    font-size: $text-lg;
+                }
+
+                >p:nth-of-type(2) {
+                    width: 90%;
+                }
+            }
+
+            .imageWrapper {
+                height: 348px;
+            }
+        }
+    }
+}

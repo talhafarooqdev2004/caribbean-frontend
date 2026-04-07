@@ -1,9 +1,7 @@
 import styles from "./HowItWorks.module.scss";
 
 import { Container } from "../layout";
-import React from "react";
-import clsx from "clsx";
-import { SvgIcon } from "../ui";
+import { HowItWorksCards, HowItWorksCard } from "./HowItWorksCards";
 
 export default function HowItWorks() {
     return (
@@ -13,66 +11,38 @@ export default function HowItWorks() {
 
                 <p>Three simple steps to reach Caribbean media professionals</p>
 
-                <Cards>
-                    <Card>
-                        <Card.Icon
+                <HowItWorksCards>
+                    <HowItWorksCard>
+                        <HowItWorksCard.Icon
                             icon="note-book"
                             className={styles.iconStep1}
                         />
-                        <Card.Tag className={styles.tagStep1}>Step 1</Card.Tag>
-                        <Card.Title>Submit Your Story</Card.Title>
-                        <Card.Description>Create your press release with our simple submission form. Add images, select categories, and target specific islands.</Card.Description>
-                    </Card>
+                        <HowItWorksCard.Tag className={styles.tagStep1}>Step 1</HowItWorksCard.Tag>
+                        <HowItWorksCard.Title>Submit Your Story</HowItWorksCard.Title>
+                        <HowItWorksCard.Description>Create your press release with our simple submission form. Add images, select categories, and target specific islands.</HowItWorksCard.Description>
+                    </HowItWorksCard>
 
-                    <Card>
-                        <Card.Icon
+                    <HowItWorksCard>
+                        <HowItWorksCard.Icon
                             icon="approve"
                             className={styles.iconStep2}
                         />
-                        <Card.Tag className={styles.tagStep2}>Step 2</Card.Tag>
-                        <Card.Title>Get Approved</Card.Title>
-                        <Card.Description>Our editorial team reviews your submission within 48 hours to ensure accuracy, relevance, and credibility.</Card.Description>
-                    </Card>
+                        <HowItWorksCard.Tag className={styles.tagStep2}>Step 2</HowItWorksCard.Tag>
+                        <HowItWorksCard.Title>Get Approved</HowItWorksCard.Title>
+                        <HowItWorksCard.Description>Our editorial team reviews your submission within 48 hours to ensure accuracy, relevance, and credibility.</HowItWorksCard.Description>
+                    </HowItWorksCard>
 
-                    <Card>
-                        <Card.Icon
+                    <HowItWorksCard>
+                        <HowItWorksCard.Icon
                             icon="media"
                             className={styles.iconStep3}
                         />
-                        <Card.Tag className={styles.tagStep3}>Step 3</Card.Tag>
-                        <Card.Title>Reach Media</Card.Title>
-                        <Card.Description>Your story is distributed to our curated network of Caribbean journalists and published in our newsroom.</Card.Description>
-                    </Card>
-                </Cards>
+                        <HowItWorksCard.Tag className={styles.tagStep3}>Step 3</HowItWorksCard.Tag>
+                        <HowItWorksCard.Title>Reach Media</HowItWorksCard.Title>
+                        <HowItWorksCard.Description>Your story is distributed to our curated network of Caribbean journalists and published in our newsroom.</HowItWorksCard.Description>
+                    </HowItWorksCard>
+                </HowItWorksCards>
             </Container>
         </section>
     );
-};
-
-const Cards = function HowItWorksCards({ children }: React.PropsWithChildren) {
-    return <div className={styles.cards}>{children}</div>;
-};
-
-const Card = function HowItWorksCard({ children }: React.PropsWithChildren) {
-    return <div className={styles.card}>{children}</div>;
-}
-
-Card.Icon = function CardIcon({ icon, className }: { icon: "note-book" | "approve" | "media", className: string }) {
-    return (
-        <div className={clsx(styles.icon, className)}>
-            <SvgIcon icon={icon} />
-        </div>
-    );
-};
-
-Card.Tag = function CardTag({ className, children }: React.PropsWithChildren<{ className: string }>) {
-    return <div className={clsx(styles.tag, className)}>{children}</div>
-};
-
-Card.Title = function CardTitle({ children }: React.PropsWithChildren) {
-    return <h2 className={styles.title}>{children}</h2>;
-};
-
-Card.Description = function CardDescription({ children }: React.PropsWithChildren) {
-    return <p className={styles.description}>{children}</p>;
 };

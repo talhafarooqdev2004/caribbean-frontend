@@ -1,0 +1,28 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - |
+          {
+            echo "MONGODB_URI=$MONGODB_URI"
+            echo "MONGODB_DB_NAME=$MONGODB_DB_NAME"
+            echo "ADMIN_USERNAME=$ADMIN_USERNAME"
+            echo "ADMIN_PASSWORD=$ADMIN_PASSWORD"
+            echo "ADMIN_AUTH_SECRET=$ADMIN_AUTH_SECRET"
+            echo "AWS_REGION=$AWS_REGION"
+            echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
+            echo "S3_BACKUP_PREFIX=$S3_BACKUP_PREFIX"
+          } >> .env.production
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*

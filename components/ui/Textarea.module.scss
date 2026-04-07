@@ -1,0 +1,33 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+
+.textarea {
+    border: none;
+    outline: none;
+    min-height: 120px;
+    background-color: $bg-form-input;
+    border-radius: $radius-sm;
+    color: $grayish-blue-600;
+    font-size: $text-md;
+    padding: 15px $space-md;
+    font-family: inherit;
+    resize: none;
+    width: 100%;
+    border: 1px solid transparent;
+
+    &:focus {
+        border-color: $dark-blue-900;
+        box-shadow: 0 0 0 3px rgba(51, 92, 129, 0.12);
+    }
+
+    &[aria-invalid='true'] {
+        border-color: #b91c1c;
+        background-color: #fff1f2;
+        color: #7f1d1d;
+    }
+
+    &::placeholder {
+        color: $grayish-blue-600;
+        opacity: 0.7;
+    }
+}

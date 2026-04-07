@@ -1,0 +1,73 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.whoThisIsFor {
+    background-color: $bg-section;
+
+    .whoThisIsForInner {
+        padding-block: 60px;
+
+        >h1 {
+            color: $dark-grey-900;
+            font-size: 30px;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            font-size: $text-base;
+            text-align: center;
+        }
+
+        >p:nth-of-type(2) {
+            margin-top: $space-xl;
+        }
+
+        .roles {
+            margin-top: $space-2xl;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: $space-base;
+
+            .role {
+                background-color: $white;
+                border: 1px solid $card-border;
+                border-radius: $radius-md;
+                padding: 18px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: $space-md;
+
+                >span {
+                    display: inline-block;
+                    color: $dark-grey-900;
+                    font-size: $text-base;
+                    text-align: center;
+                }
+            }
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .whoThisIsForInner {
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            >p {
+                font-size: $text-lg;
+                width: 58%;
+                margin-inline: auto;
+            }
+
+            .roles {
+                max-width: 920px;
+                margin-inline: auto;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+    }
+}

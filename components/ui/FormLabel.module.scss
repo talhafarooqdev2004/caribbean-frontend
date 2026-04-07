@@ -1,0 +1,7 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+
+.formLabel {
+    color: $dark-grey-900;
+    font-size: $text-md;
+}

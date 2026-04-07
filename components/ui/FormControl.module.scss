@@ -1,0 +1,7 @@
+@use "../../styles/semantic" as *;
+
+.formControl {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+}

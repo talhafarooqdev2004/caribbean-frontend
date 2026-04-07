@@ -21,88 +21,42 @@
             text-align: center;
             margin-inline: auto;
         }
+    }
+}
 
-        .cards {
-            margin-top: $space-3xl;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: $space-xl;
+.iconStep1 {
+    background: $linear-gradient-soft-blue-300;
+}
 
-            .card {
-                border: 2px solid $card-border;
-                border-radius: $radius-base;
-                padding: $space-xl;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+.iconStep2 {
+    background: $linear-gradient-blue-500;
+}
 
-                .icon {
-                    border-radius: $radius-lg;
-                    width: $space-4xl;
-                    height: $space-4xl;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
+.iconStep3 {
+    background: $linear-gradient-yellow-900;
+}
 
-                .iconStep1 {
-                    background: $linear-gradient-soft-blue-300;
-                }
+.tagStep1 {
+    color: $soft-blue-100;
+    background-color: $bg-tag;
+}
 
-                .iconStep2 {
-                    background: $linear-gradient-blue-500;
-                }
+.tagStep2 {
+    color: $dark-blue-900;
+    background-color: $dark-blue-300;
+}
 
-                .iconStep3 {
-                    background: $linear-gradient-yellow-900;
-                }
+.tagStep3 {
+    color: $yellow-600;
+    background-color: $yellow-100;
+}
 
-                .tag {
-                    margin-top: $space-lg;
-                    border-radius: $radius-full;
-                    padding: $space-xs $space-md;
-                }
+.howItWorksInner {
+    @media (min-width: map-get($breakpoints, 'md')) {
+        padding-block: $space-5xl;
 
-                .tagStep1 {
-                    color: $soft-blue-100;
-                    background-color: $bg-tag;
-                }
-
-                .tagStep2 {
-                    color: $dark-blue-900;
-                    background-color: $dark-blue-300;
-                }
-
-                .tagStep3 {
-                    color: $yellow-600;
-                    background-color: $yellow-100;
-                }
-
-                .title {
-                    margin-top: $space-base;
-                    font-size: $text-xl;
-                    font-weight: $weight-md;
-                }
-
-                .description {
-                    margin-top: $space-base;
-                    line-height: $line-height-md;
-                    font-size: $text-md;
-                    text-align: center;
-                }
-            }
-        }
-
-        @media (min-width: map-get($breakpoints, 'md')) {
-            padding-block: $space-5xl;
-
-            .cards {
-                grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            }
-
-            >h1 {
-                font-size: $text-section-lg;
-            }
+        >h1 {
+            font-size: $text-section-lg;
         }
     }
 }

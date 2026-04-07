@@ -1,6 +1,7 @@
+import styles from "./HeroSection.module.scss";
+
 import Image from "next/image";
 import { Container } from "../layout";
-import styles from "./HeroSection.module.scss";
 import { Button, SvgIcon } from "../ui";
 
 export default function HomeHeroSection() {

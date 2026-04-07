@@ -1,0 +1,101 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.whyJoinTheNetwork {
+    background-color: $white;
+
+    .whyJoinTheNetworkInner {
+        padding-block: 60px;
+
+        >h1 {
+            color: $dark-grey-900;
+            font-size: 30px;
+            text-align: center;
+        }
+
+        .reasonCards {
+            margin-top: 64px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 26px;
+
+            .reasonCard {
+                border: 2px solid $card-border;
+                border-radius: $radius-base;
+                padding: $space-lg;
+
+                .cardIconWrapper {
+                    width: 56px;
+                    height: 56px;
+                    border-radius: $radius-base;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .iconCard1 {
+                    background-color: $soft-blue-50;
+                }
+
+                .iconCard2 {
+                    background-color: $yellow-100;
+                }
+
+                .iconCard3 {
+                    background-color: $dark-blue-100;
+                }
+
+                .iconCard4 {
+                    background-color: $soft-blue-50;
+                }
+
+                >span {
+                    display: inline-block;
+                    margin-top: $space-base;
+                    color: $dark-grey-900;
+                    font-size: $text-lg;
+                }
+
+                >p {
+                    margin-top: 11px;
+                    font-size: $text-md;
+                    line-height: $line-height-sm;
+                }
+            }
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .whyJoinTheNetworkInner {
+            padding-block: 96px;
+
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            .reasonCards {
+                margin-top: 64px;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+                .reasonCard {
+                    padding: $space-xl;
+
+                    >span {
+                        line-height: $line-height-md;
+                    }
+
+                    >p {
+                        line-height: $line-height-sm;
+                    }
+                }
+
+                .reasonCard:nth-of-type(4) {
+                    >p {
+                        width: 70%;
+                    }
+                }
+            }
+        }
+    }
+}

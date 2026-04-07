@@ -1,0 +1,55 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.cards {
+    margin-top: $space-3xl;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $space-xl;
+
+    .card {
+        border: 2px solid $card-border;
+        border-radius: $radius-base;
+        padding: $space-xl;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .icon {
+            border-radius: $radius-lg;
+            width: $space-4xl;
+            height: $space-4xl;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tag {
+            margin-top: $space-lg;
+            border-radius: $radius-full;
+            padding: $space-xs $space-md;
+        }
+
+        .title {
+            margin-top: $space-base;
+            font-size: $text-xl;
+            font-weight: $weight-md;
+        }
+
+        .description {
+            margin-top: $space-base;
+            line-height: $line-height-md;
+            font-size: $text-md;
+            text-align: center;
+        }
+    }
+
+    .mediaSignup {
+        background-color: $white;
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    }
+}

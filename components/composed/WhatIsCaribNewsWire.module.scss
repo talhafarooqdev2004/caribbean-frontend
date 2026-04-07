@@ -17,9 +17,13 @@
             }
 
             >p {
-                font-size: $text-base;
+                margin-top: $space-lg;
+                font-size: $text-lg;
                 line-height: $line-height-md;
                 color: $grayish-blue-900;
+            }
+
+            >p:first-of-type {
                 margin-top: $space-lg;
             }
 

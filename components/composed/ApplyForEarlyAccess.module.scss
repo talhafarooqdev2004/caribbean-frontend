@@ -1,0 +1,118 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.applyForEarlyAccess {
+    .applyForEarlyAccessInner {
+        padding-block: 60px;
+
+        >h1 {
+            color: $dark-grey-900;
+            font-size: 30px;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            font-size: $text-base;
+            text-align: center;
+        }
+
+        .formWrapper {
+            margin-top: $space-2xl;
+            border-radius: $radius-base;
+            border: 1px solid rgba(88, 153, 226, 0.16);
+            box-shadow: 0 24px 60px rgba(39, 64, 96, 0.08);
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: $space-lg;
+
+            .form {
+                .formInner {
+                    display: flex;
+                    flex-direction: column;
+                    gap: $space-lg;
+
+                    .formRow {
+                        display: grid;
+                        grid-template-columns: 1fr;
+                        gap: $space-lg;
+                    }
+                }
+
+                .formSubmitBtn {
+                    margin-top: $space-lg;
+                    width: 100%;
+                    gap: $space-base;
+                }
+            }
+        }
+    }
+
+    .toast {
+        position: fixed;
+        right: $space-lg;
+        top: $space-lg;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        gap: $space-sm;
+        width: min(100% - 2rem, 420px);
+        border-radius: $radius-base;
+        padding: 14px $space-lg;
+        box-shadow: 0 20px 40px rgba(10, 10, 10, 0.12);
+        color: $white;
+
+        svg {
+            flex-shrink: 0;
+        }
+    }
+
+    .toastSuccess {
+        background: linear-gradient(135deg, #1d4f3f 0%, #2f855a 100%);
+    }
+
+    .toastError {
+        background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
+    }
+
+    .fieldError {
+        color: #b91c1c;
+        font-size: $text-sm;
+        margin-top: 6px;
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .applyForEarlyAccessInner {
+            padding-block: 96px;
+
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            >p {
+                font-size: $text-lg;
+                width: 55%;
+                margin-inline: auto;
+            }
+
+            .formWrapper {
+                max-width: 750px;
+                margin-inline: auto;
+                padding: 40px;
+
+                .form {
+                    .formInner {
+                        .formRow {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                        }
+                    }
+
+                    .formSubmitBtn {
+                        height: 56px;
+                    }
+                }
+            }
+        }
+    }
+}
