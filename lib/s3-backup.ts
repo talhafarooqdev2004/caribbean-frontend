@@ -61,19 +61,14 @@ function getS3Client() {
     return s3Client;
 }
 
-function buildBackupKey(enquiry: EnquiryRecord) {
-    const createdAt = new Date(enquiry.createdAt);
-    const year = createdAt.getUTCFullYear();
-    const month = String(createdAt.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(createdAt.getUTCDate()).padStart(2, "0");
-
-    return `${getS3Prefix()}${year}/${month}/${day}/${enquiry.requestId}.json`;
+function getS3ObjectKey() {
+    return `${getS3Prefix()}all-enquiries.json`;
 }
 
-export async function storeEnquiryBackup(enquiry: EnquiryRecord) {
+export async function storeEnquiriesBackup(enquiries: EnquiryRecord[]) {
     const bucket = getS3BucketName();
     const client = getS3Client();
-    const key = buildBackupKey(enquiry);
+    const key = getS3ObjectKey();
 
     await client.send(
         new PutObjectCommand({
@@ -81,8 +76,9 @@ export async function storeEnquiryBackup(enquiry: EnquiryRecord) {
             Key: key,
             Body: JSON.stringify(
                 {
-                    enquiry,
                     backupCreatedAt: new Date().toISOString(),
+                    enquiryCount: enquiries.length,
+                    enquiries,
                 },
                 null,
                 2
