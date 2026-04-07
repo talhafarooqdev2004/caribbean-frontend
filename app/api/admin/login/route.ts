@@ -23,8 +23,9 @@ export async function POST(request: NextRequest) {
         cookieStore.set("caribbean_news_admin_session", createAdminSessionToken(), getAdminCookieOptions());
 
         return Response.json({ message: "Signed in successfully." });
-    } catch {
+    } catch (error) {
+        console.error("Admin login failed.", error);
+
         return Response.json({ error: "We could not sign you in right now." }, { status: 500 });
     }
 }
-
