@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "init:enquiry-indexes": "node scripts/init-enquiry-indexes.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

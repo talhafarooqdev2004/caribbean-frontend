@@ -20,6 +20,7 @@ frontend:
             echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
             echo "S3_BACKUP_PREFIX=$S3_BACKUP_PREFIX"
           } >> .env.production
+        - npm run init:enquiry-indexes
         - npm run build
   artifacts:
     baseDirectory: .next
