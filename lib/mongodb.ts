@@ -3,6 +3,7 @@ import "server-only";
 import { MongoClient, type Db } from "mongodb";
 
 declare global {
+    var __caribbeanNewsMongoClient: MongoClient | undefined;
     var __caribbeanNewsMongoClientPromise: Promise<MongoClient> | undefined;
 }
 
@@ -20,12 +21,23 @@ export async function getDb(): Promise<Db> {
     const uri = getMongoUri();
     const dbName = process.env.MONGODB_DB_NAME || process.env.MONGODB_DB;
 
-    if (!globalThis.__caribbeanNewsMongoClientPromise) {
-        const client = new MongoClient(uri, {
-            maxPoolSize: 10,
-        });
+    if (globalThis.__caribbeanNewsMongoClient) {
+        return dbName ? globalThis.__caribbeanNewsMongoClient.db(dbName) : globalThis.__caribbeanNewsMongoClient.db();
+    }
 
-        globalThis.__caribbeanNewsMongoClientPromise = client.connect();
+    if (!globalThis.__caribbeanNewsMongoClientPromise) {
+        globalThis.__caribbeanNewsMongoClientPromise = new MongoClient(uri, {
+            maxPoolSize: 10,
+        })
+            .connect()
+            .then((client) => {
+                globalThis.__caribbeanNewsMongoClient = client;
+                return client;
+            })
+            .catch((error) => {
+                globalThis.__caribbeanNewsMongoClientPromise = undefined;
+                throw error;
+            });
     }
 
     const client = await globalThis.__caribbeanNewsMongoClientPromise;

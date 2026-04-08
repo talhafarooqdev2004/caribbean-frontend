@@ -17,36 +17,6 @@ type StoredEnquiryDocument = StoredEnquiry & {
 };
 
 const COLLECTION_NAME = "enquiries";
-let enquiryIndexesPromise: Promise<void> | null = null;
-
-async function ensureEnquiryIndexes() {
-    if (!enquiryIndexesPromise) {
-        enquiryIndexesPromise = (async () => {
-            const db = await getDb();
-            const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-
-            await Promise.all([
-                collection.createIndex({ source: 1, createdAt: -1 }),
-                collection.createIndex({ source: 1, status: 1, createdAt: -1 }),
-                collection.createIndex(
-                    { source: 1, requestId: 1 },
-                    {
-                        unique: true,
-                        partialFilterExpression: {
-                            source: "media-signup",
-                            requestId: { $type: "string" },
-                        },
-                    }
-                ),
-            ]);
-        })().catch((error) => {
-            enquiryIndexesPromise = null;
-            throw error;
-        });
-    }
-
-    await enquiryIndexesPromise;
-}
 
 function normalizeEnquiryStatus(status: StoredEnquiryStatus | undefined | null): EnquiryStatus {
     if (status === "approved" || status === "rejected") {
@@ -71,7 +41,6 @@ function serializeEnquiry(enquiry: WithId<StoredEnquiry>): EnquiryRecord {
 export async function insertEnquiry(input: EnquirySubmissionValues) {
     const db = await getDb();
     const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-    await ensureEnquiryIndexes();
     const now = new Date();
 
     const document: StoredEnquiryDocument = {
@@ -116,7 +85,6 @@ export async function insertEnquiry(input: EnquirySubmissionValues) {
 export async function listEnquiries() {
     const db = await getDb();
     const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-    await ensureEnquiryIndexes();
     const enquiries = await collection.find({ source: "media-signup" }).sort({ createdAt: -1 }).toArray();
 
     return enquiries.map(serializeEnquiry);
@@ -132,7 +100,6 @@ export async function deleteEnquiryById(id: string) {
 
     const db = await getDb();
     const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-    await ensureEnquiryIndexes();
     const result = await collection.deleteOne({ _id: new ObjectId(id), source: "media-signup" });
 
     return {
@@ -153,7 +120,6 @@ export async function setEnquiryStatusById(id: string, status: EnquiryStatus) {
 
     const db = await getDb();
     const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-    await ensureEnquiryIndexes();
 
     const updatedEnquiry = await collection.findOneAndUpdate(
         {
