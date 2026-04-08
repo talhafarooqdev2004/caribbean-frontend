@@ -2,6 +2,7 @@ import "server-only";
 
 import {
     DeleteObjectsCommand,
+    GetObjectCommand,
     ListObjectsV2Command,
     PutObjectCommand,
     S3Client,
@@ -75,6 +76,71 @@ function getS3EntriesPrefix() {
     return `${getS3Prefix()}entries/`;
 }
 
+function toMergeKey(enquiry: EnquiryRecord) {
+    if (typeof enquiry.requestId === "string" && enquiry.requestId.trim().length > 0) {
+        return `requestId:${enquiry.requestId}`;
+    }
+
+    return `id:${enquiry.id}`;
+}
+
+function mergeEnquiries(existing: EnquiryRecord[], incoming: EnquiryRecord[]) {
+    const merged = new Map<string, EnquiryRecord>();
+
+    for (const enquiry of existing) {
+        merged.set(toMergeKey(enquiry), enquiry);
+    }
+
+    // Keep records permanently, but apply fresh values when a record already exists.
+    for (const enquiry of incoming) {
+        merged.set(toMergeKey(enquiry), enquiry);
+    }
+
+    return Array.from(merged.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+async function getExistingBackupEnquiries() {
+    const bucket = getS3BucketName();
+    const client = getS3Client();
+    const key = getS3ObjectKey();
+
+    try {
+        const response = await client.send(
+            new GetObjectCommand({
+                Bucket: bucket,
+                Key: key,
+            })
+        );
+
+        const bodyText = await response.Body?.transformToString();
+
+        if (!bodyText) {
+            return [];
+        }
+
+        const parsed = JSON.parse(bodyText) as { enquiries?: unknown };
+
+        if (!Array.isArray(parsed.enquiries)) {
+            return [];
+        }
+
+        return parsed.enquiries as EnquiryRecord[];
+    } catch (error) {
+        const statusCode = typeof error === "object" && error !== null && "$metadata" in error
+            ? (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode
+            : undefined;
+        const errorName = typeof error === "object" && error !== null && "name" in error
+            ? String((error as { name?: unknown }).name)
+            : "";
+
+        if (statusCode === 404 || errorName === "NoSuchKey") {
+            return [];
+        }
+
+        throw error;
+    }
+}
+
 async function removeLegacyEntriesBackups() {
     const bucket = getS3BucketName();
     const client = getS3Client();
@@ -113,6 +179,8 @@ export async function storeEnquiriesBackup(enquiries: EnquiryRecord[]) {
     const bucket = getS3BucketName();
     const client = getS3Client();
     const key = getS3ObjectKey();
+    const existingEnquiries = await getExistingBackupEnquiries();
+    const mergedEnquiries = mergeEnquiries(existingEnquiries, enquiries);
 
     await client.send(
         new PutObjectCommand({
@@ -121,8 +189,8 @@ export async function storeEnquiriesBackup(enquiries: EnquiryRecord[]) {
             Body: JSON.stringify(
                 {
                     backupCreatedAt: new Date().toISOString(),
-                    enquiryCount: enquiries.length,
-                    enquiries,
+                    enquiryCount: mergedEnquiries.length,
+                    enquiries: mergedEnquiries,
                 },
                 null,
                 2
