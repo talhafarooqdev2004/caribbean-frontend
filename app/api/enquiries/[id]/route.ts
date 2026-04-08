@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import { after, type NextRequest } from "next/server";
 
 import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from "@/lib/admin-auth";
 import {
@@ -6,10 +6,9 @@ import {
     deleteEnquiryById,
     rejectEnquiryById,
     revertEnquiryById,
-    listEnquiries,
 } from "@/lib/enquiries";
 import { type EnquiryStatus } from "@/lib/enquiry-types";
-import { storeEnquiriesBackup } from "@/lib/s3-backup";
+import { syncEnquiriesToS3, syncEnquiriesToS3AfterDelete } from "@/lib/s3-backup";
 
 export const runtime = "nodejs";
 
@@ -19,13 +18,24 @@ type RouteContext = {
     }>;
 };
 
-async function syncEnquiriesBackup() {
-    try {
-        const enquiries = await listEnquiries();
-        await storeEnquiriesBackup(enquiries);
-    } catch (error) {
-        console.error("Failed to refresh S3 enquiry backup after admin action.", error);
-    }
+function scheduleEnquiriesS3Sync() {
+    after(async () => {
+        try {
+            await syncEnquiriesToS3();
+        } catch (error) {
+            console.error("Failed to refresh S3 enquiry backup after admin action.", error);
+        }
+    });
+}
+
+function scheduleEnquiriesS3SyncAfterDelete() {
+    after(async () => {
+        try {
+            await syncEnquiriesToS3AfterDelete();
+        } catch (error) {
+            console.error("Failed to refresh S3 enquiry backup after admin action.", error);
+        }
+    });
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
@@ -45,7 +55,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
             return Response.json({ error: "Enquiry not found." }, { status: 404 });
         }
 
-        await syncEnquiriesBackup();
+        scheduleEnquiriesS3SyncAfterDelete();
 
         return Response.json({ message: "Enquiry deleted." });
     } catch {
@@ -98,7 +108,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             return Response.json({ error: "Enquiry not found." }, { status: 404 });
         }
 
-        await syncEnquiriesBackup();
+        scheduleEnquiriesS3Sync();
 
         return Response.json({
             message: `Enquiry marked as ${status}.`,
