@@ -238,8 +238,33 @@ async function loadPolicy(origin: string): Promise<{ restrictEnabled: boolean; a
     }
 }
 
+/**
+ * TEMPORARY testing gate — set to `false` or remove after you are done (~1 hour).
+ * When `true`: every request (except `/maintenance`, `/_next/*`, internal site-access, favicon, common static ext)
+ * redirects to `/maintenance` so you can verify the page locally without IP allowlist.
+ * Runs first so it does not fight the `/maintenance` → `/` bounce when IP allowlist is off on localhost.
+ */
+const TEMP_FORCE_MAINTENANCE_FOR_TESTING = true;
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
+
+    if (TEMP_FORCE_MAINTENANCE_FOR_TESTING) {
+        if (pathname.startsWith("/maintenance")) {
+            return NextResponse.next();
+        }
+
+        if (
+            pathname.startsWith("/api/internal/site-access")
+            || pathname.startsWith("/_next/")
+            || pathname === "/favicon.ico"
+            || /\.(?:ico|svg|png|jpg|jpeg|gif|webp|woff2?)$/i.test(pathname)
+        ) {
+            return NextResponse.next();
+        }
+
+        return NextResponse.redirect(new URL("/maintenance", request.url), 307);
+    }
 
     /**
      * `/maintenance` must not short-circuit before `shouldRunSiteIpAllowlist`, otherwise a previous redirect
