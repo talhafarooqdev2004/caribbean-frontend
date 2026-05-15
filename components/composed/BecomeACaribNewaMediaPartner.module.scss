@@ -1,0 +1,188 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.becomeAPartner {
+    position: relative;
+    overflow: hidden;
+    background-image:
+        $linear-gradient-blue-300,
+        url("/images/want-to-be-featured.jpg");
+
+    background-repeat: no-repeat, no-repeat;
+    background-size: cover, 600%;
+    background-position: center, center 200%;
+
+    .becomeAPartnerInner {
+        padding-block: 28px 36px;
+        display: flex;
+        flex-direction: column;
+
+        .detailsSection {
+            >h1 {
+                color: $white;
+                font-size: $text-section;
+                line-height: 40px;
+            }
+
+            >p {
+                margin-top: 23px;
+                color: $white;
+                font-size: $text-xl;
+                line-height: $line-height-base;
+                width: 80%;
+            }
+
+            .points {
+                margin-top: $space-lg;
+                display: flex;
+                flex-direction: column;
+                gap: $space-base;
+
+                .point {
+                    display: flex;
+                    align-items: center;
+                    gap: $space-md;
+                    color: $white;
+                    font-size: $text-base;
+                }
+            }
+        }
+    }
+
+    .formCard {
+        margin-top: $space-2xl;
+        scroll-margin-top: 96px;
+        width: min(100%, 420px);
+        border-radius: $radius-base;
+        background-color: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 18px 40px rgba(14, 35, 64, 0.26);
+        padding: 38px 40px $space-sm;
+
+        >h1 {
+            font-size: $text-xl;
+        }
+
+        .form {
+            margin-top: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: $space-base;
+
+            .formRow {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: $space-base;
+            }
+        }
+
+        .submitButton {
+            width: 100%;
+        }
+
+        .briefBioTextarea {
+            min-height: 66px;
+            padding-top: 13px;
+        }
+
+        .disclaimer {
+            width: 80%;
+            margin: 16px auto 0;
+            color: $grayish-blue-700;
+            font-size: $text-xs;
+            line-height: 16px;
+            text-align: center;
+        }
+    }
+
+    .fieldError {
+        margin-top: -2px;
+        color: #b91c1c;
+        font-size: $text-sm;
+    }
+
+    .toast {
+        position: fixed;
+        right: $space-lg;
+        top: $space-lg;
+        z-index: 40;
+        width: min(calc(100% - 2rem), 420px);
+        border-radius: $radius-base;
+        padding: 14px $space-lg;
+        box-shadow: 0 20px 40px rgba(10, 10, 10, 0.12);
+        color: $white;
+    }
+
+    .toastSuccess {
+        background: linear-gradient(135deg, #1d4f3f 0%, #2f855a 100%);
+    }
+
+    .toastError {
+        background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
+    }
+
+    @media (min-width: map-get($breakpoints, "md")) {
+        background-repeat: no-repeat, no-repeat;
+        background-size: cover;
+        background-position: center;
+
+        .becomeAPartnerInner {
+            max-width: 1370px;
+            padding-block: 95px;
+        }
+
+        .becomeAPartnerInner {
+            flex-direction: row;
+            align-items: center;
+            gap: $space-2xl;
+
+            .detailsSection {
+                flex: 1;
+
+                >h1 {
+                    font-size: $text-section-lg;
+                    line-height: 48px;
+                    width: 90%;
+                }
+            }
+        }
+
+        .formCard {
+            margin-top: 0px;
+            flex: 1;
+            padding: 40px 40px $space-lg;
+
+            .form {
+                .formRow {
+                    grid-template-columns: 1fr 1fr;
+                }
+            }
+
+            .disclaimer {
+                width: 70%;
+            }
+        }
+    }
+}
+
+.signupSuccess {
+    margin-top: $space-lg;
+    padding: $space-base;
+    border-radius: $radius-sm;
+    background-color: rgba(47, 133, 90, 0.08);
+    color: $primary;
+
+    p {
+        margin: 0 0 $space-sm;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    a {
+        color: $primary;
+        font-weight: $weight-semi-bold;
+        text-decoration: underline;
+    }
+}

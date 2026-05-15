@@ -1,0 +1,81 @@
+@use '../../styles/primitive' as *;
+@use '../../styles/semantic' as *;
+@use '../../styles/breakpoints' as *;
+
+.whyJoin {
+    background-color: $bg-section;
+
+    .whyJoinInner {
+        padding-block: 25px;
+
+        >h1 {
+            font-size: $text-section;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            font-size: $text-base;
+            line-height: $line-height-md;
+            text-align: center;
+        }
+
+        .whyJoinCards {
+            margin-top: 64px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: $space-xl;
+
+            .whyJoinCard {
+                background-color: $white;
+                border-radius: $radius-base;
+                padding: $space-xl;
+                box-shadow: 0px 20px 25px -5px #0000001A;
+                display: flex;
+                gap: $space-base;
+
+                .iconWrapper {
+                    flex-shrink: 0;
+                    width: 64px;
+                    height: 64px;
+                    border-radius: $radius-lg;
+                    background: $linear-gradient-blue-400;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .cardTitle {
+                    font-weight: $weight-md;
+                    font-size: $text-lg;
+                    line-height: $line-height-md;
+                }
+
+                .cardDescription {
+                    margin-top: 7px;
+                    font-size: $text-md;
+                    line-height: 26px;
+                }
+            }
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .whyJoinInner {
+            padding-block: $space-5xl;
+
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            >p {
+                width: 60%;
+                margin-inline: auto;
+            }
+
+            .whyJoinCards {
+                grid-template-columns: repeat(auto-fit, minmax(590px, 1fr));
+            }
+        }
+    }
+}

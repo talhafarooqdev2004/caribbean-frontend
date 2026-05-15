@@ -17,4 +17,7 @@ export type EnquiryRecord = Omit<StoredEnquiry, "_id" | "createdAt" | "updatedAt
     id: string;
     createdAt: string;
     updatedAt: string;
+    /** ISO timestamp when a portal account was provisioned from this signup (admin invite flow). */
+    portalInvitedAt?: string | null;
+    portalUserId?: string | null;
 };

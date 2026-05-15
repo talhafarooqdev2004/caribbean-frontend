@@ -1,0 +1,89 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.whatIsCaribNewsWire {
+    background-color: $white;
+
+    .whatIsCaribNewsWireInner {
+        padding-block: $space-xl;
+        display: flex;
+        flex-direction: column;
+        gap: $space-lg;
+
+        .detailSection {
+            >p {
+                margin-top: $space-lg;
+                font-size: $text-base;
+                color: $grayish-blue-900;
+            }
+
+            .membershipForMedia {
+                margin-top: $space-lg;
+                display: flex;
+                align-items: center;
+                gap: $space-md;
+                background: $linear-gradient-yellow-500;
+                box-shadow: 0px 10px 15px -3px #0000001A;
+                border-radius: $radius-base;
+                padding: 16px 26px;
+
+                >p {
+                    font-weight: $weight-semi-bold;
+                    font-size: $text-base;
+                    line-height: $line-height-md;
+                }
+            }
+        }
+
+        .imageWrapper {
+            position: relative;
+            border-radius: $radius-lg;
+            width: 100%;
+            height: 500px;
+            overflow: visible;
+            box-shadow: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+            z-index: 0;
+
+            &::before {
+                content: "";
+                position: absolute;
+                inset: -8px;
+                background: $linear-gradient-yellow-400;
+                filter: blur(12px);
+                opacity: 0.22;
+                z-index: -1;
+            }
+
+            .image {
+                object-fit: cover;
+                border-radius: $radius-lg;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .whatIsCaribNewsWireInner {
+            padding-block: 95px;
+            flex-direction: row;
+            align-items: center;
+            gap: $space-2xl;
+
+            .detailSection {
+                flex: 1;
+
+                >h1 {
+                    font-size: $text-section-lg;
+                }
+
+                .membershipForMedia {
+                    width: max-content;
+                }
+            }
+
+            .imageWrapper {
+                flex: 1;
+            }
+        }
+    }
+}

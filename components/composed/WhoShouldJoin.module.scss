@@ -1,0 +1,80 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.whoThisIsFor {
+    background-color: $white;
+
+    .whoThisIsForInner {
+        padding-block: 25px;
+
+        >h1 {
+            font-size: $text-section;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            font-size: $text-base;
+            text-align: center;
+        }
+
+        .roles {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: $space-lg;
+
+            .role {
+                background-color: $white;
+                border: 1px solid $card-border;
+                border-radius: $radius-base;
+                padding: $space-lg;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: $space-md;
+
+                .iconWrapper {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: $radius-base;
+                    background-color: $soft-blue-50;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                >span {
+                    display: inline-block;
+                    color: $grayish-blue-900;
+                    font-size: $text-md;
+                    line-height: 24px;
+                    text-align: center;
+                }
+            }
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .whoThisIsForInner {
+            padding-top: 95px;
+
+            >h1 {
+                font-size: $text-section-lg;
+            }
+
+            .roles {
+                margin-top: 64px;
+                max-width: 970px;
+                margin-inline: auto;
+                grid-template-columns: repeat(auto-fit, minmax(303px, 1fr));
+
+                .role>span {
+                    width: 80%;
+                }
+            }
+        }
+    }
+}

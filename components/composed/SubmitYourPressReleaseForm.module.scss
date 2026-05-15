@@ -1,0 +1,624 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.submitPage {
+  background-color: $bg-section;
+}
+
+.submitInner {
+  padding-block: 48px 16px;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.summaryColumn {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.formPanel {
+  order: 2;
+}
+
+.formPanel,
+.summaryCard,
+.helpCard {
+  border: 1px solid #0000001a;
+  border-radius: $radius-base;
+  background-color: $white;
+}
+
+.summaryCard,
+.helpCard {
+  padding: 24px;
+}
+
+.formPanel {
+  padding: 24px;
+}
+
+.panelEyebrow {
+  font-size: 16px;
+  line-height: 16px;
+  font-weight: $weight-md;
+}
+
+.form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sectionHeader,
+.sectionHeaderPlain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  h2 {
+    color: #101828;
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: $weight-semi-bold;
+  }
+}
+
+.sectionHeaderPlain {
+  margin-top: 2px;
+}
+
+.formGrid,
+.detailsStack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.detailsStack {
+  gap: 16px;
+}
+
+.sectionDivider {
+  margin-block: 24px;
+  border-top: 1px solid #eef2f7;
+}
+
+.fieldError {
+  color: #b91c1c;
+  font-size: $text-sm;
+  margin-top: -2px;
+}
+
+.selectField {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background-color: $white;
+  /* Extra right padding so the native dropdown chevron sits inset from the border */
+  padding: 10px 44px 10px 12px;
+  color: #101828;
+  font: inherit;
+}
+
+.wordCounter {
+  margin-top: 6px;
+  color: #667085;
+  font-size: $text-sm;
+  text-align: right;
+}
+
+.wordCounterError {
+  color: #b91c1c;
+  font-weight: $weight-semi-bold;
+}
+
+.contentTextarea {
+  line-height: 1.4;
+}
+
+.toast {
+  position: sticky;
+  top: 12px;
+  z-index: 10;
+  margin: 0 auto;
+  width: min(760px, calc(100% - 24px));
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: $text-sm;
+  font-weight: $weight-md;
+}
+
+.toastSuccess {
+  background-color: #ecfdf3;
+  border: 1px solid #abefc6;
+  color: #067647;
+}
+
+.toastError {
+  background-color: #fef3f2;
+  border: 1px solid #fecdca;
+  color: #b42318;
+}
+
+.uploadField {
+  min-height: 144px;
+  border: 2px dashed #d1d5dc;
+  border-radius: 12px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+  color: #5b95db;
+
+  &:hover {
+    border-color: #b7c9dc;
+    background-color: #f8fbff;
+  }
+
+  strong {
+    color: #364153;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: $weight-md;
+  }
+
+  span,
+  small {
+    color: #6a7282;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  small {
+    color: #6d7889;
+    max-width: 400px;
+  }
+}
+
+.coverUploadField {
+  min-height: 242px;
+}
+
+.documentUploadField {
+  min-height: 148px;
+  color: #98a3b6;
+
+  strong {
+    color: #556277;
+  }
+}
+
+.uploadFieldActive {
+  border-color: #5b95db;
+  background-color: #f3f8ff;
+}
+
+.hiddenFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.submissionMessage {
+  margin-top: 16px;
+  color: #4c5b75;
+  font-size: $text-sm;
+  line-height: 1.45;
+}
+
+.summaryCard>h2 {
+  color: #2f4d77;
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: $weight-md;
+}
+
+.helpCard>h2 {
+  color: #101828;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: $weight-md;
+}
+
+.summaryBlock {
+  margin-top: 25px;
+}
+
+.summaryLabel {
+  display: inline-block;
+  color: #364153;
+  font-size: $text-sm;
+  line-height: 20px;
+  font-weight: $weight-md;
+}
+
+.packageList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.packageOption {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background-color: $white;
+  padding: 12px 36px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: #101828;
+    font-size: $text-sm;
+    line-height: 20px;
+    font-weight: $weight-md;
+  }
+
+  span {
+    color: #4a5565;
+    font-size: $text-xs;
+    line-height: 16px;
+  }
+}
+
+.packageOptionActive {
+  border: 1px solid #5899e2;
+  background-color: #5899e20d;
+}
+
+.summaryDivider {
+  margin-block: 22px 18px;
+  border-top: 1px solid #edf1f5;
+}
+
+.addOnCard {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background-color: $white;
+  padding: 14px 16px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+
+  strong {
+    color: #101828;
+    font-size: $text-sm;
+    line-height: 20px;
+    font-weight: $weight-md;
+  }
+
+  p {
+    margin-top: 6px;
+    color: #556277;
+    font-size: $text-xs;
+    line-height: 16px;
+  }
+}
+
+.addOnCardActive {
+  border-color: #5b95db;
+  background-color: #f6faff;
+}
+
+.labelWithBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addOnBadge {
+  top: 14px;
+  right: 14px;
+  min-height: 26px;
+  padding-inline: 10px;
+  border-radius: 4px;
+  background-color: #ffc40033;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: $weight-md;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.totalsBlock {
+  margin-top: 0;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryDividerPackage {
+  margin-block: 22px 20px;
+  border-top: 1px solid #edf1f5;
+}
+
+.summaryDividerTotal {
+  margin-block: 8px;
+  border-top: 1px solid #edf1f5;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+
+  span,
+  strong {
+    color: #4a5565;
+    font-size: $text-sm;
+    line-height: 20px;
+  }
+
+  strong {
+    color: #101828;
+    font-size: 16px;
+    font-weight: $weight-semi-bold;
+  }
+}
+
+.summaryTotalRow {
+  margin-top: 2px;
+
+  span {
+    color: $dark-blue-800;
+    font-size: 19px;
+    font-weight: $weight-semi-bold;
+  }
+
+  strong {
+    color: #5899e2;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: $weight-bold;
+  }
+}
+
+.includedCard {
+  margin-top: 16px;
+  border-radius: 10px;
+  background-color: #f9fafb;
+  padding: 16px;
+
+  >strong {
+    display: block;
+    color: #101828;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: $weight-semi-bold;
+  }
+
+  ul {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #364153;
+    font-size: 12px;
+    line-height: 16px;
+
+    svg {
+      flex-shrink: 0;
+      color: #5b95db;
+    }
+  }
+}
+
+.continueButton {
+  width: 100%;
+  margin-top: 16px;
+  border-radius: 10px;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: $weight-md;
+  /* Match Button `md` height so "Saving…" does not shrink the control vs longer labels. */
+  min-height: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.secureNote {
+  margin-top: 16px;
+  color: #6a7282;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.creditWarning {
+  margin-top: 12px;
+  border-radius: 10px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: #991b1b;
+    font-size: $text-sm;
+  }
+
+  span {
+    color: #7f1d1d;
+    font-size: $text-sm;
+  }
+}
+
+.helpCard {
+  p {
+    margin-top: 8px;
+    color: #556277;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  a {
+    display: inline-block;
+    margin-top: 18px;
+    color: #5b95db;
+    font-size: 12px;
+    line-height: 1.45;
+    text-decoration: none;
+    word-break: break-word;
+  }
+}
+
+.walletCreditCard {
+  margin-top: 12px;
+  border: 1px solid #e8edf3;
+  border-radius: $radius-sm;
+  padding: 16px 16px 18px;
+  background: #f8fafc;
+  font-size: $text-sm;
+  line-height: 1.45;
+  color: #274060;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.walletExpiry {
+  color: #667085;
+  font-size: $text-xs;
+}
+
+.previewButton {
+  width: 100%;
+  margin-top: $space-sm;
+  font-size: 14px;
+  font-weight: $weight-md;
+}
+
+.previewOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-lg;
+}
+
+.previewDialog {
+  width: min(420px, 100%);
+  max-height: min(92vh, 760px);
+  overflow: auto;
+  background: $white;
+  border-radius: $radius-base;
+  padding: $space-xl;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+}
+
+.previewTitle {
+  margin: 0 0 $space-xs;
+  font-size: $text-xl;
+  color: $primary;
+}
+
+.previewSubtitle {
+  margin: 0 0 $space-md;
+  font-size: $text-sm;
+  color: #667085;
+  line-height: 1.45;
+}
+
+.previewNewsSlot {
+  margin: 0 auto;
+  margin-top: $space-md;
+  max-width: 380px;
+}
+
+.previewReadHint {
+  margin: $space-sm 0 0;
+  text-align: center;
+  font-size: $text-xs;
+  color: #667085;
+  line-height: 1.4;
+}
+
+.previewActions {
+  margin-top: $space-lg;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+  justify-content: flex-end;
+}
+
+@media (min-width: map-get($breakpoints, "lg")) {
+  .submitInner {
+    padding-block: 48px;
+    max-width: 1280px;
+  }
+
+  .contentGrid {
+    grid-template-columns: minmax(0, 1.18fr) minmax(290px, 332px);
+    gap: 36px;
+  }
+
+  .summaryColumn {
+    order: 2;
+    position: sticky;
+    top: 26px;
+  }
+
+  .formPanel {
+    order: 1;
+    padding: 24px 26px 26px;
+  }
+}

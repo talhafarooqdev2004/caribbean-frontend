@@ -8,15 +8,20 @@ import {
     ReadyToShareYourNews,
     WhatIsCaribNewsWire
 } from "@/components/composed";
+import { type PressReleaseRecord } from "@/lib/press-release-types";
 
-export default function HomeClientPage() {
+type HomeClientPageProps = {
+    latestReleases?: PressReleaseRecord[];
+};
+
+export default function HomeClientPage({ latestReleases = [] }: HomeClientPageProps) {
     return (
         <>
             <HomeHeroSection />
             <BrandMetrics />
             <WhatIsCaribNewsWire />
             <HowItWorks />
-            <LatestNews />
+            <LatestNews releases={latestReleases} />
             <ReadyToShareYourNews />
         </>
     );

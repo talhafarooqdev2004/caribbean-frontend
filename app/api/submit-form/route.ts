@@ -1,7 +1,6 @@
-import { after, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
 import { insertEnquiry, validateAndInsertableEnquiry } from "@/lib/enquiries";
-import { syncEnquiriesToS3 } from "@/lib/s3-backup";
 
 export const runtime = "nodejs";
 
@@ -50,14 +49,6 @@ export async function POST(request: NextRequest) {
         const enquiry = await insertEnquiry({
             ...values,
             requestId,
-        });
-
-        after(async () => {
-            try {
-                await syncEnquiriesToS3();
-            } catch (error) {
-                console.error("Failed to write S3 enquiry backup.", error);
-            }
         });
 
         return Response.json(

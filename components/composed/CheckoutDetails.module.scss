@@ -1,0 +1,402 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.checkoutSection {
+    background-color: $bg-section;
+
+    .checkoutInner {
+        padding-block: 30px;
+
+        >h1 {
+            color: $primary;
+            font-size: $text-3xl;
+            line-height: 1.12;
+            font-weight: $weight-md;
+        }
+
+        .toast {
+            margin-top: $space-base;
+            width: 100%;
+            max-width: min(760px, 100%);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: $text-sm;
+            font-weight: $weight-md;
+            line-height: 1.45;
+        }
+
+        .toastError {
+            background-color: #fef3f2;
+            border: 1px solid #fecdca;
+            color: #b42318;
+        }
+    }
+
+    .checkoutGrid {
+        margin-top: $space-lg;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: $space-lg;
+        align-items: start;
+        min-width: 0;
+    }
+
+    .checkoutMainColumn {
+        display: flex;
+        flex-direction: column;
+        gap: $space-lg;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .card,
+    .summaryCard {
+        border-radius: $radius-md;
+        background-color: $white;
+    }
+
+    .card {
+        padding: $space-lg;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .summaryCard {
+        padding: $space-lg;
+    }
+
+    h2 {
+        font-size: $text-xl;
+        line-height: $line-height-base;
+    }
+
+    .orderItemRow {
+        margin-top: $space-lg;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .orderItemDetails {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        strong,
+        span {
+            font-size: $text-base;
+            line-height: 28px;
+        }
+
+        strong {
+            font-weight: $weight-md;
+        }
+
+        span {
+            font-size: $text-md;
+            color: $grayish-blue-800;
+        }
+    }
+
+    .orderItemActions {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        gap: $space-lg;
+        color: $primary;
+        flex-shrink: 0;
+    }
+
+    .quantityButton,
+    .removeButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: inherit;
+    }
+
+    .quantityButton {
+        width: 18px;
+        height: 18px;
+
+        &:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+    }
+
+    .quantityValue,
+    .orderLineTotal {
+        font-size: $text-base;
+        line-height: 1;
+    }
+
+    .quantityValue {
+        min-width: 18px;
+        text-align: center;
+    }
+
+    .orderLineTotal {
+        margin-left: 6px;
+        font-weight: $weight-regular;
+    }
+
+    .removeButton {
+        margin-left: 4px;
+        color: #ef4444;
+    }
+
+    .emptyOrderState {
+        margin-top: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+
+        p {
+            font-size: $text-base;
+        }
+    }
+
+    .orderLoading {
+        margin-top: $space-lg;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: $text-base;
+        color: $grayish-blue-800;
+    }
+
+    .orderLoadingSpinner {
+        flex-shrink: 0;
+        animation: checkoutPaySpin 0.75s linear infinite;
+    }
+
+    .orderLoadError {
+        margin-top: $space-lg;
+        font-size: $text-base;
+        color: #b91c1c;
+    }
+
+    .restoreButton {
+        width: fit-content;
+        padding-inline: 20px;
+    }
+
+    /**
+     * Matches Square’s web-payments-quickstart `public/app.css` (#payment-form):
+     * keeps the card field width in the range their SDK expects for layout.
+     * @see https://github.com/square/web-payments-quickstart/blob/main/public/app.css
+     */
+    .checkoutPaymentForm {
+        max-width: min(100%, 550px);
+        width: 100%;
+    }
+
+    .form {
+        margin-top: $space-lg;
+        display: flex;
+        flex-direction: column;
+        gap: $space-base;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .squareCardWrap {
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: visible;
+        /* Small floor so the loading overlay has a tap target; height grows with Square’s content */
+        min-height: 72px;
+    }
+
+    /**
+     * Square mounts here — do not set a large min-height or the box stays tall while the
+     * iframe content stays short (empty band under the fields). Let height follow the widget;
+     * use recalculateSize() when layout changes.
+     */
+    .squareCardContainer {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #d0d5dd;
+        border-radius: 8px;
+        background-color: $white;
+        overflow: visible;
+        height: fit-content;
+    }
+
+    .squareCardSuspenseOverlay {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.96);
+        border-radius: 8px;
+        pointer-events: none;
+    }
+
+    .formRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .fieldError {
+        color: #b91c1c;
+        font-size: $text-sm;
+        margin-top: -2px;
+    }
+
+    .paymentFieldHint {
+        margin-top: 8px;
+        font-size: $text-sm;
+        line-height: 1.45;
+        color: #667085;
+    }
+
+    .squareRetryButton {
+        width: fit-content;
+        margin-top: 10px;
+    }
+
+    .summaryRow {
+        margin-top: $space-lg;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+
+        span,
+        strong {
+            color: $grayish-blue-800;
+            font-size: 17px;
+            line-height: 1.35;
+        }
+    }
+
+    .summaryRow:nth-of-type(2) {
+        margin-top: 20px;
+    }
+
+    .summaryDivider {
+        margin-top: $space-lg;
+        border: 0;
+        border-top: 1px solid $grayish-blue-100;
+    }
+
+    .summaryTotalRow {
+        strong {
+            color: #2f4d77;
+            font-size: 22px;
+            font-weight: $weight-regular;
+        }
+    }
+
+    .payButton {
+        width: 100%;
+        margin-top: $space-lg;
+        border-radius: 8px;
+        background: #5b95db;
+        box-shadow: none;
+        font-size: $text-base;
+        font-weight: $weight-md;
+    }
+
+    .payButtonBusy {
+        cursor: wait;
+        opacity: 0.95;
+    }
+
+    .payButtonContent {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .payButtonSpinner {
+        flex-shrink: 0;
+        animation: checkoutPaySpin 0.75s linear infinite;
+    }
+
+    @keyframes checkoutPaySpin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .secureNote {
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: #8a8f9f;
+        font-size: 12px;
+        line-height: 1.35;
+        text-align: center;
+
+        svg {
+            flex-shrink: 0;
+        }
+    }
+
+    .submissionMessage {
+        margin-top: 12px;
+        color: $grayish-blue-800;
+        font-size: $text-sm;
+        line-height: 1.45;
+        text-align: center;
+    }
+
+    @media (min-width: map-get($breakpoints, "md")) {
+        .checkoutInner {
+            padding-block: $space-2xl;
+
+            >h1 {
+                font-size: $text-section;
+            }
+        }
+
+        .checkoutGrid {
+            margin-top: 32px;
+            grid-template-columns: minmax(0, 1.15fr) minmax(260px, 380px);
+            gap: $space-xl;
+        }
+
+        .orderItemDetails {
+            strong {
+                max-width: none;
+            }
+        }
+    }
+
+    @media (max-width: 767px) {
+        .orderItemDetails {
+            strong {
+                max-width: 82px;
+            }
+        }
+    }
+}

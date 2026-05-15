@@ -11,14 +11,15 @@ export default function MainLayout({
 }>) {
     const path = usePathname();
     const isAdminRoute = path.startsWith("/admin");
+    const isMaintenanceRoute = path.startsWith("/maintenance");
 
-    if (isAdminRoute) {
+    if (isAdminRoute || isMaintenanceRoute) {
         return <>{children}</>;
     }
 
     return (
         <>
-            <Header variant={path === '/media-signup' ? 'media-sign-up' : 'default'} />
+            <Header />
             {children}
             <Footer />
         </>

@@ -1,6 +1,6 @@
-import { after, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
-import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from "@/lib/admin-auth";
+import { getAdminAuthorizationHeader } from "@/lib/admin-auth";
 import {
     approveEnquiryById,
     deleteEnquiryById,
@@ -8,7 +8,6 @@ import {
     revertEnquiryById,
 } from "@/lib/enquiries";
 import { type EnquiryStatus } from "@/lib/enquiry-types";
-import { syncEnquiriesToS3, syncEnquiriesToS3AfterDelete } from "@/lib/s3-backup";
 
 export const runtime = "nodejs";
 
@@ -18,29 +17,9 @@ type RouteContext = {
     }>;
 };
 
-function scheduleEnquiriesS3Sync() {
-    after(async () => {
-        try {
-            await syncEnquiriesToS3();
-        } catch (error) {
-            console.error("Failed to refresh S3 enquiry backup after admin action.", error);
-        }
-    });
-}
-
-function scheduleEnquiriesS3SyncAfterDelete() {
-    after(async () => {
-        try {
-            await syncEnquiriesToS3AfterDelete();
-        } catch (error) {
-            console.error("Failed to refresh S3 enquiry backup after admin action.", error);
-        }
-    });
-}
-
 export async function DELETE(request: NextRequest, context: RouteContext) {
     try {
-        if (!verifyAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value)) {
+        if (!(await getAdminAuthorizationHeader())) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -54,8 +33,6 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         if (!result.deleted) {
             return Response.json({ error: "Enquiry not found." }, { status: 404 });
         }
-
-        scheduleEnquiriesS3SyncAfterDelete();
 
         return Response.json({ message: "Enquiry deleted." });
     } catch {
@@ -73,7 +50,7 @@ function parseStatus(value: unknown): EnquiryStatus | null {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
     try {
-        if (!verifyAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value)) {
+        if (!(await getAdminAuthorizationHeader())) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -107,8 +84,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         if (result.notFound) {
             return Response.json({ error: "Enquiry not found." }, { status: 404 });
         }
-
-        scheduleEnquiriesS3Sync();
 
         return Response.json({
             message: `Enquiry marked as ${status}.`,

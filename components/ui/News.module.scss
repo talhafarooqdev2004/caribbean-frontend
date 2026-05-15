@@ -1,0 +1,343 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.news {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    .newsHeader {
+        height: 192px;
+        position: relative;
+
+        .newsImage {
+            border-top-left-radius: $radius-base;
+            border-top-right-radius: $radius-base;
+            height: auto;
+            object-fit: cover;
+            overflow: hidden;
+        }
+
+        .newsBadge {
+            position: absolute;
+            top: 22px;
+            left: $space-base;
+            border-radius: $radius-full;
+            padding: 6px $space-md;
+            font-size: $text-xs;
+            background-color: $white;
+        }
+    }
+
+    .newsBody {
+        padding-top: $space-2xl;
+        padding-bottom: 23px;
+        padding-inline: $space-lg;
+        display: flex;
+        flex-direction: column;
+        gap: $space-md;
+        background-color: $white;
+        border-radius: $radius-base;
+        flex: 1;
+        min-width: 0;
+
+        .newsMeta {
+            display: flex;
+            align-items: center;
+            gap: $space-sm;
+            color: $grayish-blue-700;
+
+            .newsTerritory {
+                font-size: $text-xs;
+            }
+
+            .newsDate {
+                font-size: $text-xs;
+            }
+        }
+
+        .newsTitle {
+            font-size: $text-lg;
+        }
+
+        .newsDescription {
+            font-size: $text-sm;
+            line-height: $line-height-sm;
+        }
+
+        .newsTagsList {
+            display: flex;
+            align-items: center;
+            gap: $space-sm;
+
+            .newsTag {
+                padding: $space-xs $space-sm;
+                font-size: $text-xs;
+                color: $grayish-blue-800;
+                background-color: $grayish-blue-350;
+                border-radius: $radius-xs;
+            }
+        }
+
+        .newsReadLink {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: $space-md;
+            margin-inline: auto;
+            color: $soft-blue-100;
+            font-size: $text-sm;
+            text-align: center;
+
+            >svg>path {
+                stroke: $soft-blue-100;
+            }
+        }
+    }
+}
+
+.featured {
+    .newsHeader {
+        height: 256px;
+
+        .newsBadge {
+            background-color: $secondary;
+            border-radius: $radius-xs;
+            font-weight: $weight-bold;
+            box-shadow: 0px 10px 15px -3px #0000001A;
+        }
+    }
+
+    .newsBody {
+        padding-top: $space-xl;
+        padding-inline: $space-xl;
+        box-shadow: 0px 10px 15px -3px #0000001A;
+
+        .newsMeta {
+            .newsTerritory {
+                font-size: $text-sm;
+            }
+
+            .newsDate {
+                font-size: $text-sm;
+            }
+        }
+
+        .newsTitle {
+            font-size: $text-xl;
+            line-height: $line-height-md;
+        }
+
+        .newsDescription {
+            font-size: $text-md;
+            line-height: 26px;
+        }
+    }
+}
+
+.recentReleases {
+    .newsHeader {
+        .newsImage {
+            border-radius: $radius-xs;
+        }
+    }
+
+    .newsBody {
+        padding-top: $space-base;
+        padding-bottom: $space-lg;
+        padding-inline: $space-sm;
+        border-bottom: 1px solid $grayish-blue-100;
+
+        .newsMeta {
+            .newsTerritory {
+                font-size: $text-xs;
+            }
+
+            .newsDate {
+                font-size: $text-xs;
+            }
+
+            .newsTime {
+                font-size: $text-xs;
+            }
+        }
+
+        .newsTitle {
+            font-size: $text-base;
+            line-height: $line-height-sm;
+        }
+
+        .newsDescription {
+            font-size: $text-sm;
+            line-height: $line-height-sm;
+        }
+
+        .newsTagsList {
+            margin-bottom: $space-xs;
+        }
+
+        .newsReadLink {
+            margin-inline: 0;
+            margin-top: $space-sm;
+            align-self: flex-start;
+            text-align: left;
+        }
+    }
+}
+
+/** Stacked card for portal saved releases — avoids `recent-releases` row + 15% image in narrow grids. */
+.portalBookmark {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: $radius-base;
+    overflow: hidden;
+    background: $white;
+    border: 1px solid $grayish-blue-100;
+    box-shadow: 0 2px 8px rgba(39, 64, 96, 0.06);
+
+    .newsHeader {
+        position: relative;
+        width: 100%;
+        height: 176px;
+        flex-shrink: 0;
+
+        .newsImage {
+            border-radius: 0;
+            object-fit: cover;
+        }
+    }
+
+    .newsBody {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $space-sm;
+        width: 100%;
+        padding: $space-md $space-base $space-lg;
+        border-radius: 0;
+        border-bottom: none;
+
+        .newsMeta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: $space-xs;
+            color: $grayish-blue-700;
+
+            .newsTerritory,
+            .newsDate,
+            .newsTime {
+                font-size: $text-xs;
+            }
+        }
+
+        .newsTitle {
+            font-size: $text-base;
+            line-height: $line-height-sm;
+            margin: 0;
+        }
+
+        .newsDescription {
+            margin: 0;
+            font-size: $text-sm;
+            line-height: $line-height-sm;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .newsTagsList {
+            margin-top: 2px;
+        }
+
+        .newsReadLink {
+            margin-top: $space-sm;
+            margin-inline: 0;
+            align-self: flex-start;
+            text-align: left;
+        }
+    }
+}
+
+@media(min-width: map-get($breakpoints, 'md')) {
+    .featured {
+        flex-direction: row;
+        height: 455px;
+
+        .newsHeader {
+            flex: 1;
+            height: 100%;
+
+            .newsImage {
+                border-top-right-radius: 0;
+                border-top-left-radius: $radius-base;
+                border-bottom-left-radius: $radius-base;
+            }
+        }
+
+        .newsBody {
+            flex: 1;
+            justify-content: center;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+
+            .newsTitle {
+                font-size: 30px;
+                line-height: 37px;
+                width: 80%;
+            }
+        }
+    }
+
+    .recentReleases {
+        flex-direction: row;
+        min-height: 215px;
+        border-bottom: 1px solid $grayish-blue-100;
+
+        .newsHeader {
+            order: 2;
+            width: 15%;
+            height: 70%;
+        }
+
+        .newsBody {
+            order: 1;
+            width: 85%;
+            padding-left: $space-base;
+            border-bottom: 0;
+
+            .newsTitle {
+                font-size: $text-lg;
+            }
+
+            .newsDescription {
+                font-size: $text-md;
+                line-height: 26px;
+                width: 88%;
+            }
+
+            .newsReadLink {
+                margin-inline: 0;
+                align-self: flex-start;
+                margin-bottom: $space-xs;
+            }
+        }
+    }
+}
+
+@media (max-width: map-get($breakpoints, "md") - 1px) {
+    .portalBookmark .newsHeader {
+        height: 148px;
+    }
+
+    .portalBookmark .newsBody {
+        padding-inline: $space-sm;
+    }
+}

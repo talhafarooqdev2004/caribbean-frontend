@@ -1,0 +1,94 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.featuredPressReleases {
+    background-color: $bg-section;
+
+    .featuredPressReleasesInner {
+        padding-block: $space-2xl;
+
+        .featuredHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            >h3 {
+                font-size: $text-lg;
+            }
+
+            .featuredAction {
+                position: relative;
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                gap: $space-sm;
+            }
+        }
+
+        .featuredReleases {
+            margin-top: $space-lg;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(1fr, 1216px));
+        }
+
+        .featuredReleaseHitArea {
+            cursor: pointer;
+            position: relative;
+            min-width: 0;
+        }
+
+        .featuredReleaseSlide {
+            min-width: 0;
+        }
+
+        @keyframes featuredEnterFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(28px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes featuredEnterFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-28px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .featuredEnterFromRight {
+            animation: featuredEnterFromRight 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .featuredEnterFromLeft {
+            animation: featuredEnterFromLeft 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .featuredEnterFromRight,
+            .featuredEnterFromLeft {
+                animation: none;
+            }
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .featuredPressReleasesInner {
+            .featuredHeader {
+                >h3 {
+                    font-size: $text-xl;
+                }
+            }
+        }
+    }
+}

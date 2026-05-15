@@ -1,11 +1,24 @@
+"use client";
+
 import styles from "./PricingSection.module.scss";
 
 import { Container } from "../layout";
 import React from "react";
 import { Button, SvgIcon } from "../ui";
 import { clsx } from "clsx";
+import { useRouter } from "next/navigation";
 
 export default function PricingSection() {
+    const router = useRouter();
+
+    function startPackageCheckout(packageId: "single" | "bundle") {
+        window.sessionStorage.removeItem("carib_checkout_session_id");
+        window.sessionStorage.removeItem("carib_selected_package");
+        window.sessionStorage.removeItem("carib_submission_form");
+        window.sessionStorage.removeItem("carib_total_amount");
+        router.push(`/checkout?package=${packageId}`);
+    }
+
     return (
         <section className={styles.pricingSection}>
             <Container className={styles.pricingSectionInner}>
@@ -24,7 +37,7 @@ export default function PricingSection() {
                             </Package.SummaryItem>
                             <Package.SummaryItem>
                                 <SvgIcon icon="soft-blue-tick" />
-                                Up to 2 images
+                                1 cover image
                             </Package.SummaryItem>
                             <Package.SummaryItem>
                                 <SvgIcon icon="soft-blue-tick" />
@@ -44,7 +57,7 @@ export default function PricingSection() {
                             </Package.SummaryItem>
                         </Package.SummaryList>
 
-                        <Button size="md">Submit Your Release</Button>
+                        <Button size="md" onClick={() => startPackageCheckout("single")}>Submit Your Release</Button>
                     </Package>
 
                     <Package className={styles.threeReleasePackage}>
@@ -53,8 +66,6 @@ export default function PricingSection() {
                         <Package.Name>3-Release Package</Package.Name>
 
                         <Package.Price>$399</Package.Price>
-
-                        <Package.Validty>6</Package.Validty>
 
                         <Package.Description>Built for seasonal campaigns, event cycles, and growing brands.</Package.Description>
 
@@ -81,7 +92,7 @@ export default function PricingSection() {
                             </Package.SummaryItem>
                         </Package.SummaryList>
 
-                        <Button size="md">Purchase Release Pack</Button>
+                        <Button size="md" onClick={() => startPackageCheckout("bundle")}>Purchase Release Pack</Button>
                     </Package>
 
                     <Package className={styles.featuredPlacement}>
@@ -106,10 +117,6 @@ export default function PricingSection() {
                             <Package.SummaryItem>
                                 <SvgIcon icon="yellow-tick" />
                                 Top-of-email distribution positioning
-                            </Package.SummaryItem>
-                            <Package.SummaryItem>
-                                <SvgIcon icon="yellow-tick" />
-                                WhatsApp digest highlight
                             </Package.SummaryItem>
 
                             <Package.Description>Designed for major announcements and high-impact campaigns.</Package.Description>
@@ -150,7 +157,7 @@ export default function PricingSection() {
                             <Package.Description>Designed for major announcements and high-impact campaigns.</Package.Description>
                         </Package.SummaryList>
 
-                        <Button size="md">Request a Proposal</Button>
+                        <Button size="md" onClick={() => router.push("/contact-us?for=proposal")}>Request a Proposal</Button>
                     </Package>
                 </PricingList>
             </Container>
@@ -177,10 +184,6 @@ Package.Name = function PackageName({ children }: React.PropsWithChildren) {
 Package.Price = function PackagePrice({ children }: React.PropsWithChildren) {
     return <h1 className={styles.packagePrice}>{children}</h1>
 };
-
-Package.Validty = function PackageValidty({ children }: React.PropsWithChildren) {
-    return <span className={styles.packageValidty}>Valid for {children} months</span>
-}
 
 Package.Description = function PackageDescription({ children }: React.PropsWithChildren) {
     return <p className={styles.packageDescription}>{children}</p>;

@@ -1,4 +1,8 @@
 {
     "css.lint.unknownAtRules": "ignore",
-    "scss.lint.unknownAtRules": "ignore"
+    "scss.lint.unknownAtRules": "ignore",
+    "scss.showErrors": false,
+    "[scss]": {
+        "editor.suggest.insertMode": "replace"
+    }
 }

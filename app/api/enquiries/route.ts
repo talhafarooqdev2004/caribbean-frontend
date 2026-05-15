@@ -1,13 +1,11 @@
-import { type NextRequest } from "next/server";
-
-import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from "@/lib/admin-auth";
+import { getAdminAuthorizationHeader } from "@/lib/admin-auth";
 import { listEnquiries } from "@/lib/enquiries";
 
 export const runtime = "nodejs";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
-        if (!verifyAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value)) {
+        if (!(await getAdminAuthorizationHeader())) {
             return Response.json({ error: "Unauthorized" }, { status: 401 });
         }
 

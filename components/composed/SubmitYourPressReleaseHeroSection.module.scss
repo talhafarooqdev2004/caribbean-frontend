@@ -1,0 +1,70 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.heroSection {
+  background-image:
+    $hero-section-gradient, url("/images/hero-section-submit-your-press.jpg");
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  .heroSectionInner {
+    padding-block: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .heroSectionBadge {
+      background-color: $white-100;
+      border: 1px solid $white-200;
+      color: $white;
+      height: 34px;
+      padding-inline: $space-base;
+      border-radius: $radius-full;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: $text-sm;
+    }
+
+    > h1 {
+      margin-top: $space-md;
+      color: $white;
+      font-size: $text-section;
+      line-height: 48px;
+      text-align: center;
+    }
+
+    > p {
+      margin-top: $space-lg;
+      color: $grayish-blue-100;
+      font-size: $text-base;
+      line-height: $line-height-md;
+      text-align: center;
+    }
+  }
+
+  @media (min-width: map-get($breakpoints, "md")) {
+    .heroSectionInner {
+      padding-block: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      > h1 {
+        margin-top: $space-md;
+        color: $white;
+        font-size: $text-section-lg;
+        line-height: 48px;
+        text-align: center;
+      }
+
+      > p {
+        font-size: $text-lg;
+        line-height: $line-height-base;
+      }
+    }
+  }
+}

@@ -9,10 +9,9 @@
     border-radius: $radius-sm;
     color: $grayish-blue-600;
     font-size: $text-md;
-    padding: 15px $space-md;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0px $space-md;
+    padding-top: 1px;
+    /** to make placeholder in center **/
     width: 100%;
     border: 1px solid transparent;
 

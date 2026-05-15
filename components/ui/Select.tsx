@@ -1,7 +1,12 @@
 import styles from "./Select.module.scss";
 
+export type SelectOption = {
+    value: string;
+    label: string;
+};
+
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-    options: Array<{ value: string; label: string }>;
+    options: ReadonlyArray<SelectOption>;
 };
 
 export default function Select({ className = "", options, ...props }: SelectProps) {

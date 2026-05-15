@@ -48,7 +48,8 @@ $space-tablet: $space-xl;
 $space-desktop: $space-3xl;
 $space-desktop-lg: 110px;
 
-$container-lg: 1600px;
+/** Max width for centered page content (header, footer, sections). Viewports wider than this keep side margins. */
+$container-lg: 1500px;
 
 $section-padding-sm: $space-lg;
 $section-padding-base: $space-4xl;

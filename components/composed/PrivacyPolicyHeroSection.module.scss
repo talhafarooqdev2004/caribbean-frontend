@@ -1,0 +1,77 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.heroSection {
+  background-image:
+    $hero-section-gradient, url("/images/hero-section-privacy-policy.jpg");
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  .heroSectionInner {
+    padding-block: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .heroSectionBadge {
+      background-color: $white-100;
+      border: 1px solid $white-200;
+      color: $white;
+      height: 34px;
+      padding-inline: $space-base;
+      border-radius: $radius-full;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: $text-sm;
+    }
+
+    > h1 {
+      margin-top: $space-md;
+      color: $white;
+      font-size: 30px;
+      line-height: 36px;
+      text-align: center;
+    }
+
+    > p {
+      margin-top: $space-md;
+      color: $grayish-blue-100;
+      font-size: $text-base;
+      line-height: $line-height-md;
+      text-align: center;
+    }
+  }
+
+  @media (min-width: map-get($breakpoints, "md")) {
+    .heroSectionInner {
+      padding-block: 95px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      > h1 {
+        color: $white;
+        font-size: $text-5xl;
+        line-height: 48px;
+        text-align: center;
+      }
+
+      > p {
+        margin-top: 24px;
+        font-size: $text-xl;
+        line-height: $line-height-base;
+        width: 54%;
+        margin-inline: auto;
+      }
+
+      > p:nth-of-type(2) {
+        margin-top: 16px;
+        font-size: 18px;
+      }
+    }
+  }
+}

@@ -37,7 +37,7 @@ export default function Footer() {
                                 <Link href="/newsroom">Newsroom</Link>
                             </li>
                             <li>
-                                <Link href="/for-media">For Media</Link>
+                                <Link href="/join-the-media-network">For Media</Link>
                             </li>
                         </ul>
                     </li>

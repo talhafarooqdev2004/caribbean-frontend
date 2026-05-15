@@ -1,0 +1,89 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.startAccessing {
+    background-color: $white;
+
+    .startAccessingInner {
+        padding-block: 25px;
+
+        >h1 {
+            font-size: $text-section;
+            line-height: 40px;
+            text-align: center;
+        }
+
+        >p {
+            margin-top: $space-lg;
+            font-size: $text-base;
+            color: $grayish-blue-900;
+            line-height: $line-height-md;
+            text-align: center;
+            width: 95%;
+            margin-inline: auto;
+        }
+
+        .points {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: $space-lg;
+
+            .point {
+                border-radius: $radius-lg;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: $space-md;
+                padding: $space-lg;
+
+                >span {
+                    color: $grayish-blue-800;
+                    font-size: $text-sm;
+                    line-height: 20px;
+                    text-align: center;
+                }
+            }
+
+            .freeForMedia {
+                background: linear-gradient(135deg, rgba(88, 153, 226, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+            }
+
+            .verifiedContentOnly {
+                background: linear-gradient(135deg, rgba(51, 92, 129, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+            }
+
+            .regionalFocus {
+                background: linear-gradient(135deg, rgba(39, 64, 96, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+            }
+
+            .curatedDistribution {
+                background: linear-gradient(135deg, rgba(255, 196, 0, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+            }
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .startAccessingInner {
+            padding-block: 95px;
+
+            >h1 {
+                font-size: $text-section-lg;
+                line-height: 48px;
+                width: 60%;
+                margin-inline: auto;
+            }
+
+            >p {
+                width: 65%;
+            }
+
+            .points {
+                max-width: 900px;
+                margin-inline: auto;
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    }
+}

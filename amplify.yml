@@ -19,6 +19,9 @@ frontend:
             echo "S3_SESSION_TOKEN=$S3_SESSION_TOKEN"
             echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
             echo "S3_BACKUP_PREFIX=$S3_BACKUP_PREFIX"
+            echo "MW_SITE_ACCESS_SECRET=$MW_SITE_ACCESS_SECRET"
+            echo "SITE_IP_ALLOWLIST_ALWAYS_APPLY=$SITE_IP_ALLOWLIST_ALWAYS_APPLY"
+            echo "AMPLIFY_HOSTING=1"
           } >> .env.production
         - npm run init:enquiry-indexes
         - npm run build

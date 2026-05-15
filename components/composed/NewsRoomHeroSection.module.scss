@@ -1,0 +1,38 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.heroSection {
+    background-image: $hero-section-gradient , url("/images/hero-section-image-desktop.jpeg");
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
+    .heroSectionInner {
+        padding-block: $section-padding-base;
+
+        >h1 {
+            font-size: $text-section;
+            color: $white;
+        }
+
+        >p {
+            margin-top: $space-base;
+            font-size: $text-base;
+            color: $grayish-blue-100;
+        }
+
+        .heroSectionFilter {
+            margin-top: $space-lg;
+        }
+    }
+
+    @media(min-width: map-get($breakpoints, 'md')) {
+        .heroSectionInner {
+            >h1 {
+                font-size: $text-section-lg;
+            }
+        }
+    }
+}

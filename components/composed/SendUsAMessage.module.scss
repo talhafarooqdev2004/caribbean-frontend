@@ -1,0 +1,209 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.contactUsPage {
+    background-color: #ffffff;
+
+    .contactUsInner {
+        padding-block: 80px;
+    }
+
+    .contentGrid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: $space-2xl;
+        align-items: start;
+    }
+
+    .formPanel,
+    .infoCard {
+        border: 1px solid #ebeff5;
+        border-radius: $radius-lg;
+        background-color: #ffffff;
+        box-shadow: 0px 20px 25px -5px #0000001A;
+    }
+
+    .formPanel {
+        padding: $space-xl;
+    }
+
+    .panelHeader {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: $space-md;
+        color: #5d9bef;
+
+        >h1 {
+            color: $dark-blue-800;
+            font-size: $text-xl;
+            line-height: 1.15;
+            font-weight: $weight-semi-bold;
+        }
+    }
+
+    .proposalHint {
+        flex: 1 1 100%;
+        margin: 0;
+        margin-top: -4px;
+        color: $grayish-blue-900;
+        font-size: $text-sm;
+        line-height: 1.45;
+        font-weight: $weight-regular;
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: $space-lg;
+    }
+
+    .optional {
+        color: $grayish-blue-850;
+        font-size: $text-sm;
+    }
+
+    .responseCard {
+        margin-top: $space-md;
+        border: 1px solid #DBEAFE;
+        border-radius: $radius-md;
+        background-color: #EFF6FF;
+        padding: $space-base;
+        color: $grayish-blue-900;
+        font-size: $text-sm;
+        line-height: 20px;
+
+        strong {
+            color: $grayish-blue-900;
+            font-weight: $weight-semi-bold;
+        }
+    }
+
+    .submitButton {
+        margin-top: 6px;
+        width: 100%;
+        border-radius: $radius-sm;
+        background: $soft-blue-100;
+        font-size: $text-sm;
+        gap: 15px;
+    }
+
+    .submissionMessage {
+        color: #4c5b75;
+        font-size: 14px;
+        text-align: center;
+        margin-top: -8px;
+    }
+
+    .fieldError {
+        color: #b91c1c;
+        font-size: $text-sm;
+        margin-top: -2px;
+    }
+
+    .infoColumn {
+        display: flex;
+        flex-direction: column;
+        gap: $space-lg;
+    }
+
+    .infoCard {
+        padding: 25px;
+        box-shadow: 0px 4px 6px -1px #0000001A;
+
+        h2 {
+            color: #101828;
+            font-size: $text-base;
+            font-weight: $weight-bold;
+        }
+
+        p,
+        address,
+        a,
+        strong {
+            margin-top: $space-base;
+        }
+
+        p,
+        address {
+            color: #4A5565;
+            font-style: normal;
+            font-size: $text-sm;
+            line-height: 1.55;
+        }
+
+        strong {
+            display: block;
+            color: #101828;
+            font-size: $text-md;
+            font-weight: $weight-md;
+        }
+
+        a {
+            display: inline-block;
+            color: $soft-blue-100;
+            font-size: $text-base;
+            text-decoration: none;
+            word-break: break-word;
+        }
+    }
+
+    .infoCardHighlighted {
+        background: linear-gradient(135deg, rgba(88, 153, 226, 0.1) 0%, rgba(39, 64, 96, 0.1) 100%);
+        border-color: #5899E233;
+    }
+
+    .infoHeader {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #5d9bef;
+    }
+
+    @media (min-width: map-get($breakpoints, "md")) {
+        .contactUsInner {
+            width: 1400px;
+            padding-block: $space-4xl;
+        }
+
+        .contentGrid {
+            grid-template-columns: 2fr 1fr;
+        }
+
+        .panelHeader {
+            >h1 {
+                font-weight: $weight-bold;
+            }
+        }
+    }
+}
+
+.contactToast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    max-width: min(480px, calc(100vw - 32px));
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: $text-sm;
+    line-height: 1.45;
+    font-weight: $weight-md;
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.18);
+    border: 1px solid transparent;
+}
+
+.contactToastSuccess {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+.contactToastError {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}

@@ -1,0 +1,108 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-xs;
+    margin-bottom: $space-sm;
+    padding: $space-sm;
+    border: 1px solid $grayish-blue-200;
+    border-radius: $radius-sm;
+    background: $bg-form-input;
+}
+
+.toolbarButton {
+    min-width: 2rem;
+    padding: $space-xs $space-sm;
+    border: 1px solid transparent;
+    border-radius: $radius-sm;
+    background: $white;
+    color: $dark-grey-900;
+    font-size: $text-sm;
+    font-weight: $weight-semi-bold;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        border-color: $grayish-blue-200;
+        background: $white;
+    }
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+.toolbarButtonActive {
+    border-color: $primary;
+    background: rgba(39, 64, 96, 0.08);
+    color: $primary;
+}
+
+.editorShell {
+    border: 1px solid $grayish-blue-200;
+    border-radius: $radius-sm;
+    background: $bg-form-input;
+    overflow: hidden;
+}
+
+.editorShellDisabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.proseMirror {
+    min-height: 280px;
+    max-height: min(52vh, 520px);
+    overflow-y: auto;
+    padding: $space-base $space-md;
+    font-size: $text-md;
+    line-height: 1.65;
+    color: $dark-grey-900;
+    outline: none;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    p {
+        margin: 0 0 $space-sm;
+    }
+
+    h2,
+    h3 {
+        margin: $space-md 0 $space-sm;
+        line-height: 1.25;
+        color: $dark-grey-900;
+    }
+
+    h2 {
+        font-size: $text-xl;
+    }
+
+    h3 {
+        font-size: $text-lg;
+    }
+
+    ul,
+    ol {
+        margin: 0 0 $space-sm;
+        padding-left: $space-xl;
+    }
+
+    li {
+        margin-bottom: $space-xs;
+    }
+
+    blockquote {
+        margin: 0 0 $space-sm;
+        padding-left: $space-md;
+        border-left: 3px solid $primary;
+        color: $grayish-blue-800;
+    }
+
+    a {
+        color: $primary;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+}

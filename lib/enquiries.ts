@@ -1,115 +1,90 @@
 import "server-only";
 
-import { ObjectId, type WithId } from "mongodb";
-
-import { getDb } from "./mongodb";
+import { caribApiFetch, parseCaribApiJson } from "./backend-api";
+import { getAdminAuthorizationHeader } from "./admin-auth";
 import { validateEnquiryInput, type EnquiryErrors } from "./enquiry-validation";
 import { type EnquiryFormValues, type EnquirySubmissionValues } from "./enquiry-options";
 import {
     type EnquiryRecord,
     type EnquiryStatus,
-    type StoredEnquiry,
-    type StoredEnquiryStatus,
 } from "./enquiry-types";
 
-type StoredEnquiryDocument = StoredEnquiry & {
-    _id: ObjectId;
-};
-
-const COLLECTION_NAME = "enquiries";
-
-function normalizeEnquiryStatus(status: StoredEnquiryStatus | undefined | null): EnquiryStatus {
-    if (status === "approved" || status === "rejected") {
-        return status;
-    }
-
-    return "pending";
-}
-
-function serializeEnquiry(enquiry: WithId<StoredEnquiry>): EnquiryRecord {
-    const { _id, createdAt, updatedAt, ...rest } = enquiry;
-
-    return {
-        ...rest,
-        status: normalizeEnquiryStatus(rest.status),
-        id: _id.toHexString(),
-        createdAt: createdAt.toISOString(),
-        updatedAt: updatedAt.toISOString(),
-    };
-}
-
 export async function insertEnquiry(input: EnquirySubmissionValues) {
-    const db = await getDb();
-    const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-    const now = new Date();
-
-    const document: StoredEnquiryDocument = {
-        ...input,
-        _id: new ObjectId(),
-        requestId: input.requestId,
-        source: "media-signup",
-        status: "pending",
-        createdAt: now,
-        updatedAt: now,
-    };
-
-    const result = await collection.updateOne(
-        {
-            source: "media-signup",
-            requestId: input.requestId,
-        },
-        {
-            $setOnInsert: document,
-        },
-        {
-            upsert: true,
-        }
-    );
-
-    if (result.upsertedId) {
-        return serializeEnquiry(document);
-    }
-
-    const existingEnquiry = await collection.findOne({
-        source: "media-signup",
-        requestId: input.requestId,
+    const response = await caribApiFetch("/media-signups", {
+        method: "POST",
+        body: JSON.stringify(input),
     });
+    const payload = await parseCaribApiJson(response);
 
-    if (!existingEnquiry) {
-        throw new Error("Unable to persist enquiry.");
+    if (!response.ok) {
+        throw new Error(typeof payload?.message === "string" ? payload.message : "Unable to persist enquiry.");
     }
 
-    return serializeEnquiry(existingEnquiry);
+    return payload?.data as EnquiryRecord;
 }
 
 export async function listEnquiries() {
-    const db = await getDb();
-    const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-    const enquiries = await collection.find({ source: "media-signup" }).sort({ createdAt: -1 }).toArray();
+    const authHeader = await getAdminAuthorizationHeader();
 
-    return enquiries.map(serializeEnquiry);
+    if (!authHeader) {
+        throw new Error("Unauthorized");
+    }
+
+    const response = await caribApiFetch("/admin/media-signups", {
+        headers: authHeader,
+    });
+    const payload = await parseCaribApiJson(response);
+
+    if (!response.ok) {
+        throw new Error(typeof payload?.message === "string" ? payload.message : "Unable to load enquiries.");
+    }
+
+    return (Array.isArray(payload?.data) ? payload.data : []) as EnquiryRecord[];
 }
 
 export async function deleteEnquiryById(id: string) {
-    if (!ObjectId.isValid(id)) {
+    const authHeader = await getAdminAuthorizationHeader();
+
+    if (!authHeader) {
         return {
             deleted: false,
-            invalidId: true,
+            invalidId: false,
         } as const;
     }
 
-    const db = await getDb();
-    const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-    const result = await collection.deleteOne({ _id: new ObjectId(id), source: "media-signup" });
+    const response = await caribApiFetch(`/admin/media-signups/${id}`, {
+        method: "DELETE",
+        headers: authHeader,
+    });
 
     return {
-        deleted: result.deletedCount === 1,
-        invalidId: false,
+        deleted: response.ok,
+        invalidId: response.status === 400,
     } as const;
 }
 
 export async function setEnquiryStatusById(id: string, status: EnquiryStatus) {
-    if (!ObjectId.isValid(id)) {
+    const authHeader = await getAdminAuthorizationHeader();
+
+    if (!authHeader) {
+        return {
+            updated: false,
+            invalidId: false,
+            notFound: false,
+            enquiry: null,
+        } as const;
+    }
+
+    const response = await caribApiFetch(`/admin/media-signups/${id}/status`, {
+        method: "PATCH",
+        headers: authHeader,
+        body: JSON.stringify({
+            status,
+        }),
+    });
+    const payload = await parseCaribApiJson(response);
+
+    if (response.status === 400) {
         return {
             updated: false,
             invalidId: true,
@@ -118,26 +93,7 @@ export async function setEnquiryStatusById(id: string, status: EnquiryStatus) {
         } as const;
     }
 
-    const db = await getDb();
-    const collection = db.collection<StoredEnquiry>(COLLECTION_NAME);
-
-    const updatedEnquiry = await collection.findOneAndUpdate(
-        {
-            _id: new ObjectId(id),
-            source: "media-signup",
-        },
-        {
-            $set: {
-                status,
-                updatedAt: new Date(),
-            },
-        },
-        {
-            returnDocument: "after",
-        }
-    );
-
-    if (!updatedEnquiry) {
+    if (response.status === 404) {
         return {
             updated: false,
             invalidId: false,
@@ -146,11 +102,20 @@ export async function setEnquiryStatusById(id: string, status: EnquiryStatus) {
         } as const;
     }
 
+    if (!response.ok) {
+        return {
+            updated: false,
+            invalidId: false,
+            notFound: false,
+            enquiry: null,
+        } as const;
+    }
+
     return {
         updated: true,
         invalidId: false,
         notFound: false,
-        enquiry: serializeEnquiry(updatedEnquiry),
+        enquiry: payload?.data as EnquiryRecord,
     } as const;
 }
 

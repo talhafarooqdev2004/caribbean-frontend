@@ -1,0 +1,208 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.legalDocumentContent {
+  background-color: $white;
+
+  .legalDocumentContentInner {
+    padding-block: 40px 64px;
+    max-width: 1124px;
+  }
+
+  .introNote {
+    max-width: 1124px;
+    margin-inline: auto;
+    padding: 24px;
+    border: 1px solid #5899e233;
+    border-radius: 16px;
+    background: linear-gradient(
+      135deg,
+      rgba(88, 153, 226, 0.05) 0%,
+      rgba(39, 64, 96, 0.05) 100%
+    );
+
+    p {
+      font-size: 16px;
+      line-height: 26px;
+    }
+  }
+
+  .sections {
+    max-width: 1124px;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .sectionHeading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h2 {
+      color: #101828;
+      font-size: 28px;
+      line-height: 32px;
+      font-weight: $weight-bold;
+    }
+  }
+
+  .sectionIconWrapper {
+    width: 45px;
+    height: 45px;
+    border-radius: 17px;
+    background-color: rgba($soft-blue-100, 0.08);
+    color: $soft-blue-100;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sectionLead {
+    margin-top: 8px;
+    color: $grayish-blue-800;
+    font-size: $text-md;
+    line-height: $line-height-md;
+
+    p {
+      font-size: $text-md;
+      line-height: 24px;
+    }
+  }
+
+  .cards {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .card {
+    border: 1px solid #e5e7eb;
+    border-radius: $radius-base;
+    background-color: $white;
+    box-shadow: 0px 1px 3px 0px #0000001a;
+
+    padding: 24px;
+
+    h3,
+    .inlineTitle {
+      color: $primary;
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: $weight-semi-bold;
+    }
+
+    .inlineTitle {
+      font-size: 26px;
+      margin-bottom: 16px;
+    }
+
+    strong {
+      color: $grayish-blue-900;
+      font-weight: $weight-semi-bold;
+    }
+
+    a {
+      color: $soft-blue-100;
+    }
+  }
+
+  .cardDefault {
+    border-color: $grayish-blue-100;
+    background-color: $white;
+  }
+
+  .cardInfo {
+    border-color: rgba($soft-blue-100, 0.16);
+    background-color: rgba($soft-blue-100, 0.07);
+  }
+
+  .cardWarning {
+    margin-top: 12px;
+    border-color: #fff085;
+    background-color: #fefce8;
+  }
+
+  .cardDanger {
+    margin-top: 12px;
+    border-color: #ffc9c9;
+    background-color: #fef2f2;
+  }
+
+  .cardContent {
+    color: #364153;
+    font-size: $text-md;
+    line-height: 24px;
+
+    p {
+      font-size: $text-md;
+      line-height: 24px;
+    }
+  }
+
+  .marginTop8 {
+    margin-top: 8px;
+  }
+
+  .cardList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 24px;
+
+    li {
+      color: #364153;
+      font-size: $text-md;
+      line-height: 24px;
+    }
+  }
+
+  .marginTop14 {
+    margin-top: 14px;
+  }
+
+  .cardFooter {
+    margin-top: 12px;
+    color: $grayish-blue-800;
+    font-size: 16px;
+    line-height: 24px;
+
+    p {
+      font-size: 16px;
+      line-height: 24px;
+
+      > strong {
+        color: #101828;
+        font-family: $weight-bold;
+      }
+    }
+  }
+
+  @media (min-width: map-get($breakpoints, "md")) {
+    .legalDocumentContentInner {
+      padding-block: 52px 96px;
+    }
+
+    .introNote {
+      padding: 28px 26px;
+    }
+
+    .sectionHeading {
+      h2 {
+        font-size: 32px;
+      }
+    }
+
+    .card {
+      padding: 20px 20px 22px;
+
+      .inlineTitle {
+        font-size: 28px;
+      }
+    }
+  }
+}

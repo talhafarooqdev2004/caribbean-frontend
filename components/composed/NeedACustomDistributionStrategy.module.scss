@@ -1,0 +1,66 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.distributionStrategy {
+    background-color: $bg-section;
+
+    .distributionStrategyInner {
+        padding-block: 64px;
+
+        .card {
+            background: linear-gradient(135deg, #274060 0%, #2A4669 7.14%, #2E4C71 14.29%, #31527A 21.43%, #345883 28.57%, #385E8C 35.71%, #3B6595 42.86%, #3F6B9F 50%, #4271A8 57.14%, #4678B1 64.29%, #497EBB 71.43%, #4D85C5 78.57%, #518CCE 85.71%, #5492D8 92.86%, #5899E2 100%);
+            border-radius: $radius-lg;
+            padding: $space-2xl;
+
+            >h1 {
+                color: $white;
+                font-weight: $weight-bold;
+                font-size: 30px;
+                line-height: 36px;
+                text-align: center;
+            }
+
+            >p {
+                margin-top: $space-base;
+                color: $white;
+                font-size: $text-base;
+                line-height: $line-height-md;
+                text-align: center;
+                margin-inline: auto;
+            }
+
+            >button {
+                margin-top: $space-xl;
+                width: 100%;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .distributionStrategyInner {
+            max-width: 1150px;
+
+            .card {
+                background: linear-gradient(135deg, #274060 0%, #2A4669 7.14%, #2E4C71 14.29%, #31527A 21.43%, #345883 28.57%, #385E8C 35.71%, #3B6595 42.86%, #3F6B9F 50%, #4271A8 57.14%, #4678B1 64.29%, #497EBB 71.43%, #4D85C5 78.57%, #518CCE 85.71%, #5492D8 92.86%, #5899E2 100%);
+                border-radius: $radius-lg;
+                padding: $space-2xl;
+
+                >h1 {
+                    font-size: $text-section;
+                    line-height: 40px;
+                }
+
+                >p {
+                    width: 78%;
+                }
+
+                >button {
+                    width: max-content;
+                    margin-inline: auto;
+                    padding-inline: $space-xl;
+                }
+            }
+        }
+    }
+}

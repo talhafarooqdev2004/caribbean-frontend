@@ -1,0 +1,66 @@
+@use "../../../styles/primitive" as *;
+@use "../../../styles/semantic" as *;
+
+.newsroomLoadMoreStrip {
+    margin-top: $space-lg;
+}
+
+@keyframes newsroomSpinnerRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loadMoreReleases {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-inline: auto;
+    margin-bottom: $space-2xl;
+    /* Match outline `md` button height so swapping loading row vs button does not shift layout */
+    min-height: 40px;
+}
+
+.loadMoreLoadingRow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 40px;
+    padding-inline: $space-md;
+}
+
+.loadMoreSpinner {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e8edf3;
+    border-top-color: #16477c;
+    border-radius: 50%;
+    animation: newsroomSpinnerRotate 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+.loadMoreLoadingLabel {
+    font-size: $text-sm;
+    color: #475569;
+    font-weight: $weight-semi-bold;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.newsroomPagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $space-lg;
+    margin-inline: auto;
+    margin-bottom: $space-2xl;
+}
+
+.newsroomPaginationStatus {
+    font-size: $text-sm;
+    color: $grayish-blue-800;
+    font-weight: $weight-semi-bold;
+}

@@ -1,0 +1,25 @@
+.fallback {
+    max-width: min(760px, 100%);
+    margin-inline: auto;
+    padding: 28px 16px 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    color: #274060;
+}
+
+.fallbackSpinner {
+    flex-shrink: 0;
+    animation: checkoutClientFallbackSpin 0.75s linear infinite;
+}
+
+@keyframes checkoutClientFallbackSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

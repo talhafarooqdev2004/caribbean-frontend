@@ -3,60 +3,66 @@
 @use "../../styles/breakpoints" as *;
 
 .faqsSection {
-    background-color: $bg-section;
+  background-color: $bg-section;
 
+  .faqsSectionInner {
+    padding-block: 25px;
+
+    > h1 {
+      font-size: 30px;
+      line-height: 36px;
+      text-align: center;
+      width: 60%;
+      margin-inline: auto;
+    }
+
+    .faqs {
+      margin-top: $space-md;
+      display: flex;
+      flex-direction: column;
+
+      .faq {
+        .question {
+          background: none;
+          border: none;
+          width: 100%;
+          padding-block: $space-base;
+          border-bottom: 1px solid $black;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          > span {
+            font-size: $text-sm;
+          }
+        }
+
+        .answer {
+          font-size: $text-sm;
+          margin-top: $space-sm;
+        }
+
+        &.open {
+          .question svg {
+            transform: rotate(180deg);
+          }
+        }
+      }
+    }
+  }
+
+  @media (min-width: map-get($breakpoints, "md")) {
     .faqsSectionInner {
-        padding-block: 25px;
+      max-width: 1100px;
+      padding-block: $space-5xl;
 
-        >h1 {
-            font-size: 30px;
-            line-height: 36px;
-            text-align: center;
-            width: 60%;
-            margin-inline: auto;
-        }
+      > h1 {
+        font-size: $text-section;
+      }
 
-        .faqs {
-            margin-top: $space-md;
-            display: flex;
-            flex-direction: column;
-
-            .faq {
-                .question {
-                    background: none;
-                    border: none;
-                    width: 100%;
-                    padding-block: $space-base;
-                    border-bottom: 1px solid $black;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-
-                    >span {
-                        font-size: $text-sm;
-                    }
-                }
-
-                .answer {
-                    font-size: $text-sm;
-                    margin-top: $space-sm;
-                }
-            }
-        }
+      .faqs {
+        margin-top: $space-2xl;
+      }
     }
-
-    @media (min-width: map-get($breakpoints, 'md')) {
-        .faqsSectionInner {
-            max-width: 1100px;
-            padding-block: $space-5xl;
-
-            >h1 {
-                font-size: $text-section;
-            }
-
-            .faqs {
-                margin-top: $space-2xl;
-            }
-        }
-    }
+  }
 }

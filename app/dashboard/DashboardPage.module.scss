@@ -1,0 +1,189 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.dashboardSection {
+    min-height: 560px;
+    background-color: $bg-section;
+}
+
+.dashboardInner {
+    padding-block: $space-3xl;
+    display: grid;
+    gap: $space-2xl;
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    gap: $space-lg;
+
+    span {
+        color: $primary;
+        font-size: $text-sm;
+        font-weight: $weight-semi-bold;
+        text-transform: uppercase;
+    }
+
+    h1 {
+        margin-top: $space-sm;
+        color: $primary;
+        font-size: $text-4xl;
+    }
+
+    p {
+        margin-top: $space-base;
+        max-width: 720px;
+        color: $grayish-blue-800;
+        font-size: $text-base;
+        line-height: $line-height-base;
+    }
+
+}
+
+.submitLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border-radius: $radius-sm;
+    padding-inline: $space-base;
+    background-color: $secondary;
+    color: $primary;
+    font-size: $text-base;
+}
+
+.statsGrid {
+    display: grid;
+    gap: $space-lg;
+
+    article {
+        border: 1px solid $card-border;
+        border-radius: $radius-sm;
+        background-color: $white;
+        padding: $space-xl;
+        box-shadow: 0 20px 45px rgba(39, 64, 96, 0.08);
+
+        span {
+            display: block;
+            color: $grayish-blue-800;
+            font-size: $text-sm;
+            text-transform: uppercase;
+        }
+
+        strong {
+            display: block;
+            margin-top: $space-sm;
+            color: $primary;
+            font-size: $text-2xl;
+        }
+    }
+}
+
+.redBanner,
+.yellowBanner,
+.panel,
+.quickActions {
+    border: 1px solid $card-border;
+    border-radius: $radius-sm;
+    background-color: $white;
+    padding: $space-xl;
+}
+
+.redBanner {
+    border-color: #fecaca;
+    background-color: #fef2f2;
+    color: #991b1b;
+    display: flex;
+    justify-content: space-between;
+    gap: $space-base;
+
+    a {
+        color: #991b1b;
+        font-weight: $weight-semi-bold;
+    }
+}
+
+.yellowBanner {
+    border-color: #fde68a;
+    background-color: #fffbeb;
+    color: #92400e;
+}
+
+.panelHeader {
+    h2 {
+        color: $primary;
+        font-size: $text-2xl;
+    }
+}
+
+.emptyState {
+    margin-top: $space-lg;
+    display: grid;
+    gap: $space-base;
+
+    a {
+        color: $primary;
+        font-weight: $weight-semi-bold;
+    }
+}
+
+.tableWrapper {
+    margin-top: $space-lg;
+    overflow-x: auto;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 860px;
+    }
+
+    th,
+    td {
+        border-bottom: 1px solid $card-border;
+        padding: 12px;
+        text-align: left;
+        color: $grayish-blue-800;
+        font-size: $text-sm;
+    }
+
+    th {
+        color: $primary;
+        font-weight: $weight-semi-bold;
+    }
+
+    a {
+        color: $primary;
+        font-weight: $weight-semi-bold;
+    }
+}
+
+.quickActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-base;
+
+    a {
+        border-radius: $radius-sm;
+        background-color: $secondary;
+        color: $primary;
+        padding: 10px 14px;
+        font-weight: $weight-semi-bold;
+    }
+}
+
+@media (min-width: map-get($breakpoints, "md")) {
+    .dashboardInner {
+        padding-block: $space-5xl;
+    }
+
+    .hero {
+        flex-direction: row;
+        align-items: end;
+        justify-content: space-between;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

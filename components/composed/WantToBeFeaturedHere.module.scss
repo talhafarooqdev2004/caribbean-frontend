@@ -1,0 +1,61 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.footerCTA {
+    background-image: $linear-gradient-blue-600, url("/images/want-to-be-featured.jpg");
+
+    background-repeat: no-repeat, no-repeat;
+    background-size: cover, 250%;
+    background-position: center, center 40%;
+
+    .footerCTAInner {
+        padding-block: 25px;
+
+        >h1 {
+            font-size: $text-section;
+            color: $white;
+            text-align: center;
+            width: 90%;
+            margin-inline: auto;
+        }
+
+        >P {
+            margin-top: $space-lg;
+            font-size: $text-lg;
+            color: $grayish-blue-100;
+            width: 90%;
+            text-align: center;
+            margin-inline: auto;
+        }
+
+        >button {
+            margin-top: 12px;
+            margin-inline: auto;
+            padding-inline: 40px;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .footerCTAInner {
+            padding-block: $space-4xl;
+
+            >h1 {
+                font-size: $text-4xl;
+                width: 100%;
+            }
+
+            >p {
+                margin-top: $space-lg;
+                font-size: $text-xl;
+                width: 45%;
+                margin-inline: auto;
+                line-height: $line-height-base;
+            }
+
+            >button {
+                margin-top: 40px;
+            }
+        }
+    }
+}
