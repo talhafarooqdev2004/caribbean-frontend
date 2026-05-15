@@ -2876,6 +2876,12 @@ export default function AdminEnquiriesPanel({
                                 />
                                 <span>Restrict public site to allowlisted IPv4 addresses only</span>
                             </label>
+                            <p className={styles.siteAccessHelp}>
+                                The toggle is saved in the database. The <strong>allowed IPv4 list is fixed in backend code</strong>{" "}
+                                (<code>STATIC_SITE_IP_ALLOWLIST_ENTRIES</code> in <code>siteIpAllowlist.service.ts</code>) — add or remove
+                                addresses there and redeploy the API. The table below is read-only. Use{" "}
+                                <code>SITE_IP_ALLOWLIST_DISABLE=true</code> on the Next.js host only if you must bypass the gate during an outage.
+                            </p>
 
                             <div className={styles.siteAccessTableWrap}>
                                 <table className={styles.siteAccessTable}>
