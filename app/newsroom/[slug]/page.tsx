@@ -12,6 +12,7 @@ import {
     formatReleaseDate,
     formatReleaseTime,
     getReleaseImageSrc,
+    shouldUnoptimizeReleaseImage,
 } from "@/lib/press-release-display";
 import { type PressReleaseRecord } from "@/lib/press-release-types";
 import { releaseHeroLead, stripTagsToPlainText } from "@/lib/press-release-list-excerpt";
@@ -51,7 +52,7 @@ export default async function NewsroomReleasePage({ params }: NewsroomReleasePag
     const dateValue = release.publishedAt || release.createdAt;
     const heroLead = releaseHeroLead(release);
     const heroImageSrc = getReleaseImageSrc(release);
-    const heroImageRemote = /^https?:\/\//i.test(heroImageSrc);
+    const heroImageUnoptimized = shouldUnoptimizeReleaseImage(heroImageSrc);
     const outboundHref = safeOutboundLinkHref(release.outboundLink);
 
     return (
@@ -90,7 +91,7 @@ export default async function NewsroomReleasePage({ params }: NewsroomReleasePag
                                     priority
                                     sizes="(max-width: 767px) min(100vw, 520px) 50vw"
                                     className={styles.releaseImageImg}
-                                    unoptimized={heroImageRemote}
+                                    unoptimized={heroImageUnoptimized}
                                 />
                             </div>
                         </div>

@@ -7,6 +7,7 @@ import SvgIcon from "./SvgIcon";
 import clsx from "clsx";
 import Link from "next/link";
 import { trackPressReleaseClick } from "@/lib/press-release-click";
+import { shouldUnoptimizeReleaseImage } from "@/lib/press-release-display";
 
 const News = function ({
     variant = "default",
@@ -27,9 +28,6 @@ News.Header = function NewsHeader({ children }: React.PropsWithChildren) {
 };
 
 News.Image = function NewsImage({ imgSrc }: { imgSrc: string }) {
-    const isRemote = /^https?:\/\//i.test(imgSrc);
-    const isBlob = /^blob:/i.test(imgSrc);
-
     return (
         <Image
             src={imgSrc}
@@ -37,7 +35,7 @@ News.Image = function NewsImage({ imgSrc }: { imgSrc: string }) {
             fill
             className={styles.newsImage}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
-            unoptimized={isRemote || isBlob}
+            unoptimized={shouldUnoptimizeReleaseImage(imgSrc)}
         />
     );
 };

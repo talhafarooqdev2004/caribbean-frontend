@@ -5,6 +5,23 @@ const backendBase = (
   process.env.NEXT_PUBLIC_CARIB_BACKEND_URL || "http://localhost:5000"
 ).replace(/\/$/, "");
 
+function backendRemotePattern() {
+  try {
+    const url = new URL(backendBase);
+
+    return {
+      protocol: url.protocol.replace(":", "") as "http" | "https",
+      hostname: url.hostname,
+      ...(url.port ? { port: url.port } : {}),
+      pathname: "/uploads/**",
+    };
+  } catch {
+    return null;
+  }
+}
+
+const backendPattern = backendRemotePattern();
+
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   turbopack: {
@@ -37,7 +54,7 @@ const nextConfig: NextConfig = {
       `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${squareSources}`,
       `style-src 'self' 'unsafe-inline' ${squareSources}`,
       `font-src 'self' data: https://fonts.gstatic.com ${squareSources} ${squareFontSources}`,
-      `img-src 'self' data: blob: http://localhost:5000 http://127.0.0.1:5000 https:`,
+      `img-src 'self' data: blob: http://localhost:5000 http://127.0.0.1:5000 ${backendBase} https:`,
       `connect-src 'self' http: https: ws: wss: ${squareSources} ${squareConnectSources}`,
       `frame-src 'self' ${squareSources}`,
       `child-src 'self' ${squareSources}`,
@@ -90,6 +107,7 @@ const nextConfig: NextConfig = {
         port: "5000",
         pathname: "/uploads/**",
       },
+      ...(backendPattern ? [backendPattern] : []),
     ],
   },
   experimental: {

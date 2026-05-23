@@ -2,6 +2,7 @@ import { type PressReleaseRecord } from "./press-release-types";
 
 const fallbackImage = "/images/temp/latest-news-1.svg";
 
+/** Normalize DB path to a same-origin `/uploads/...` URL (proxied to EC2 in production). */
 export function getReleaseImageSrc(release: Pick<PressReleaseRecord, "coverImagePath">) {
     if (!release.coverImagePath) {
         return fallbackImage;
@@ -13,17 +14,20 @@ export function getReleaseImageSrc(release: Pick<PressReleaseRecord, "coverImage
         return raw;
     }
 
-    const uploadsPath = raw.startsWith("/uploads/")
-        ? raw
-        : raw.startsWith("uploads/")
-          ? `/${raw}`
-          : null;
+    if (raw.startsWith("/uploads/")) {
+        return raw;
+    }
 
-    if (uploadsPath) {
-        return uploadsPath;
+    if (raw.startsWith("uploads/")) {
+        return `/${raw}`;
     }
 
     return raw.startsWith("/") ? raw : `/${raw}`;
+}
+
+/** Uploaded assets must bypass Next image optimizer — Amplify cannot optimize proxied `/uploads` reliably. */
+export function shouldUnoptimizeReleaseImage(src: string) {
+    return /^https?:\/\//i.test(src) || /^blob:/i.test(src) || src.startsWith("/uploads/");
 }
 
 export function formatReleaseDate(value: string | null) {

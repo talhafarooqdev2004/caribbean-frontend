@@ -350,6 +350,7 @@ export async function middleware(request: NextRequest) {
 
     if (
         pathname.startsWith("/api/public/site-access")
+        || pathname.startsWith("/uploads/")
         || pathname.startsWith("/api/payments/square/square-js")
         || pathname.startsWith("/_next/")
         || pathname === "/favicon.ico"
