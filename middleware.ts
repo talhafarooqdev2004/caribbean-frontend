@@ -27,20 +27,25 @@ type LoadPolicyResult =
 
 let policyCache: PolicyCache | null = null;
 
-function getRequestHostname(request: NextRequest): string {
-    try {
-        const fromUrl = request.nextUrl.hostname?.trim().toLowerCase();
+/** Public hostname from the client request (not Amplify/CloudFront internal routing). */
+function getPublicHostname(request: NextRequest): string {
+    const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim().toLowerCase();
 
-        if (fromUrl) {
-            return fromUrl;
-        }
-    } catch {
-        // ignore
+    if (forwardedHost) {
+        return forwardedHost.split(":")[0]!;
     }
 
-    const hostHeader = request.headers.get("host") ?? "";
+    const hostHeader = request.headers.get("host")?.trim().toLowerCase();
 
-    return hostHeader.split(":")[0]!.trim().toLowerCase();
+    if (hostHeader) {
+        return hostHeader.split(":")[0]!;
+    }
+
+    try {
+        return request.nextUrl.hostname?.trim().toLowerCase() ?? "";
+    } catch {
+        return "";
+    }
 }
 
 function isLoopbackHostname(hostname: string): boolean {
@@ -49,7 +54,7 @@ function isLoopbackHostname(hostname: string): boolean {
     return h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "::1";
 }
 
-/** Loopback, RFC1918 LAN, mDNS `.local`, single-label machine names (local dev). */
+/** localhost, .local, single-label machine names — skip IP gate for local dev only. */
 function isLocalDevHost(hostname: string): boolean {
     if (!hostname) {
         return false;
@@ -77,29 +82,12 @@ function isLocalDevHost(hostname: string): boolean {
         return true;
     }
 
-    const parts = h.split(".");
-
-    if (parts.length === 4) {
-        const a = Number(parts[0]);
-        const b = Number(parts[1]);
-
-        if (!Number.isFinite(a) || !Number.isFinite(b)) {
-            return false;
-        }
-
-        if (a === 10) return true;
-        if (a === 172 && b >= 16 && b <= 31) return true;
-        if (a === 192 && b === 168) return true;
-        if (a === 127) return true;
-        if (a === 100 && b >= 64 && b <= 127) return true;
-    }
-
     return false;
 }
 
-/** Skip IP gate only on local dev machines — production Amplify hostnames always check DB policy. */
+/** Run IP gate on real domains (e.g. caribnewswire.com). Do not use RFC1918 checks — Amplify edge uses internal 172.x routing. */
 function isProductionDeployedHost(request: NextRequest): boolean {
-    return !isLocalDevHost(getRequestHostname(request));
+    return !isLocalDevHost(getPublicHostname(request));
 }
 
 function parseCloudFrontViewerAddress(raw: string | null): string {
