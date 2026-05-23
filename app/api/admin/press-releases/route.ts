@@ -2,8 +2,38 @@ import { type NextRequest } from "next/server";
 
 import { getAdminAuthorizationHeader } from "@/lib/admin-auth";
 import { caribApiFetch, parseCaribApiJson } from "@/lib/backend-api";
+import { formatApiValidationErrors } from "@/lib/format-api-validation-errors";
 
 export const runtime = "nodejs";
+
+export async function POST(request: NextRequest) {
+    const authHeader = await getAdminAuthorizationHeader();
+
+    if (!authHeader) {
+        return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const formData = await request.formData();
+    const response = await caribApiFetch("/admin/press-releases", {
+        method: "POST",
+        headers: authHeader,
+        body: formData,
+    });
+    const payload = await parseCaribApiJson(response);
+
+    if (!response.ok) {
+        return Response.json(
+            {
+                error: formatApiValidationErrors(payload, "Unable to create press release."),
+                message: payload?.message,
+                errors: payload?.errors,
+            },
+            { status: response.status },
+        );
+    }
+
+    return Response.json({ message: payload?.message, release: payload?.data }, { status: response.status });
+}
 
 export async function GET(request: NextRequest) {
     const authHeader = await getAdminAuthorizationHeader();

@@ -2,30 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * IP allowlist for the public site (Edge middleware).
+ * Site IP restriction — controlled ONLY by Admin → Site access (MongoDB toggle).
+ * No env vars enable or disable this feature.
  *
- * **Local / LAN** (loopback, RFC1918, `.local`, `.localhost`): the IP gate runs only when
- * `SITE_IP_ALLOWLIST_ENFORCE=true` in `caribbean_news/.env.local`. This stays correct even when Edge reports
- * `NODE_ENV=production` during `next dev`.
- *
- * **Production hosting**
- * - **Vercel**: `VERCEL=1` (set automatically).
- * - **AWS Amplify**: `AMPLIFY_HOSTING=1` is written in `amplify.yml` at build time (no extra env needed for the gate to run).
- * - **Other servers**: set `SITE_IP_ALLOWLIST_ALWAYS_APPLY=true` on the Next server.
- *
- * **Local testing** of maintenance / allowlist: `SITE_IP_ALLOWLIST_ENFORCE=true`.
- *
- * **Local bypass**: set `SITE_IP_ALLOWLIST_DISABLE=true` in `.env.local` (recommended while developing).
- * If you still land on `/maintenance` after a redirect, middleware sends you back to `/` when the gate is off.
+ * On production hosts (not localhost/LAN), middleware loads policy from
+ * `/api/public/site-access` (same Amplify app → EC2 → DB). When restriction is off
+ * in admin, everyone sees the site. When on, only allowlisted IPv4s pass.
  */
-
-/**
- * URGENT full-site maintenance: set `true` to send every request to `/maintenance` (no other conditions).
- * Set to `false` and redeploy when done. Still allows `/maintenance`, `/_next/*`, favicon, and static extensions.
- */
-const URGENT_SITE_MAINTENANCE = true;
-
-const CACHE_TTL_MS = process.env.NODE_ENV === "development" ? 4000 : 12_000;
+const POLICY_CACHE_MS = 2000;
 
 type PolicyCache = {
     expires: number;
@@ -35,19 +19,9 @@ type PolicyCache = {
 
 type LoadPolicyResult =
     | { ok: true; restrictEnabled: boolean; allowedIps: string[] }
-    | { ok: false };
+    | { ok: false; restrictEnabled?: boolean; allowedIps?: string[] };
 
 let policyCache: PolicyCache | null = null;
-
-const envFlagTrue = (value: string | undefined) => {
-    if (!value) {
-        return false;
-    }
-
-    const normalized = value.trim().replace(/^["']|["']$/g, "").toLowerCase();
-
-    return normalized === "true" || normalized === "1" || normalized === "yes";
-};
 
 function getRequestHostname(request: NextRequest): string {
     try {
@@ -71,10 +45,8 @@ function isLoopbackHostname(hostname: string): boolean {
     return h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "::1";
 }
 
-/**
- * Loopback, RFC1918 LAN, IPv6 link-local, mDNS `.local`, reserved `.localhost` (RFC 6761).
- */
-function isLocalLikeHostname(hostname: string): boolean {
+/** Loopback, RFC1918 LAN, mDNS `.local`, single-label machine names (local dev). */
+function isLocalDevHost(hostname: string): boolean {
     if (!hostname) {
         return false;
     }
@@ -91,20 +63,13 @@ function isLocalLikeHostname(hostname: string): boolean {
         return true;
     }
 
-    /**
-     * `http://my-machine:3000` (no dots) is common on Windows / LAN; treat like local unless it looks like a TLD.
-     */
     if (!hostname.includes(".") && /^[a-z0-9-]+$/i.test(hostname) && hostname.length <= 63) {
         return true;
     }
 
     const h = hostname.replace(/^\[|\]$/g, "").toLowerCase();
 
-    if (h === "::1") {
-        return true;
-    }
-
-    if (h.startsWith("fe80:")) {
+    if (h === "::1" || h.startsWith("fe80:")) {
         return true;
     }
 
@@ -118,40 +83,21 @@ function isLocalLikeHostname(hostname: string): boolean {
             return false;
         }
 
-        if (a === 10) {
-            return true;
-        }
-
-        if (a === 172 && b >= 16 && b <= 31) {
-            return true;
-        }
-
-        if (a === 192 && b === 168) {
-            return true;
-        }
-
-        if (a === 127) {
-            return true;
-        }
-
-        if (a === 100 && b >= 64 && b <= 127) {
-            return true;
-        }
+        if (a === 10) return true;
+        if (a === 172 && b >= 16 && b <= 31) return true;
+        if (a === 192 && b === 168) return true;
+        if (a === 127) return true;
+        if (a === 100 && b >= 64 && b <= 127) return true;
     }
 
     return false;
 }
 
-function isMaintenanceBypassPath(pathname: string): boolean {
-    return (
-        pathname.startsWith("/api/internal/site-access")
-        || pathname.startsWith("/_next/")
-        || pathname === "/favicon.ico"
-        || /\.(?:ico|svg|png|jpg|jpeg|gif|webp|woff2?)$/i.test(pathname)
-    );
+/** Skip IP gate only on local dev machines — production Amplify hostnames always check DB policy. */
+function isProductionDeployedHost(request: NextRequest): boolean {
+    return !isLocalDevHost(getRequestHostname(request));
 }
 
-/** Amplify / CloudFront: `198.51.100.10:1234` or `[2001:db8::1]:443` */
 function parseCloudFrontViewerAddress(raw: string | null): string {
     if (!raw) {
         return "";
@@ -177,73 +123,87 @@ function parseCloudFrontViewerAddress(raw: string | null): string {
     return "";
 }
 
-function getClientIp(request: NextRequest): string {
-    const cfRaw = request.headers.get("cloudfront-viewer-address")
-        ?? request.headers.get("CloudFront-Viewer-Address");
-    const fromCf = parseCloudFrontViewerAddress(cfRaw);
+function normalizeIp(raw: string): string {
+    return raw.trim().replace(/^::ffff:/i, "");
+}
 
-    if (fromCf) {
-        return fromCf.replace(/^::ffff:/i, "");
+function isIpv4(value: string): boolean {
+    return /^(?:\d{1,3}\.){3}\d{1,3}$/.test(value);
+}
+
+function getClientIp(request: NextRequest): string {
+    const headerCandidates = [
+        "cloudfront-viewer-address",
+        "CloudFront-Viewer-Address",
+        "true-client-ip",
+        "True-Client-IP",
+        "x-real-ip",
+        "cf-connecting-ip",
+    ];
+
+    for (const name of headerCandidates) {
+        const raw = request.headers.get(name);
+
+        if (!raw) {
+            continue;
+        }
+
+        if (name.toLowerCase().includes("cloudfront-viewer-address")) {
+            const fromCf = parseCloudFrontViewerAddress(raw);
+
+            if (fromCf && isIpv4(fromCf)) {
+                return normalizeIp(fromCf);
+            }
+
+            continue;
+        }
+
+        const first = raw.split(",")[0]?.trim();
+
+        if (first && isIpv4(normalizeIp(first))) {
+            return normalizeIp(first);
+        }
     }
 
     const forwarded = request.headers.get("x-forwarded-for");
 
     if (forwarded) {
-        const first = forwarded.split(",")[0]?.trim();
+        for (const part of forwarded.split(",")) {
+            const candidate = normalizeIp(part);
 
-        if (first) {
-            return first.replace(/^::ffff:/i, "");
+            if (isIpv4(candidate)) {
+                return candidate;
+            }
         }
-    }
-
-    const realIp = request.headers.get("x-real-ip")?.trim();
-
-    if (realIp) {
-        return realIp.replace(/^::ffff:/i, "");
     }
 
     return "";
 }
 
-/**
- * When false, middleware never fetches policy / never redirects to maintenance for IP reasons.
- */
-function shouldRunSiteIpAllowlist(request: NextRequest): boolean {
-    if (envFlagTrue(process.env.SITE_IP_ALLOWLIST_DISABLE)) {
-        return false;
+function withNoStore(response: NextResponse): NextResponse {
+    response.headers.set("Cache-Control", "private, no-cache, no-store, max-age=0, must-revalidate");
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set(
+        "Vary",
+        "CloudFront-Viewer-Address, True-Client-IP, X-Forwarded-For, X-Real-IP",
+    );
+
+    return response;
+}
+
+function parsePolicyJson(json: unknown): { restrictEnabled: boolean; allowedIps: string[] } | null {
+    if (!json || typeof json !== "object") {
+        return null;
     }
 
-    const enforce = envFlagTrue(process.env.SITE_IP_ALLOWLIST_ENFORCE);
+    const record = json as { restrictEnabled?: unknown; allowedIps?: unknown };
 
-    /**
-     * Same machine / LAN: never apply unless ENFORCE=true (covers Edge `NODE_ENV=production` during `next dev`
-     * and `next start` on localhost).
-     */
-    if (isLocalLikeHostname(getRequestHostname(request)) && !enforce) {
-        return false;
-    }
-
-    if (process.env.NODE_ENV === "development" && !enforce) {
-        return false;
-    }
-
-    if (enforce) {
-        return true;
-    }
-
-    if (process.env.VERCEL === "1") {
-        return true;
-    }
-
-    if (envFlagTrue(process.env.SITE_IP_ALLOWLIST_ALWAYS_APPLY)) {
-        return true;
-    }
-
-    if (envFlagTrue(process.env.AMPLIFY_HOSTING)) {
-        return true;
-    }
-
-    return false;
+    return {
+        restrictEnabled: Boolean(record.restrictEnabled),
+        allowedIps: Array.isArray(record.allowedIps)
+            ? record.allowedIps.map((ip) => String(ip).trim()).filter(Boolean)
+            : [],
+    };
 }
 
 async function loadPolicy(origin: string): Promise<LoadPolicyResult> {
@@ -257,53 +217,57 @@ async function loadPolicy(origin: string): Promise<LoadPolicyResult> {
         };
     }
 
-    const secret = process.env.MW_SITE_ACCESS_SECRET || "dev-insecure";
-    const url = new URL("/api/internal/site-access", origin);
-
     const controller = new AbortController();
-    const policyFetchTimeoutMs = 3000;
-    const timeoutId = setTimeout(() => controller.abort(), policyFetchTimeoutMs);
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
     try {
-        const res = await fetch(url, {
+        const res = await fetch(new URL("/api/public/site-access", origin).toString(), {
             cache: "no-store",
-            headers: { "x-mw-site-access": secret },
+            headers: { Accept: "application/json" },
             signal: controller.signal,
         });
 
         if (!res.ok) {
-            policyCache = {
-                expires: now + Math.min(CACHE_TTL_MS, 4000),
-                restrictEnabled: true,
-                allowedIps: [],
-            };
+            if (policyCache) {
+                return {
+                    ok: false,
+                    restrictEnabled: policyCache.restrictEnabled,
+                    allowedIps: policyCache.allowedIps,
+                };
+            }
 
             return { ok: false };
         }
 
-        const json = (await res.json()) as {
-            restrictEnabled?: boolean;
-            allowedIps?: string[];
-        };
+        const parsed = parsePolicyJson(await res.json());
 
-        const restrictEnabled = Boolean(json.restrictEnabled);
-        const allowedIps = Array.isArray(json.allowedIps)
-            ? json.allowedIps.map((ip) => String(ip).trim()).filter(Boolean)
-            : [];
+        if (!parsed) {
+            if (policyCache) {
+                return {
+                    ok: false,
+                    restrictEnabled: policyCache.restrictEnabled,
+                    allowedIps: policyCache.allowedIps,
+                };
+            }
+
+            return { ok: false };
+        }
 
         policyCache = {
-            expires: now + CACHE_TTL_MS,
-            restrictEnabled,
-            allowedIps,
+            expires: now + POLICY_CACHE_MS,
+            restrictEnabled: parsed.restrictEnabled,
+            allowedIps: parsed.allowedIps,
         };
 
-        return { ok: true, restrictEnabled, allowedIps };
+        return { ok: true, ...parsed };
     } catch {
-        policyCache = {
-            expires: now + Math.min(CACHE_TTL_MS, 4000),
-            restrictEnabled: true,
-            allowedIps: [],
-        };
+        if (policyCache) {
+            return {
+                ok: false,
+                restrictEnabled: policyCache.restrictEnabled,
+                allowedIps: policyCache.allowedIps,
+            };
+        }
 
         return { ok: false };
     } finally {
@@ -311,62 +275,92 @@ async function loadPolicy(origin: string): Promise<LoadPolicyResult> {
     }
 }
 
-export async function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+function isIpAllowed(ip: string, allowedIps: string[]): boolean {
+    return Boolean(ip && allowedIps.includes(ip));
+}
 
-    if (
-        URGENT_SITE_MAINTENANCE
-        && !pathname.startsWith("/maintenance")
-        && !isMaintenanceBypassPath(pathname)
-    ) {
-        return NextResponse.redirect(new URL("/maintenance", request.url), 307);
-    }
+function redirectToMaintenance(request: NextRequest, reason: string): NextResponse {
+    const response = NextResponse.redirect(new URL("/maintenance", request.url), 307);
+    response.headers.set("x-site-gate", reason);
 
-    /**
-     * `/maintenance` must not short-circuit before `shouldRunSiteIpAllowlist`, otherwise a previous redirect
-     * leaves users stuck here forever when the IP gate is off locally (DISABLE / localhost / etc.).
-     * When `URGENT_SITE_MAINTENANCE` is on, always serve this route (no bounce to `/`).
-     */
-    if (pathname.startsWith("/maintenance")) {
-        if (URGENT_SITE_MAINTENANCE) {
-            return NextResponse.next();
-        }
+    return withNoStore(response);
+}
 
-        if (!shouldRunSiteIpAllowlist(request)) {
-            return NextResponse.redirect(new URL("/", request.url), 307);
-        }
-
-        return NextResponse.next();
-    }
-
-    if (isMaintenanceBypassPath(pathname)) {
-        return NextResponse.next();
-    }
-
-    if (!shouldRunSiteIpAllowlist(request)) {
-        return NextResponse.next();
-    }
-
+async function evaluateAccess(request: NextRequest): Promise<NextResponse | null> {
     const policy = await loadPolicy(request.nextUrl.origin);
 
     if (!policy.ok) {
-        const url = new URL("/maintenance", request.url);
-        return NextResponse.redirect(url, 307);
+        if (policy.restrictEnabled === false) {
+            return withNoStore(NextResponse.next());
+        }
+
+        if (policy.restrictEnabled === true) {
+            const ip = getClientIp(request);
+
+            if (isIpAllowed(ip, policy.allowedIps ?? [])) {
+                const response = withNoStore(NextResponse.next());
+                response.headers.set("x-site-gate", "allow-stale");
+
+                return response;
+            }
+
+            return redirectToMaintenance(request, "policy-stale-deny");
+        }
+
+        return redirectToMaintenance(request, "policy-unavailable");
     }
 
     if (!policy.restrictEnabled) {
-        return NextResponse.next();
+        return withNoStore(NextResponse.next());
     }
 
     const ip = getClientIp(request);
 
-    if (ip && policy.allowedIps.includes(ip)) {
+    if (isIpAllowed(ip, policy.allowedIps)) {
+        const response = withNoStore(NextResponse.next());
+        response.headers.set("x-site-gate", "allow");
+
+        return response;
+    }
+
+    return redirectToMaintenance(request, ip ? "deny" : "no-ip");
+}
+
+export async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+
+    if (
+        pathname.startsWith("/api/public/site-access")
+        || pathname.startsWith("/api/payments/square/square-js")
+        || pathname.startsWith("/_next/")
+        || pathname === "/favicon.ico"
+        || /\.(?:ico|svg|png|jpg|jpeg|gif|webp|woff2?)$/i.test(pathname)
+    ) {
         return NextResponse.next();
     }
 
-    const url = new URL("/maintenance", request.url);
+    if (!isProductionDeployedHost(request)) {
+        return NextResponse.next();
+    }
 
-    return NextResponse.redirect(url, 307);
+    if (pathname.startsWith("/maintenance")) {
+        const policy = await loadPolicy(request.nextUrl.origin);
+        const ip = getClientIp(request);
+
+        if (policy.ok && !policy.restrictEnabled) {
+            return withNoStore(NextResponse.redirect(new URL("/", request.url), 307));
+        }
+
+        if (policy.ok && policy.restrictEnabled && isIpAllowed(ip, policy.allowedIps)) {
+            return withNoStore(NextResponse.redirect(new URL("/", request.url), 307));
+        }
+
+        return withNoStore(NextResponse.next());
+    }
+
+    const decision = await evaluateAccess(request);
+
+    return decision ?? withNoStore(NextResponse.next());
 }
 
 export const config = {

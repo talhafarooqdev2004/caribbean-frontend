@@ -74,6 +74,32 @@ function formatCurrency(value: number | null) {
 const DEFAULT_PAYMENT_ERROR = "We could not complete your payment. Please try again.";
 const MAX_SQUARE_SETUP_RETRIES = 3;
 
+/** Keep checkout copy short; raw SDK strings are noisy and not helpful for buyers. */
+function briefSquareLoadDetail(reason?: string): string | undefined {
+    if (!reason?.trim()) {
+        return undefined;
+    }
+
+    const r = reason.toLowerCase();
+    if (
+        r.includes("initialized in time")
+        || r.includes("main-iframe")
+        || r.includes("squarecdn.com")
+        || r.includes("403")
+        || r.includes("forbidden")
+        || r.includes("square sdk failed")
+        || r.includes("did not become available")
+    ) {
+        return undefined;
+    }
+
+    if (reason.length > 72) {
+        return `${reason.slice(0, 69)}…`;
+    }
+
+    return reason;
+}
+
 type SquareTokenizeErrorLike = {
     message?: string;
     detail?: string;
@@ -200,25 +226,23 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
         squareLoadFailuresRef.current = failures + 1;
 
         if (reason === "Square payment credentials are not configured.") {
-            setSquareLoadMessage("Square payment credentials are not configured. Check your Square App ID and Location ID, then restart the backend.");
+            setSquareLoadMessage("Payments are not configured on the server. Please try again later.");
             setSquareRetryStopped(true);
             return;
         }
 
         if (failures >= MAX_SQUARE_SETUP_RETRIES) {
             setSquareRetryStopped(true);
+            const detail = briefSquareLoadDetail(reason);
             setSquareLoadMessage(
-                reason
-                    ? `Square card could not load: ${reason}`
-                    : "Square card could not load. Please try again.",
+                detail ? `We couldn’t load the card field. ${detail}` : "We couldn’t load the card field. Tap Try again.",
             );
             return;
         }
 
+        const detail = briefSquareLoadDetail(reason);
         setSquareLoadMessage(
-            reason
-                ? `Still loading the secure card field. Retrying automatically. Last error: ${reason}`
-                : "Still loading the secure card field. Retrying automatically.",
+            detail ? `Loading card field… retrying. (${detail})` : "Loading card field… retrying.",
         );
 
         const delayMs = Math.min(600 + failures * 450, 5000);

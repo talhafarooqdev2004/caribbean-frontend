@@ -2,6 +2,8 @@ import Image from "next/image";
 
 import styles from "./maintenance.module.scss";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
     title: "We will be right back",
     robots: { index: false, follow: false },

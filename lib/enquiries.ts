@@ -23,14 +23,22 @@ export async function insertEnquiry(input: EnquirySubmissionValues) {
     return payload?.data as EnquiryRecord;
 }
 
-export async function listEnquiries() {
+export async function listEnquiries(options: { page?: number; limit?: number; status?: EnquiryStatus } = {}) {
     const authHeader = await getAdminAuthorizationHeader();
 
     if (!authHeader) {
         throw new Error("Unauthorized");
     }
 
-    const response = await caribApiFetch("/admin/media-signups", {
+    const params = new URLSearchParams();
+    params.set("page", String(options.page ?? 1));
+    params.set("limit", String(options.limit ?? 8));
+
+    if (options.status) {
+        params.set("status", options.status);
+    }
+
+    const response = await caribApiFetch(`/admin/media-signups?${params.toString()}`, {
         headers: authHeader,
     });
     const payload = await parseCaribApiJson(response);
@@ -39,7 +47,10 @@ export async function listEnquiries() {
         throw new Error(typeof payload?.message === "string" ? payload.message : "Unable to load enquiries.");
     }
 
-    return (Array.isArray(payload?.data) ? payload.data : []) as EnquiryRecord[];
+    return {
+        enquiries: (Array.isArray(payload?.data) ? payload.data : []) as EnquiryRecord[],
+        meta: payload?.meta ?? null,
+    };
 }
 
 export async function deleteEnquiryById(id: string) {

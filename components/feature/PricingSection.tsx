@@ -7,16 +7,18 @@ import React from "react";
 import { Button, SvgIcon } from "../ui";
 import { clsx } from "clsx";
 import { useRouter } from "next/navigation";
+import { prefetchPackageCheckoutLogin, pushPackageCheckout } from "@/lib/push-package-checkout";
 
 export default function PricingSection() {
     const router = useRouter();
 
+    React.useEffect(() => {
+        prefetchPackageCheckoutLogin(router, "single");
+        prefetchPackageCheckoutLogin(router, "bundle");
+    }, [router]);
+
     function startPackageCheckout(packageId: "single" | "bundle") {
-        window.sessionStorage.removeItem("carib_checkout_session_id");
-        window.sessionStorage.removeItem("carib_selected_package");
-        window.sessionStorage.removeItem("carib_submission_form");
-        window.sessionStorage.removeItem("carib_total_amount");
-        router.push(`/checkout?package=${packageId}`);
+        pushPackageCheckout(router, packageId);
     }
 
     return (

@@ -6,7 +6,6 @@ import { useLayoutEffect, useState } from "react";
 
 import styles from "./AuthForm.module.scss";
 
-import { Container } from "@/components/layout";
 import { Button, FormControl, FormLabel, Input } from "@/components/ui";
 import { armJoinMediaNetworkFormIntent, joinMediaNetworkFormHref } from "@/lib/join-media-network-form-intent";
 
@@ -138,17 +137,8 @@ export default function LoginForm({ redirectTo: redirectToProp, bookmarkReleaseI
     }
 
     return (
-        <section className={styles.authSection}>
-            <Container className={styles.authInner}>
-                <div className={styles.copyBlock}>
-                    <h1>Log in to your portal</h1>
-                    <p>
-                        Manage submissions, credits, saved newsroom stories, and digest preferences in one place.
-                    </p>
-                </div>
-
-                <div className={styles.card}>
-                    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <div className={styles.card}>
+            <form className={styles.form} onSubmit={handleSubmit} noValidate>
                         <FormControl>
                             <FormLabel htmlFor="login-email">Email Address *</FormLabel>
                             <Input
@@ -204,7 +194,5 @@ export default function LoginForm({ redirectTo: redirectToProp, bookmarkReleaseI
                         </div>
                     </form>
                 </div>
-            </Container>
-        </section>
     );
 }

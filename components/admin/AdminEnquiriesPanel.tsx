@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 
 import styles from "./AdminEnquiriesPanel.module.scss";
 
+import { AdminCreatePressReleaseModal } from "@/components/admin/AdminCreatePressReleaseModal";
+import { AdminListPagination, ADMIN_LIST_PAGE_SIZE, parseAdminListMeta } from "@/components/admin/AdminListPagination";
 import { AdminPressReleaseRichTextEditor } from "@/components/admin/AdminPressReleaseRichTextEditor";
 import { Button, FormControl, FormLabel, Input, Textarea } from "@/components/ui";
 import { Container } from "@/components/layout";
@@ -26,17 +28,7 @@ const PRESS_RELEASE_QUEUE_TABS: { id: PressReleaseQueueTab; label: string }[] = 
     { id: "rejected", label: "Rejected" },
 ];
 
-const PRESS_RELEASE_EDIT_CATEGORIES = [
-    "Business",
-    "Culture",
-    "Education",
-    "Environment",
-    "Government",
-    "Healthcare",
-    "Technology",
-    "Tourism",
-] as const;
-
+import { PRESS_RELEASE_CATEGORIES } from "@/lib/press-release-categories";
 type PressReleaseEditModalState = {
     id: string;
     slug: string;
@@ -169,7 +161,7 @@ type AdminEnquiriesPanelProps = {
     initialContactMessages?: ContactMessageAdminRecord[];
 };
 
-const ADMIN_PRESS_RELEASE_PAGE_SIZE = 8;
+const ADMIN_PRESS_RELEASE_PAGE_SIZE = ADMIN_LIST_PAGE_SIZE;
 
 type StatusConfig = {
     label: string;
@@ -193,9 +185,9 @@ type PressSubmitterSubTab = "registered" | "contact-only";
 const ADMIN_MODULE_HERO: Record<AdminModule, { kicker: string; title: string; description: string }> = {
     "press-releases": {
         kicker: "Press releases",
-        title: "Review newsroom submissions",
+        title: "Newsroom queue",
         description:
-            "Approve paid releases for the homepage and newsroom, toggle featured placement, and reject items that should not go live.",
+            "Create releases before launch, review paid submissions, approve to publish on the homepage and newsroom, or reject items that should not go live.",
     },
     "media-signups": {
         kicker: "Media signups",
@@ -233,8 +225,7 @@ const ADMIN_MODULE_HERO: Record<AdminModule, { kicker: string; title: string; de
     "site-access": {
         kicker: "Security",
         title: "Public site access",
-        description:
-            "Turn IP restriction on or off (stored in DB). Allowed IPv4s are fixed in backend code. On Vercel the gate runs automatically; on AWS Amplify it runs when the app is built with amplify.yml (AMPLIFY_HOSTING). Else set SITE_IP_ALLOWLIST_ALWAYS_APPLY on the Next server. Locally use SITE_IP_ALLOWLIST_ENFORCE=true in .env.local only to test maintenance.",
+        description: "",
     },
 };
 
@@ -357,6 +348,15 @@ export default function AdminEnquiriesPanel({
     );
     const [pressReleaseTotalCount, setPressReleaseTotalCount] = useState(derivedInitialTotal);
     const [activeTab, setActiveTab] = useState<EnquiryStatus>("pending");
+    const [enquiryPage, setEnquiryPage] = useState(1);
+    const [enquiryTotalPages, setEnquiryTotalPages] = useState(1);
+    const [enquiryTotalCount, setEnquiryTotalCount] = useState(initialEnquiries.length);
+    const [enquiryStatusCounts, setEnquiryStatusCounts] = useState<Record<"total" | EnquiryStatus, number>>(() => ({
+        total: initialEnquiries.length,
+        pending: initialEnquiries.filter((enquiry) => enquiry.status === "pending").length,
+        approved: initialEnquiries.filter((enquiry) => enquiry.status === "approved").length,
+        rejected: initialEnquiries.filter((enquiry) => enquiry.status === "rejected").length,
+    }));
     const [expandedId, setExpandedId] = useState<string | null>(initialEnquiries.find((enquiry) => enquiry.status === "pending")?.id ?? initialEnquiries[0]?.id ?? null);
     const [toast, setToast] = useState<ToastState | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -371,6 +371,7 @@ export default function AdminEnquiriesPanel({
     const [rejectModal, setRejectModal] = useState<{ id: string; title: string } | null>(null);
     const [rejectionReason, setRejectionReason] = useState("");
     const [editModal, setEditModal] = useState<PressReleaseEditModalState | null>(null);
+    const [createReleaseOpen, setCreateReleaseOpen] = useState(false);
     const [editSaveBusy, setEditSaveBusy] = useState(false);
     const [editCoverFile, setEditCoverFile] = useState<File | null>(null);
     const [editDocumentFile, setEditDocumentFile] = useState<File | null>(null);
@@ -384,6 +385,17 @@ export default function AdminEnquiriesPanel({
 
     const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
     const [contactMessages, setContactMessages] = useState<ContactMessageAdminRecord[]>(initialContactMessages);
+    const [contactOnlyMessages, setContactOnlyMessages] = useState<ContactMessageAdminRecord[]>([]);
+    const [contactPage, setContactPage] = useState(1);
+    const [contactTotalPages, setContactTotalPages] = useState(1);
+    const [contactTotalCount, setContactTotalCount] = useState(initialContactMessages.length);
+    const [usersPage, setUsersPage] = useState(1);
+    const [usersTotalPages, setUsersTotalPages] = useState(1);
+    const [usersTotalCount, setUsersTotalCount] = useState(0);
+    const [contactOnlyPage, setContactOnlyPage] = useState(1);
+    const [contactOnlyTotalPages, setContactOnlyTotalPages] = useState(1);
+    const [contactOnlyTotalCount, setContactOnlyTotalCount] = useState(0);
+    const [isRefreshingUsers, setIsRefreshingUsers] = useState(false);
     const [pressSubmitterSubTab, setPressSubmitterSubTab] = useState<PressSubmitterSubTab>("registered");
     const [contactInviteSubmittingId, setContactInviteSubmittingId] = useState<string | null>(null);
     const [addCreditModalUser, setAddCreditModalUser] = useState<AdminUser | null>(null);
@@ -408,51 +420,28 @@ export default function AdminEnquiriesPanel({
     const [portalInviteRowId, setPortalInviteRowId] = useState<string | null>(null);
     const inviteTerminalHandledRef = useRef(false);
 
-    const counts = useMemo(() => {
-        const initialCounts: Record<"total" | EnquiryStatus, number> = {
-            total: 0,
-            pending: 0,
-            approved: 0,
-            rejected: 0,
-        };
-
-        return enquiries.reduce((accumulator, enquiry) => {
-            accumulator[enquiry.status] += 1;
-            accumulator.total += 1;
-            return accumulator;
-        }, initialCounts);
-    }, [enquiries]);
+    const counts = enquiryStatusCounts;
 
     const eligiblePortalInviteIds = useMemo(
         () => enquiries.filter((e) => !e.portalInvitedAt && e.status !== "rejected").map((e) => e.id),
         [enquiries],
     );
 
-    /** Any email that already belongs to a portal account is excluded from “contact-only”. */
-    const portalMemberEmailsLower = useMemo(() => {
-        const set = new Set<string>();
+    async function fetchEligiblePortalInviteIds() {
+        try {
+            const response = await fetch("/api/enquiries?page=1&limit=500&status=pending", { cache: "no-store" });
+            const payload = await response.json().catch(() => null);
+            const rows = Array.isArray(payload?.enquiries) ? payload.enquiries as EnquiryRecord[] : [];
 
-        for (const user of adminUsers) {
-            set.add(user.email.trim().toLowerCase());
+            return rows.filter((entry) => !entry.portalInvitedAt && entry.status !== "rejected").map((entry) => entry.id);
+        } catch {
+            return eligiblePortalInviteIds;
         }
+    }
 
-        return set;
-    }, [adminUsers]);
+    const contactOnlyProfiles = contactOnlyMessages;
 
-    const contactOnlyProfiles = useMemo(
-        () => contactMessages.filter((row) => !portalMemberEmailsLower.has(row.email.trim().toLowerCase())),
-        [contactMessages, portalMemberEmailsLower],
-    );
-
-    const registeredUsersFiltered = useMemo(() => {
-        const q = registeredUserSearch.trim().toLowerCase();
-
-        if (!q) {
-            return adminUsers;
-        }
-
-        return adminUsers.filter((user) => user.email.toLowerCase().includes(q));
-    }, [adminUsers, registeredUserSearch]);
+    const registeredUsersFiltered = adminUsers;
 
     function findPortalMemberByEmail(email: string): AdminUser | undefined {
         const needle = email.trim().toLowerCase();
@@ -460,10 +449,7 @@ export default function AdminEnquiriesPanel({
         return adminUsers.find((u) => u.email.trim().toLowerCase() === needle);
     }
 
-    const visibleEnquiries = useMemo(
-        () => enquiries.filter((enquiry) => enquiry.status === activeTab),
-        [enquiries, activeTab]
-    );
+    const visibleEnquiries = enquiries;
 
     const pressReleaseEmptyCopy = useMemo(() => {
         if (pressReleaseStatusTab === "approved") {
@@ -628,15 +614,20 @@ export default function AdminEnquiriesPanel({
     }, [inviteJobId]);
 
     useEffect(() => {
-        if (activeModule === "users" && adminUsers.length === 0) {
-            fetch("/api/admin/users", { cache: "no-store" })
-                .then((response) => response.ok ? response.json() : null)
-                .then((payload) => setAdminUsers(Array.isArray(payload?.users) ? payload.users : []))
-                .catch(() => null);
+        if (activeModule === "users") {
+            if (pressSubmitterSubTab === "registered") {
+                void refreshUsers({ showSuccessToast: false, page: usersPage, search: registeredUserSearch });
+            } else {
+                void refreshContactMessages({ showSuccessToast: false, page: contactOnlyPage, contactOnly: true });
+            }
         }
 
-        if (activeModule === "users" || activeModule === "enquiries") {
-            void refreshContactMessages({ showSuccessToast: false });
+        if (activeModule === "enquiries" && contactMessages.length === 0) {
+            void refreshContactMessages({ showSuccessToast: false, page: contactPage, contactOnly: false });
+        }
+
+        if (activeModule === "media-signups" && enquiries.length === 0) {
+            void refreshEnquiries({ showSuccessToast: false, page: 1, statusTab: activeTab });
         }
 
         if (activeModule === "email-digest" && !digestSettings) {
@@ -665,7 +656,19 @@ export default function AdminEnquiriesPanel({
                 .then((payload) => setAnalytics(payload ?? null))
                 .catch(() => null);
         }
-    }, [activeModule, adminUsers.length, analytics, digestSettings]);
+    }, [activeModule, analytics, digestSettings, pressSubmitterSubTab]);
+
+    useEffect(() => {
+        if (activeModule !== "users" || pressSubmitterSubTab !== "registered") {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            void refreshUsers({ showSuccessToast: false, page: 1, search: registeredUserSearch });
+        }, 300);
+
+        return () => window.clearTimeout(timer);
+    }, [registeredUserSearch, activeModule, pressSubmitterSubTab]);
 
     useEffect(() => {
         if (activeModule !== "site-access") {
@@ -794,12 +797,19 @@ export default function AdminEnquiriesPanel({
         }
     }
 
-    async function refreshEnquiries(options: { showSuccessToast?: boolean } = {}) {
+    async function refreshEnquiries(options: { showSuccessToast?: boolean; page?: number; statusTab?: EnquiryStatus } = {}) {
         const showSuccessToast = options.showSuccessToast !== false;
+        const page = options.page ?? enquiryPage;
+        const statusTab = options.statusTab ?? activeTab;
         setIsRefreshing(true);
 
         try {
-            const response = await fetch("/api/enquiries", {
+            const params = new URLSearchParams({
+                page: String(page),
+                limit: String(ADMIN_LIST_PAGE_SIZE),
+                status: statusTab,
+            });
+            const response = await fetch(`/api/enquiries?${params.toString()}`, {
                 method: "GET",
                 cache: "no-store",
             });
@@ -819,9 +829,30 @@ export default function AdminEnquiriesPanel({
                 return;
             }
 
-            const nextEnquiries = Array.isArray(payload?.enquiries) ? payload.enquiries : [];
+            const nextEnquiries: EnquiryRecord[] = Array.isArray(payload?.enquiries) ? payload.enquiries : [];
+            const meta = parseAdminListMeta(payload?.meta);
 
             setEnquiries(nextEnquiries);
+            setEnquiryPage(meta.page);
+            setEnquiryTotalPages(meta.totalPages);
+            setEnquiryTotalCount(meta.total);
+            setActiveTab(statusTab);
+
+            const statusCounts = payload?.meta?.statusCounts as Record<string, number> | undefined;
+            if (statusCounts && typeof statusCounts.pending === "number") {
+                setEnquiryStatusCounts({
+                    total: Number(statusCounts.total) || 0,
+                    pending: Number(statusCounts.pending) || 0,
+                    approved: Number(statusCounts.approved) || 0,
+                    rejected: Number(statusCounts.rejected) || 0,
+                });
+            }
+
+            if (nextEnquiries.length > 0) {
+                setExpandedId((current) => nextEnquiries.some((enquiry) => enquiry.id === current) ? current : nextEnquiries[0].id);
+            } else {
+                setExpandedId(null);
+            }
 
             if (showSuccessToast) {
                 setToast({
@@ -839,12 +870,19 @@ export default function AdminEnquiriesPanel({
         }
     }
 
-    async function refreshContactMessages(options: { showSuccessToast?: boolean } = {}) {
+    async function refreshContactMessages(options: { showSuccessToast?: boolean; page?: number; contactOnly?: boolean } = {}) {
         const showSuccessToast = options.showSuccessToast !== false;
+        const page = options.page ?? (options.contactOnly ? contactOnlyPage : contactPage);
+        const onlyContact = options.contactOnly ?? false;
         setIsRefreshingContactMessages(true);
 
         try {
-            const response = await fetch("/api/admin/contact-messages", { cache: "no-store" });
+            const params = new URLSearchParams({
+                page: String(page),
+                limit: String(ADMIN_LIST_PAGE_SIZE),
+                contactOnly: onlyContact ? "1" : "0",
+            });
+            const response = await fetch(`/api/admin/contact-messages?${params.toString()}`, { cache: "no-store" });
 
             if (response.status === 401) {
                 router.replace("/admin/login");
@@ -861,7 +899,20 @@ export default function AdminEnquiriesPanel({
                 return;
             }
 
-            setContactMessages(Array.isArray(payload?.contactMessages) ? payload.contactMessages : []);
+            const rows = Array.isArray(payload?.contactMessages) ? payload.contactMessages : [];
+            const meta = parseAdminListMeta(payload?.meta);
+
+            if (onlyContact) {
+                setContactOnlyMessages(rows);
+                setContactOnlyPage(meta.page);
+                setContactOnlyTotalPages(meta.totalPages);
+                setContactOnlyTotalCount(meta.total);
+            } else {
+                setContactMessages(rows);
+                setContactPage(meta.page);
+                setContactTotalPages(meta.totalPages);
+                setContactTotalCount(meta.total);
+            }
 
             if (showSuccessToast) {
                 setToast({ tone: "success", message: "Contact enquiries refreshed successfully." });
@@ -873,6 +924,53 @@ export default function AdminEnquiriesPanel({
             });
         } finally {
             setIsRefreshingContactMessages(false);
+        }
+    }
+
+    async function refreshUsers(options: { showSuccessToast?: boolean; page?: number; search?: string } = {}) {
+        const showSuccessToast = options.showSuccessToast !== false;
+        const page = options.page ?? usersPage;
+        const search = options.search ?? registeredUserSearch;
+        setIsRefreshingUsers(true);
+
+        try {
+            const params = new URLSearchParams({
+                page: String(page),
+                limit: String(ADMIN_LIST_PAGE_SIZE),
+                search,
+            });
+            const response = await fetch(`/api/admin/users?${params.toString()}`, { cache: "no-store" });
+
+            if (response.status === 401) {
+                router.replace("/admin/login");
+                return;
+            }
+
+            const payload = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                setToast({
+                    tone: "error",
+                    message: typeof payload?.error === "string" ? payload.error : "We could not refresh users.",
+                });
+                return;
+            }
+
+            const users = Array.isArray(payload?.users) ? payload.users : [];
+            const meta = parseAdminListMeta(payload?.meta);
+
+            setAdminUsers(users);
+            setUsersPage(meta.page);
+            setUsersTotalPages(meta.totalPages);
+            setUsersTotalCount(meta.total);
+
+            if (showSuccessToast) {
+                setToast({ tone: "success", message: "Portal members refreshed." });
+            }
+        } catch {
+            setToast({ tone: "error", message: "We could not refresh users right now." });
+        } finally {
+            setIsRefreshingUsers(false);
         }
     }
 
@@ -1069,12 +1167,14 @@ export default function AdminEnquiriesPanel({
     }
 
     async function handleBulkPortalInvite() {
-        if (eligiblePortalInviteIds.length === 0) {
+        const ids = await fetchEligiblePortalInviteIds();
+
+        if (ids.length === 0) {
             setToast({ tone: "error", message: "No eligible signups (not rejected, not already invited)." });
             return;
         }
 
-        await startPortalInviteForIds(eligiblePortalInviteIds, "bulk");
+        await startPortalInviteForIds(ids, "bulk");
     }
 
     async function refreshPressReleases(showToast = true, page = pressReleasePage, statusTab: PressReleaseQueueTab = pressReleaseStatusTab) {
@@ -1163,32 +1263,12 @@ export default function AdminEnquiriesPanel({
             case "payments":
                 await refreshPaymentGateway();
                 return;
-            case "users": {
-                try {
-                    const response = await fetch("/api/admin/users", { cache: "no-store" });
-                    if (response.status === 401) {
-                        router.replace("/admin/login");
-                        return;
-                    }
-
-                    const payload = await response.json().catch(() => null);
-                    if (!response.ok) {
-                        setToast({
-                            tone: "error",
-                            message: typeof payload?.error === "string" ? payload.error : "We could not refresh users.",
-                        });
-                        return;
-                    }
-
-                    setAdminUsers(Array.isArray(payload?.users) ? payload.users : []);
-                    await refreshContactMessages({ showSuccessToast: false });
-                    setToast({ tone: "success", message: "Portal members refreshed." });
-                } catch {
-                    setToast({ tone: "error", message: "We could not refresh users right now." });
+            case "users":
+                await refreshUsers();
+                if (pressSubmitterSubTab === "contact-only") {
+                    await refreshContactMessages({ showSuccessToast: false, contactOnly: true });
                 }
-
                 return;
-            }
             case "enquiries":
                 await refreshContactMessages();
                 return;
@@ -1374,6 +1454,29 @@ export default function AdminEnquiriesPanel({
             setPressReleases((current) => current.map((item) => item.id === release.id ? payload.release : item));
         } else {
             setToast({ tone: "error", message: typeof payload?.error === "string" ? payload.error : "Feature setting could not be updated." });
+        }
+    }
+
+    async function toggleActivePressRelease(release: PressReleaseRecord) {
+        const nextActive = release.isActive === false;
+        const response = await fetch(`/api/admin/press-releases/${release.id}/active`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isActive: nextActive }),
+        });
+        const payload = await response.json().catch(() => null);
+
+        if (response.ok && payload?.release) {
+            setPressReleases((current) => current.map((item) => item.id === release.id ? payload.release : item));
+            setToast({
+                tone: "success",
+                message: nextActive ? "Release is live on the site again." : "Release hidden from the public site.",
+            });
+        } else {
+            setToast({
+                tone: "error",
+                message: typeof payload?.error === "string" ? payload.error : "Could not update release visibility.",
+            });
         }
     }
 
@@ -1856,7 +1959,7 @@ export default function AdminEnquiriesPanel({
                     <div>
                         <span className={styles.kicker}>{heroCopy.kicker}</span>
                         <h1>{heroCopy.title}</h1>
-                        <p>{heroCopy.description}</p>
+                        {heroCopy.description ? <p>{heroCopy.description}</p> : null}
                     </div>
 
                     <div className={styles.heroActions}>
@@ -1955,6 +2058,17 @@ export default function AdminEnquiriesPanel({
                             </div>
                         </div>
                     </div>
+                ) : null}
+
+                {createReleaseOpen ? (
+                    <AdminCreatePressReleaseModal
+                        onClose={() => setCreateReleaseOpen(false)}
+                        onCreated={async () => {
+                            setToast({ tone: "success", message: "Press release created. Approve it when ready to publish." });
+                            await refreshPressReleases(false, 1, "pending");
+                            setPressReleaseStatusTab("pending");
+                        }}
+                    />
                 ) : null}
 
                 {editModal ? (
@@ -2086,12 +2200,12 @@ export default function AdminEnquiriesPanel({
                                             onChange={(event) => setEditModal({ ...editModal, category: event.target.value })}
                                         >
                                             <option value="">Select category</option>
-                                            {PRESS_RELEASE_EDIT_CATEGORIES.includes(
-                                                editModal.category as (typeof PRESS_RELEASE_EDIT_CATEGORIES)[number],
+                                            {PRESS_RELEASE_CATEGORIES.includes(
+                                                editModal.category as (typeof PRESS_RELEASE_CATEGORIES)[number],
                                             ) ? null : editModal.category ? (
                                                 <option value={editModal.category}>{editModal.category}</option>
                                             ) : null}
-                                            {PRESS_RELEASE_EDIT_CATEGORIES.map((c) => (
+                                            {PRESS_RELEASE_CATEGORIES.map((c) => (
                                                 <option key={c} value={c}>{c}</option>
                                             ))}
                                         </select>
@@ -2368,6 +2482,11 @@ export default function AdminEnquiriesPanel({
                         </div>
                     </div>
 
+                    <div className={styles.queueStats}>
+                        <span>Total: {contactTotalCount}</span>
+                        <span>Page {contactPage} of {contactTotalPages}</span>
+                    </div>
+
                     <div className={styles.releaseList}>
                         {contactMessages.length === 0 ? (
                             <p className={styles.detailEmpty}>No contact messages yet.</p>
@@ -2398,25 +2517,43 @@ export default function AdminEnquiriesPanel({
                             ))
                         )}
                     </div>
+
+                    <AdminListPagination
+                        ariaLabel="Contact enquiry pages"
+                        page={contactPage}
+                        totalPages={contactTotalPages}
+                        disabled={isRefreshingContactMessages}
+                        onPrevious={() => void refreshContactMessages({ showSuccessToast: false, page: contactPage - 1, contactOnly: false })}
+                        onNext={() => void refreshContactMessages({ showSuccessToast: false, page: contactPage + 1, contactOnly: false })}
+                    />
                 </section>
 
                 <section className={styles.releaseQueue} hidden={activeModule !== "press-releases"}>
                     <div className={styles.queueHeader}>
                         <div>
                             <span className={styles.kicker}>Press releases</span>
-                            <h2>Review newsroom submissions</h2>
-                            <p>Approve paid submissions to publish them on the homepage and newsroom, or reject items that should not go live.</p>
+                            <h2>Newsroom queue</h2>
                         </div>
 
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            size="md"
-                            onClick={() => refreshPressReleases()}
-                            disabled={isRefreshingPressReleases}
-                        >
-                            {isRefreshingPressReleases ? "Refreshing..." : "Refresh releases"}
-                        </Button>
+                        <div className={styles.queueHeaderActions}>
+                            <Button
+                                type="button"
+                                variant="primary"
+                                size="md"
+                                onClick={() => setCreateReleaseOpen(true)}
+                            >
+                                Create release
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                size="md"
+                                onClick={() => refreshPressReleases()}
+                                disabled={isRefreshingPressReleases}
+                            >
+                                {isRefreshingPressReleases ? "Refreshing..." : "Refresh releases"}
+                            </Button>
+                        </div>
                     </div>
 
                     <nav className={styles.tabBar} aria-label="Press release editorial tabs">
@@ -2462,8 +2599,8 @@ export default function AdminEnquiriesPanel({
                                 let combinedBadgeClass = styles.statusPaidPendingReview;
 
                                 if (release.status === "approved") {
-                                    combinedBadgeLabel = "Approved";
-                                    combinedBadgeClass = styles.statusApproved;
+                                    combinedBadgeLabel = release.isActive === false ? "Inactive" : "Approved";
+                                    combinedBadgeClass = release.isActive === false ? styles.statusRejected : styles.statusApproved;
                                 } else if (release.status === "rejected") {
                                     combinedBadgeLabel = "Rejected";
                                     combinedBadgeClass = styles.statusRejected;
@@ -2524,14 +2661,24 @@ export default function AdminEnquiriesPanel({
                                                     {actionBusy && pressReleaseAction?.status === "rejected" ? "Rejecting..." : "Reject"}
                                                 </Button>
                                                 {release.status === "approved" ? (
-                                                    <Button
-                                                        type="button"
-                                                        variant="secondary"
-                                                        size="md"
-                                                        onClick={() => toggleFeaturedPressRelease(release)}
-                                                    >
-                                                        {release.featured ? "Featured: On" : "Featured: Off"}
-                                                    </Button>
+                                                    <>
+                                                        <Button
+                                                            type="button"
+                                                            variant="secondary"
+                                                            size="md"
+                                                            onClick={() => toggleFeaturedPressRelease(release)}
+                                                        >
+                                                            {release.featured ? "Featured: On" : "Featured: Off"}
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            variant="secondary"
+                                                            size="md"
+                                                            onClick={() => toggleActivePressRelease(release)}
+                                                        >
+                                                            {release.isActive === false ? "Set active" : "Set inactive"}
+                                                        </Button>
+                                                    </>
                                                 ) : null}
                                                 <Button
                                                     type="button"
@@ -2554,31 +2701,14 @@ export default function AdminEnquiriesPanel({
                         </div>
                     )}
 
-                    {pressReleaseTotalPages > 1 ? (
-                        <nav className={styles.adminPressReleasePagination} aria-label="Press release pages">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="md"
-                                onClick={() => goToPressReleasePage(pressReleasePage - 1)}
-                                disabled={pressReleasePage <= 1 || isRefreshingPressReleases}
-                            >
-                                Previous
-                            </Button>
-                            <span className={styles.adminPressReleasePaginationStatus}>
-                                Page {pressReleasePage} of {pressReleaseTotalPages}
-                            </span>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="md"
-                                onClick={() => goToPressReleasePage(pressReleasePage + 1)}
-                                disabled={pressReleasePage >= pressReleaseTotalPages || isRefreshingPressReleases}
-                            >
-                                Next
-                            </Button>
-                        </nav>
-                    ) : null}
+                    <AdminListPagination
+                        ariaLabel="Press release pages"
+                        page={pressReleasePage}
+                        totalPages={pressReleaseTotalPages}
+                        disabled={isRefreshingPressReleases}
+                        onPrevious={() => goToPressReleasePage(pressReleasePage - 1)}
+                        onNext={() => goToPressReleasePage(pressReleasePage + 1)}
+                    />
                 </section>
 
                 <section className={styles.releaseQueue} hidden={activeModule !== "users"}>
@@ -2597,7 +2727,10 @@ export default function AdminEnquiriesPanel({
                         <button
                             type="button"
                             className={`${styles.tabButton} ${pressSubmitterSubTab === "registered" ? styles.tabButtonActive : ""}`}
-                            onClick={() => setPressSubmitterSubTab("registered")}
+                            onClick={() => {
+                                setPressSubmitterSubTab("registered");
+                                void refreshUsers({ showSuccessToast: false, page: 1, search: registeredUserSearch });
+                            }}
                             aria-pressed={pressSubmitterSubTab === "registered"}
                         >
                             Registered Users
@@ -2605,14 +2738,29 @@ export default function AdminEnquiriesPanel({
                         <button
                             type="button"
                             className={`${styles.tabButton} ${pressSubmitterSubTab === "contact-only" ? styles.tabButtonActive : ""}`}
-                            onClick={() => setPressSubmitterSubTab("contact-only")}
+                            onClick={() => {
+                                setPressSubmitterSubTab("contact-only");
+                                void refreshContactMessages({ showSuccessToast: false, page: 1, contactOnly: true });
+                            }}
                             aria-pressed={pressSubmitterSubTab === "contact-only"}
                         >
                             Proposal / contact-only
                         </button>
                     </nav>
 
+                    <div className={styles.queueStats}>
+                        <span>
+                            {pressSubmitterSubTab === "registered"
+                                ? `Total registered: ${usersTotalCount}`
+                                : `Contact-only: ${contactOnlyTotalCount}`}
+                        </span>
+                        <span>
+                            Page {pressSubmitterSubTab === "registered" ? usersPage : contactOnlyPage} of {pressSubmitterSubTab === "registered" ? usersTotalPages : contactOnlyTotalPages}
+                        </span>
+                    </div>
+
                     {pressSubmitterSubTab === "registered" ? (
+                        <>
                         <div className={styles.releaseList}>
                             <div className={styles.pressSubmitterSearchWrap}>
                                 <FormControl>
@@ -2658,27 +2806,42 @@ export default function AdminEnquiriesPanel({
                                             </div>
                                         </div>
                                         <div className={`${styles.releaseBody} ${styles.submitterCardBody}`}>
-                                            <p>
-                                                Package: {user.packageType || "-"} · Credits: {user.credits} total
-                                                {user.creditsExpiresAt
-                                                    ? ` · Next credit expiry: ${formatDate(user.creditsExpiresAt)}`
-                                                    : ""}
-                                                {typeof user.bundleCreditsRemaining === "number" && user.bundleCreditsRemaining > 0
-                                                    ? ` · 3-Release pool: ${user.bundleCreditsRemaining} (earliest ${user.bundleCreditsExpiresAt ? formatDate(user.bundleCreditsExpiresAt) : user.creditsExpiresAt ? formatDate(user.creditsExpiresAt) : "—"})`
-                                                    : ""}
-                                                {" · "}Total submissions: {user.totalSubmissions ?? 0} · Digest: {user.digestSubscribed ? "Yes" : "No"} · Joined: {formatDate(user.createdAt)}
-                                            </p>
-                                            <div className={styles.actionGroup}>
-                                                <Button type="button" variant="secondary" size="md" onClick={() => setActiveModule("press-releases")}>
-                                                    View Submissions
-                                                </Button>
+                                            <div className={styles.userDetailLines}>
+                                                <span>Package: {user.packageType || "-"}</span>
+                                                <span>Credits: {user.credits} total</span>
+                                                {user.creditsExpiresAt ? (
+                                                    <span>Next credit expiry: {formatDate(user.creditsExpiresAt)}</span>
+                                                ) : null}
+                                                {typeof user.bundleCreditsRemaining === "number" && user.bundleCreditsRemaining > 0 ? (
+                                                    <span>
+                                                        3-Release pool: {user.bundleCreditsRemaining} (earliest{" "}
+                                                        {user.bundleCreditsExpiresAt
+                                                            ? formatDate(user.bundleCreditsExpiresAt)
+                                                            : user.creditsExpiresAt
+                                                                ? formatDate(user.creditsExpiresAt)
+                                                                : "—"})
+                                                    </span>
+                                                ) : null}
+                                                <span>Total submissions: {user.totalSubmissions ?? 0}</span>
+                                                <span>Digest: {user.digestSubscribed ? "Yes" : "No"}</span>
+                                                <span>Joined: {formatDate(user.createdAt)}</span>
                                             </div>
                                         </div>
                                     </article>
                                 ))
                             )}
                         </div>
+                        <AdminListPagination
+                            ariaLabel="Registered user pages"
+                            page={usersPage}
+                            totalPages={usersTotalPages}
+                            disabled={isRefreshingUsers}
+                            onPrevious={() => void refreshUsers({ showSuccessToast: false, page: usersPage - 1, search: registeredUserSearch })}
+                            onNext={() => void refreshUsers({ showSuccessToast: false, page: usersPage + 1, search: registeredUserSearch })}
+                        />
+                        </>
                     ) : (
+                        <>
                         <div className={styles.releaseList}>
                             {contactOnlyProfiles.length === 0 ? (
                                 <p className={styles.detailEmpty}>
@@ -2732,8 +2895,15 @@ export default function AdminEnquiriesPanel({
                                                         type="button"
                                                         variant="primary"
                                                         size="md"
-                                                        onClick={() => {
-                                                            const linked = findPortalMemberByEmail(row.email);
+                                                        onClick={async () => {
+                                                            let linked = findPortalMemberByEmail(row.email);
+
+                                                            if (!linked) {
+                                                                const response = await fetch(`/api/admin/users?page=1&limit=1&search=${encodeURIComponent(row.email)}`, { cache: "no-store" });
+                                                                const payload = await response.json().catch(() => null);
+                                                                const match = Array.isArray(payload?.users) ? payload.users[0] as AdminUser | undefined : undefined;
+                                                                linked = match?.email.trim().toLowerCase() === row.email.trim().toLowerCase() ? match : undefined;
+                                                            }
 
                                                             if (!linked) {
                                                                 setToast({
@@ -2756,6 +2926,15 @@ export default function AdminEnquiriesPanel({
                                 })
                             )}
                         </div>
+                        <AdminListPagination
+                            ariaLabel="Contact-only pages"
+                            page={contactOnlyPage}
+                            totalPages={contactOnlyTotalPages}
+                            disabled={isRefreshingContactMessages}
+                            onPrevious={() => void refreshContactMessages({ showSuccessToast: false, page: contactOnlyPage - 1, contactOnly: true })}
+                            onNext={() => void refreshContactMessages({ showSuccessToast: false, page: contactOnlyPage + 1, contactOnly: true })}
+                        />
+                        </>
                     )}
                 </section>
 
@@ -2768,7 +2947,7 @@ export default function AdminEnquiriesPanel({
                             <p className={styles.digestScheduleNote}>
                                 <strong>Automatic sends (Eastern Time):</strong> Daily — every day at 8:00 a.m. 3× weekly — Monday,
                                 Wednesday, and Friday at 8:00 a.m. Saving frequency updates all opted-in users to that cadence
-                                and controls which schedule runs. The server must be running at send time (Node cron).
+                                and controls which schedule runs.
                             </p>
                         </div>
                     </div>
@@ -2876,12 +3055,6 @@ export default function AdminEnquiriesPanel({
                                 />
                                 <span>Restrict public site to allowlisted IPv4 addresses only</span>
                             </label>
-                            <p className={styles.siteAccessHelp}>
-                                The toggle is saved in the database. The <strong>allowed IPv4 list is fixed in backend code</strong>{" "}
-                                (<code>STATIC_SITE_IP_ALLOWLIST_ENTRIES</code> in <code>siteIpAllowlist.service.ts</code>) — add or remove
-                                addresses there and redeploy the API. The table below is read-only. Use{" "}
-                                <code>SITE_IP_ALLOWLIST_DISABLE=true</code> on the Next.js host only if you must bypass the gate during an outage.
-                            </p>
 
                             <div className={styles.siteAccessTableWrap}>
                                 <table className={styles.siteAccessTable}>
@@ -2947,8 +3120,7 @@ export default function AdminEnquiriesPanel({
                                 type="button"
                                 className={`${styles.tabButton} ${isActive ? styles.tabButtonActive : ""}`}
                                 onClick={() => {
-                                    setActiveTab(tab.status);
-                                    setExpandedId(enquiries.find((enquiry) => enquiry.status === tab.status)?.id ?? null);
+                                    void refreshEnquiries({ showSuccessToast: false, page: 1, statusTab: tab.status });
                                 }}
                                 aria-pressed={isActive}
                             >
@@ -2958,6 +3130,11 @@ export default function AdminEnquiriesPanel({
                         );
                     })}
                     </nav>
+
+                    <div className={styles.queueStats}>
+                        <span>In this tab: {enquiryTotalCount}</span>
+                        <span>Page {enquiryPage} of {enquiryTotalPages}</span>
+                    </div>
 
                 {visibleEnquiries.length === 0 ? (
                     <div className={styles.emptyState}>
@@ -3104,6 +3281,15 @@ export default function AdminEnquiriesPanel({
                         </aside>
                     </div>
                 )}
+
+                <AdminListPagination
+                    ariaLabel="Media signup pages"
+                    page={enquiryPage}
+                    totalPages={enquiryTotalPages}
+                    disabled={isRefreshing}
+                    onPrevious={() => void refreshEnquiries({ showSuccessToast: false, page: enquiryPage - 1, statusTab: activeTab })}
+                    onNext={() => void refreshEnquiries({ showSuccessToast: false, page: enquiryPage + 1, statusTab: activeTab })}
+                />
 
                 <div className={styles.footerLink}>
                     <Link href="/join-the-media-network">Open the public application page</Link>

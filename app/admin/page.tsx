@@ -28,7 +28,8 @@ export default async function AdminPage() {
     let initialContactMessages: Awaited<ReturnType<typeof listContactMessagesForAdmin>> = [];
 
     try {
-        enquiries = await listEnquiries();
+        const result = await listEnquiries({ page: 1, limit: 8, status: "pending" });
+        enquiries = result.enquiries;
     } catch {
         initialLoadError = "We could not load enquiries right now. Please refresh after checking MongoDB.";
     }

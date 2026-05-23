@@ -22,6 +22,7 @@ export type PressReleaseRecord = {
     featuredUpgrade: boolean;
     amountCents: number;
     featured: boolean;
+    isActive?: boolean;
     rejectionReason: string | null;
     status: string;
     paymentStatus: string;

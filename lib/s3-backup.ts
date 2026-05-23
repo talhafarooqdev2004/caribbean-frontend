@@ -207,7 +207,7 @@ export async function storeEnquiriesBackup(enquiries: EnquiryRecord[]) {
 
 /** Refreshes only the aggregate JSON backup file. */
 export async function syncEnquiriesToS3() {
-    const enquiries = await listEnquiries();
+    const { enquiries } = await listEnquiries({ page: 1, limit: 500 });
     await storeEnquiriesBackup(enquiries);
     await removeLegacyEntriesBackups();
 }

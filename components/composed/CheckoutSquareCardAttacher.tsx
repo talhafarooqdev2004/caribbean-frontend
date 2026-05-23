@@ -42,6 +42,8 @@ type SquareWebClientConfig = {
     appId: string | null;
     locationId: string | null;
     sdkUrl: string;
+    testMode?: boolean;
+    environment?: string;
 };
 
 let squareWebClientConfigPromise: Promise<SquareWebClientConfig> | null = null;
@@ -71,7 +73,117 @@ export function resetSquareWebClientConfigCache() {
     squareWebClientConfigPromise = null;
 }
 
-function waitForSquareGlobal(timeoutMs = 15000): Promise<boolean> {
+function scriptEnvFromCfg(cfg: SquareWebClientConfig): "sandbox" | "production" {
+    if (typeof cfg.testMode === "boolean") {
+        return cfg.testMode ? "sandbox" : "production";
+    }
+
+    const e = typeof cfg.environment === "string" ? cfg.environment.toLowerCase() : "";
+    if (e === "sandbox") {
+        return "sandbox";
+    }
+    if (e === "production") {
+        return "production";
+    }
+
+    return cfg.sdkUrl?.includes("sandbox.web") ? "sandbox" : "production";
+}
+
+function buildSquareSdkScriptUrl(cfg: SquareWebClientConfig): string {
+    const u = new URL("/api/payments/square/square-js", window.location.origin);
+    u.searchParams.set("env", scriptEnvFromCfg(cfg));
+    return u.toString();
+}
+
+/** Same logical script URL (ignore cache-bust query). */
+function squareSdkScriptKey(resolvedHref: string): string {
+    try {
+        const u = new URL(resolvedHref, typeof window !== "undefined" ? window.location.href : undefined);
+        u.searchParams.delete("cb");
+        if (u.pathname === "/api/payments/square/square-js") {
+            const env = u.searchParams.get("env") === "production" ? "production" : "sandbox";
+            return `${u.origin}${u.pathname}?env=${env}`;
+        }
+        u.search = "";
+        return u.href;
+    } catch {
+        return resolvedHref.split("?")[0] || resolvedHref;
+    }
+}
+
+function normalizeSquareSdkUrl(raw: string | null | undefined): string {
+    const s = String(raw ?? "").trim();
+    if (!s) {
+        throw new Error(
+            "Square SDK URL is missing. Check backend Square env and GET /api/payments/square/web-client-config.",
+        );
+    }
+
+    let url: URL;
+    try {
+        url = new URL(s, typeof window !== "undefined" ? window.location.href : "https://example.invalid");
+    } catch {
+        throw new Error(`Square SDK URL is invalid (not a URL): "${s.slice(0, 96)}".`);
+    }
+
+    if (typeof window !== "undefined" && url.origin === window.location.origin && url.pathname === "/api/payments/square/square-js") {
+        const e = url.searchParams.get("env");
+        if (e !== "sandbox" && e !== "production") {
+            throw new Error('Square SDK proxy URL must include env=sandbox or env=production.');
+        }
+        return url.toString();
+    }
+
+    if (url.protocol !== "https:") {
+        throw new Error("Square SDK URL must use https.");
+    }
+
+    const host = url.hostname.toLowerCase();
+    if (host !== "web.squarecdn.com" && host !== "sandbox.web.squarecdn.com") {
+        throw new Error(`Square SDK URL hostname "${host}" is not an allowed Square CDN host.`);
+    }
+
+    if (!url.pathname.toLowerCase().endsWith("square.js")) {
+        throw new Error("Square SDK URL must end with square.js (e.g. /v1/square.js).");
+    }
+
+    return url.toString();
+}
+
+function squareSdkScriptAlreadyInDom(canonicalHref: string): boolean {
+    const key = squareSdkScriptKey(canonicalHref);
+    return Array.from(document.getElementsByTagName("script")).some((el) => {
+        const src = el.getAttribute("src");
+        if (!src) {
+            return false;
+        }
+        try {
+            return squareSdkScriptKey(new URL(src, window.location.href).href) === key;
+        } catch {
+            return false;
+        }
+    });
+}
+
+function getSquareScriptMountParent(): HTMLElement {
+    return document.head ?? document.documentElement;
+}
+
+function injectSquareSdkScript(src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => {
+            script.remove();
+            reject(new Error("Square SDK failed to load"));
+        };
+        getSquareScriptMountParent().appendChild(script);
+    });
+}
+
+function waitForSquareGlobal(timeoutMs = 20000): Promise<boolean> {
     if (typeof window === "undefined") return Promise.resolve(false);
 
     const start = typeof performance !== "undefined" ? performance.now() : Date.now();
@@ -101,19 +213,15 @@ async function ensureSquareScriptLoaded(sdkUrl: string): Promise<void> {
         throw new Error("Square SDK can only load in the browser");
     }
 
-    const existing = Array.from(document.getElementsByTagName("script")).some(
-        (el) => el.getAttribute("src") === sdkUrl,
-    );
+    const trustedUrl = normalizeSquareSdkUrl(sdkUrl);
 
-    if (!existing) {
-        await new Promise<void>((resolve, reject) => {
-            const script = document.createElement("script");
-            script.src = sdkUrl;
-            script.async = true;
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error("Square SDK failed to load"));
-            document.body.appendChild(script);
-        });
+    if (!squareSdkScriptAlreadyInDom(trustedUrl)) {
+        try {
+            await injectSquareSdkScript(trustedUrl);
+        } catch {
+            const retrySrc = `${trustedUrl}${trustedUrl.includes("?") ? "&" : "?"}cb=${Date.now()}`;
+            await injectSquareSdkScript(retrySrc);
+        }
     }
 
     const ready = await waitForSquareGlobal();
@@ -235,7 +343,7 @@ async function loadSquareCardIntoMount(mountSelector: string, signal?: AbortSign
             let card: SquareCard | null = null;
 
             try {
-                await ensureSquareScriptLoaded(cfg.sdkUrl);
+                await ensureSquareScriptLoaded(buildSquareSdkScriptUrl(cfg));
 
                 if (signal?.aborted) {
                     return null;

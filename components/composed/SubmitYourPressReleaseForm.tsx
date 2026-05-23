@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 import { formatReleaseDate, formatReleaseTime } from "@/lib/press-release-display";
 import { stripTagsToPlainText, truncatePlainExcerpt } from "@/lib/press-release-list-excerpt";
+import { PRESS_RELEASE_CATEGORIES } from "@/lib/press-release-categories";
 
 import { Container } from "../layout";
 import {
@@ -106,16 +107,7 @@ const packageOptions: PackageOption[] = [
   },
 ];
 
-const categories = [
-  "Business",
-  "Culture",
-  "Education",
-  "Environment",
-  "Government",
-  "Healthcare",
-  "Technology",
-  "Tourism",
-];
+const categories = [...PRESS_RELEASE_CATEGORIES];
 
 /** Same destination as pricing "Professional Campaigns" -> Request a Proposal. */
 const professionalCampaignContactHref = "/contact-us?for=proposal";
