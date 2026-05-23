@@ -9,7 +9,11 @@ import type { NextRequest } from "next/server";
  * `/api/public/site-access` (same Amplify app → EC2 → DB). When restriction is off
  * in admin, everyone sees the site. When on, only allowlisted IPv4s pass.
  */
-const POLICY_CACHE_MS = 2000;
+const POLICY_CACHE_MS = 15000;
+const POLICY_FETCH_TIMEOUT_MS = 4000;
+
+/** Inlined at Amplify build from NEXT_PUBLIC_CARIB_BACKEND_URL (.env.production). */
+const BACKEND_API_BASE = (process.env.NEXT_PUBLIC_CARIB_BACKEND_URL || "").replace(/\/$/, "");
 
 type PolicyCache = {
     expires: number;
@@ -196,14 +200,47 @@ function parsePolicyJson(json: unknown): { restrictEnabled: boolean; allowedIps:
         return null;
     }
 
-    const record = json as { restrictEnabled?: unknown; allowedIps?: unknown };
+    const record = json as {
+        restrictEnabled?: unknown;
+        allowedIps?: unknown;
+        data?: unknown;
+    };
+
+    const nested =
+        record.data && typeof record.data === "object"
+            ? (record.data as { restrictEnabled?: unknown; allowedIps?: unknown })
+            : null;
+
+    const source = nested ?? record;
 
     return {
-        restrictEnabled: Boolean(record.restrictEnabled),
-        allowedIps: Array.isArray(record.allowedIps)
-            ? record.allowedIps.map((ip) => String(ip).trim()).filter(Boolean)
+        restrictEnabled: Boolean(source.restrictEnabled),
+        allowedIps: Array.isArray(source.allowedIps)
+            ? source.allowedIps.map((ip) => String(ip).trim()).filter(Boolean)
             : [],
     };
+}
+
+function cachePolicy(now: number, parsed: { restrictEnabled: boolean; allowedIps: string[] }) {
+    policyCache = {
+        expires: now + POLICY_CACHE_MS,
+        restrictEnabled: parsed.restrictEnabled,
+        allowedIps: parsed.allowedIps,
+    };
+}
+
+async function fetchPolicyFromUrl(url: string, signal: AbortSignal): Promise<{ restrictEnabled: boolean; allowedIps: string[] } | null> {
+    const res = await fetch(url, {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+        signal,
+    });
+
+    if (!res.ok) {
+        return null;
+    }
+
+    return parsePolicyJson(await res.json());
 }
 
 async function loadPolicy(origin: string): Promise<LoadPolicyResult> {
@@ -218,49 +255,9 @@ async function loadPolicy(origin: string): Promise<LoadPolicyResult> {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), POLICY_FETCH_TIMEOUT_MS);
 
-    try {
-        const res = await fetch(new URL("/api/public/site-access", origin).toString(), {
-            cache: "no-store",
-            headers: { Accept: "application/json" },
-            signal: controller.signal,
-        });
-
-        if (!res.ok) {
-            if (policyCache) {
-                return {
-                    ok: false,
-                    restrictEnabled: policyCache.restrictEnabled,
-                    allowedIps: policyCache.allowedIps,
-                };
-            }
-
-            return { ok: false };
-        }
-
-        const parsed = parsePolicyJson(await res.json());
-
-        if (!parsed) {
-            if (policyCache) {
-                return {
-                    ok: false,
-                    restrictEnabled: policyCache.restrictEnabled,
-                    allowedIps: policyCache.allowedIps,
-                };
-            }
-
-            return { ok: false };
-        }
-
-        policyCache = {
-            expires: now + POLICY_CACHE_MS,
-            restrictEnabled: parsed.restrictEnabled,
-            allowedIps: parsed.allowedIps,
-        };
-
-        return { ok: true, ...parsed };
-    } catch {
+    const staleFallback = (): LoadPolicyResult => {
         if (policyCache) {
             return {
                 ok: false,
@@ -270,6 +267,34 @@ async function loadPolicy(origin: string): Promise<LoadPolicyResult> {
         }
 
         return { ok: false };
+    };
+
+    try {
+        const policyUrls: string[] = [];
+
+        if (BACKEND_API_BASE) {
+            policyUrls.push(`${BACKEND_API_BASE}/api/v1/site-access`);
+        }
+
+        policyUrls.push(new URL("/api/public/site-access", origin).toString());
+
+        for (const url of policyUrls) {
+            try {
+                const parsed = await fetchPolicyFromUrl(url, controller.signal);
+
+                if (parsed) {
+                    cachePolicy(now, parsed);
+
+                    return { ok: true, ...parsed };
+                }
+            } catch {
+                // try next source
+            }
+        }
+
+        return staleFallback();
+    } catch {
+        return staleFallback();
     } finally {
         clearTimeout(timeoutId);
     }
@@ -291,7 +316,10 @@ async function evaluateAccess(request: NextRequest): Promise<NextResponse | null
 
     if (!policy.ok) {
         if (policy.restrictEnabled === false) {
-            return withNoStore(NextResponse.next());
+            const response = withNoStore(NextResponse.next());
+            response.headers.set("x-site-gate", "open-stale");
+
+            return response;
         }
 
         if (policy.restrictEnabled === true) {
@@ -311,7 +339,10 @@ async function evaluateAccess(request: NextRequest): Promise<NextResponse | null
     }
 
     if (!policy.restrictEnabled) {
-        return withNoStore(NextResponse.next());
+        const response = withNoStore(NextResponse.next());
+        response.headers.set("x-site-gate", "open");
+
+        return response;
     }
 
     const ip = getClientIp(request);
@@ -340,7 +371,10 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!isProductionDeployedHost(request)) {
-        return NextResponse.next();
+        const response = NextResponse.next();
+        response.headers.set("x-site-gate", "dev-skip");
+
+        return response;
     }
 
     if (pathname.startsWith("/maintenance")) {
