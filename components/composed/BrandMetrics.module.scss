@@ -3,49 +3,165 @@
 @use "../../styles/breakpoints" as *;
 
 .brandMetrics {
-    background-color: $white;
-    border: 1px solid $grayish-blue-100;
+    background-color: $cream-200;
 
     .brandMetricsInner {
-        padding-block: $space-xl;
+        width: 100%;
+        max-width: $container-lg;
+        margin-inline: auto;
+        padding: 0;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        justify-content: space-between;
-        align-items: center;
-        row-gap: $space-xl;
+        gap: 0;
+    }
 
-        .metric {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: $space-sm;
+    .metric {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px 16px 24px 20px;
+        border-right: 1px solid rgba($grayish-blue-100, 0.95);
+        border-bottom: 1px solid rgba($grayish-blue-100, 0.95);
 
-            .metricCount {
-                font-size: 36px;
-            }
+        &:nth-child(2n) {
+            border-right: none;
+        }
 
-            .metricLabel {
-                font-size: $text-sm;
-                color: $grayish-blue-800;
-            }
+        &:nth-child(n + 3) {
+            border-bottom: none;
+        }
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 22px;
+            background-color: $soft-blue-100;
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    .metricIcon {
+        flex-shrink: 0;
+        color: $soft-blue-100;
+        margin-bottom: 8px;
+    }
+
+    .metricTitle {
+        margin: 0;
+        font-family: $font-display;
+        font-weight: $weight-md;
+        font-size: 34px;
+        line-height: 1.05;
+        color: #172840;
+    }
+
+    .metricSuffix {
+        font-family: inherit;
+        font-weight: inherit;
+        color: inherit;
+    }
+
+    .metricSuffixPlus {
+        margin-left: 1px;
+        font-size: 0.68em;
+        color: $soft-blue-100;
+        vertical-align: baseline;
+    }
+
+    .metricSuffixAccent {
+        margin-left: 1px;
+        font-size: 0.58em;
+        font-weight: $weight-md;
+        color: $soft-blue-100;
+        vertical-align: baseline;
+    }
+
+    .metricLabel {
+        margin-top: 8px;
+        font-family: $font-sans;
+        font-size: 13.5px;
+        line-height: 20px;
+        color: #6B849A;
+    }
+
+    @media (min-width: map-get($breakpoints, "md")) {
+        --metrics-padding-block: 51px;
+
+        border-bottom: 1px solid rgba($soft-blue-100, 0.18);
+        overflow: visible;
+
         .brandMetricsInner {
-            padding-block: $space-2xl;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
+            padding-block: var(--metrics-padding-block);
+            align-items: stretch;
+            position: relative;
+            overflow: visible;
+        }
 
-            .metric {
-                .metricCount {
-                    font-size: $text-4xl;
-                }
+        .metric {
+            position: relative;
+            padding: 0 $space-xl;
+            border-right: none;
+            border-bottom: none;
 
-                .metricLabel {
-                    font-size: $text-sm;
-                    color: $grayish-blue-800;
-                }
+            &:nth-child(2n) {
+                border-right: none;
             }
+
+            &:nth-child(n + 3) {
+                border-bottom: none;
+            }
+
+            &::before {
+                display: none;
+                content: none;
+                width: auto;
+                height: auto;
+                background: none;
+            }
+
+            &:not(:first-child)::before {
+                content: "";
+                display: block;
+                position: absolute;
+                left: 0;
+                top: calc(-1 * var(--metrics-padding-block));
+                bottom: calc(-1 * var(--metrics-padding-block));
+                width: 1px;
+                background-color: rgba($grayish-blue-100, 0.95);
+            }
+
+            &:not(:first-child)::after {
+                content: "";
+                position: absolute;
+                left: -1.5px;
+                top: calc(-1 * var(--metrics-padding-block));
+                width: 4px;
+                height: 28px;
+                background-color: $soft-blue-100;
+                z-index: 1;
+            }
+        }
+
+        .metricTitle {
+            font-size: $text-4xl;
+        }
+
+        .metricIcon {
+            margin-bottom: 10px;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, "lg")) {
+        .metric {
+            padding-inline: $space-2xl;
+        }
+
+        .metricTitle {
+            font-size: 52px;
         }
     }
 }

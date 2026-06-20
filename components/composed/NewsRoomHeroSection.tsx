@@ -7,32 +7,24 @@ type NewsRoomHeroSectionProps = {
     activeCategory?: string;
     categories?: string[];
     searchValue?: string;
-    activeIsland?: string;
-    dateRange?: string;
-    sort?: string;
     onCategoryChange?: (category: string) => void;
-    onIslandChange?: (island: string) => void;
-    onDateRangeChange?: (dateRange: string) => void;
-    onSortChange?: (sort: string) => void;
     onSearchChange?: (value: string) => void;
+    onFilterApply?: () => void;
 };
 
 export default function NewsRoomHeroSection({
     activeCategory,
     categories,
     searchValue,
-    activeIsland,
-    dateRange,
-    sort,
     onCategoryChange,
-    onIslandChange,
-    onDateRangeChange,
-    onSortChange,
     onSearchChange,
+    onFilterApply,
 }: NewsRoomHeroSectionProps) {
     return (
         <section className={styles.heroSection}>
             <Container className={styles.heroSectionInner}>
+                <span className={styles.badge}>Caribbean Press</span>
+
                 <h1>Newsroom</h1>
 
                 <p>The latest press releases and announcements from across the Caribbean</p>
@@ -42,16 +34,11 @@ export default function NewsRoomHeroSection({
                     categories={categories}
                     className={styles.heroSectionFilter}
                     searchValue={searchValue}
-                    activeIsland={activeIsland}
-                    dateRange={dateRange}
-                    sort={sort}
                     onCategoryChange={onCategoryChange}
-                    onIslandChange={onIslandChange}
-                    onDateRangeChange={onDateRangeChange}
-                    onSortChange={onSortChange}
                     onSearchChange={onSearchChange}
+                    onFilterApply={onFilterApply}
                 />
             </Container>
         </section>
     );
-};
+}

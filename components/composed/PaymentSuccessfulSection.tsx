@@ -12,6 +12,7 @@ type PaymentSummary = {
   amountCents?: number;
   customerEmail?: string | null;
   packageId?: string;
+  featuredUpgrade?: boolean;
 };
 
 type ReleaseSummary = {
@@ -21,7 +22,7 @@ type ReleaseSummary = {
 
 function formatPackageName(release: ReleaseSummary | null, payment: PaymentSummary | null) {
   const pkg = release?.packageId ?? payment?.packageId ?? "single";
-  const featured = Boolean(release?.featuredUpgrade);
+  const featured = Boolean(release?.featuredUpgrade ?? payment?.featuredUpgrade);
   const base =
     pkg === "bundle" ? "3-Release Package" : pkg === "custom" ? "Professional Campaigns" : "Single Release";
   return featured ? `${base} + Featured Placement` : base;
@@ -169,10 +170,6 @@ export default function PaymentSuccessfulSection() {
 
           <Link href="/portal" className={`${styles.actionButton} ${styles.secondaryAction}`}>
             My Portal
-          </Link>
-
-          <Link href="/" className={`${styles.actionButton} ${styles.secondaryAction}`}>
-            Back to Home
           </Link>
         </div>
       </div>

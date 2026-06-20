@@ -88,3 +88,29 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     return Response.json({ message: payload?.message, release: payload?.data }, { status: response.status });
 }
+
+export async function DELETE(_request: NextRequest, context: RouteContext) {
+    const authHeader = await getAdminAuthorizationHeader();
+
+    if (!authHeader) {
+        return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await context.params;
+    const response = await caribApiFetch(`/press-releases/admin/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: authHeader,
+    });
+    const payload = await parseCaribApiJson(response);
+
+    if (!response.ok) {
+        return Response.json(
+            { error: typeof payload?.message === "string" ? payload.message : "Unable to delete press release." },
+            { status: response.status },
+        );
+    }
+
+    return Response.json({
+        message: typeof payload?.message === "string" ? payload.message : "Press release deleted successfully.",
+    });
+}

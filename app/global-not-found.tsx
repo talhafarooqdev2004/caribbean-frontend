@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 
 import "@/styles/globals.scss";
 
-const inter = Inter({
-    variable: "--font-inter",
+const dmSans = DM_Sans({
+    subsets: ["latin"],
+    variable: "--font-dm-sans",
     weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
     title: "Page Not Available",
     description: "This area is temporarily unavailable.",
+    icons: {
+        icon: "/images/site-favicon.jpg",
+        shortcut: "/images/site-favicon.jpg",
+        apple: "/images/site-favicon.jpg",
+    },
 };
 
 export default function GlobalNotFound() {
     return (
-        <html lang="en" className={inter.variable}>
+        <html lang="en" className={dmSans.variable}>
             <body>
                 <main className="global-not-found">
                     <div className="card">

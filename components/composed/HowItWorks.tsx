@@ -1,47 +1,44 @@
 import styles from "./HowItWorks.module.scss";
 
+import { ArrowRight, FileText, PlayCircle, SquareCheck } from "lucide-react";
 import { Container } from "../layout";
-import { HowItWorksCards, HowItWorksCard } from "./HowItWorksCards";
+
+const steps = [
+    { num: "01", step: "— STEP 1", Icon: FileText, title: "Submit Your Story", description: "Create your press release with our simple submission form. Add images, select categories, and target specific islands." },
+    { num: "02", step: "— STEP 2", Icon: SquareCheck, title: "Get Approved", description: "Our editorial team reviews your submission within 48 hours to ensure accuracy, relevance, and credibility." },
+    { num: "03", step: "— STEP 3", Icon: PlayCircle, title: "Reach Media", description: "Your story is distributed to our curated network of Caribbean journalists and published in our newsroom." },
+];
 
 export default function HowItWorks() {
     return (
         <section className={styles.howItWorks}>
             <Container className={styles.howItWorksInner}>
-                <h1>How It Works</h1>
+                <div className={styles.header}>
+                    <div>
+                        <span className={styles.eyebrow}>How It Works</span>
+                        <h2>Three steps to reach</h2>
+                    </div>
+                    <p>
+                        Simple, editorial, effective. From submission to front pages in 48 hours or less —
+                        with a human review every step of the way.
+                    </p>
+                </div>
 
-                <p>Three simple steps to reach Caribbean media professionals</p>
+                <div className={styles.steps}>
+                    {steps.map(({ num, step, Icon, title, description }, index) => (
+                        <article key={num} className={styles.step}>
+                            {index < steps.length - 1 ? (
+                                <span className={styles.stepArrow}><ArrowRight size={14} strokeWidth={2} /></span>
+                            ) : null}
 
-                <HowItWorksCards>
-                    <HowItWorksCard>
-                        <HowItWorksCard.Icon
-                            icon="note-book"
-                            className={styles.iconStep1}
-                        />
-                        <HowItWorksCard.Tag className={styles.tagStep1}>Step 1</HowItWorksCard.Tag>
-                        <HowItWorksCard.Title>Submit Your Story</HowItWorksCard.Title>
-                        <HowItWorksCard.Description>Create your press release with our simple submission form. Add images, select categories, and target specific islands.</HowItWorksCard.Description>
-                    </HowItWorksCard>
-
-                    <HowItWorksCard>
-                        <HowItWorksCard.Icon
-                            icon="approve"
-                            className={styles.iconStep2}
-                        />
-                        <HowItWorksCard.Tag className={styles.tagStep2}>Step 2</HowItWorksCard.Tag>
-                        <HowItWorksCard.Title>Get Approved</HowItWorksCard.Title>
-                        <HowItWorksCard.Description>Our editorial team reviews your submission within 48 hours to ensure accuracy, relevance, and credibility.</HowItWorksCard.Description>
-                    </HowItWorksCard>
-
-                    <HowItWorksCard>
-                        <HowItWorksCard.Icon
-                            icon="media"
-                            className={styles.iconStep3}
-                        />
-                        <HowItWorksCard.Tag className={styles.tagStep3}>Step 3</HowItWorksCard.Tag>
-                        <HowItWorksCard.Title>Reach Media</HowItWorksCard.Title>
-                        <HowItWorksCard.Description>Your story is distributed to our curated network of Caribbean journalists and published in our newsroom.</HowItWorksCard.Description>
-                    </HowItWorksCard>
-                </HowItWorksCards>
+                            <span className={styles.stepNumber}>{num}</span>
+                            <span className={styles.stepIcon}><Icon size={20} strokeWidth={1.9} /></span>
+                            <span className={styles.stepLabel}>{step}</span>
+                            <h3>{title}</h3>
+                            <p>{description}</p>
+                        </article>
+                    ))}
+                </div>
             </Container>
         </section>
     );

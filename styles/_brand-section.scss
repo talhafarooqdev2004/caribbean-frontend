@@ -1,0 +1,37 @@
+@use "./semantic" as *;
+
+@mixin brand-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: $accent-line;
+    font-size: 10px;
+    font-weight: $weight-md;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+
+    &::before {
+        content: "";
+        width: 20px;
+        height: 1px;
+        background-color: $accent-line;
+    }
+}
+
+@mixin brand-eyebrow-md {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+
+    &::before {
+        width: 24px;
+    }
+}
+
+@mixin brand-section-inner-mobile {
+    padding-block: $section-block-mobile;
+}
+
+@mixin brand-hero-mobile {
+    padding-block: $section-block-mobile;
+    background-color: $navy-deep;
+}

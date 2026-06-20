@@ -2,7 +2,7 @@
 
 import styles from "./SendUsAMessage.module.scss";
 
-import { Mail, MessageCircleMore, SendHorizontal } from "lucide-react";
+import { Clock, Mail, SendHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Container } from "@/components/layout";
@@ -190,8 +190,8 @@ export default function SendUsAMessage({ proposalIntent = false }: SendUsAMessag
                 <div className={styles.contentGrid}>
                     <div className={styles.formPanel}>
                         <div className={styles.panelHeader}>
-                            <MessageCircleMore size={24} strokeWidth={1.9} />
-                            <h1>Send us a Message</h1>
+                            <span className={styles.eyebrow}>Send us a Message</span>
+                            <h2>We read <em>everything.</em></h2>
                             {proposalIntent ? (
                                 <p className={styles.proposalHint}>
                                     You arrived from <strong>Request a Proposal</strong>. Describe your campaign volume and goals below—we will follow up by email. Custom billing is arranged directly with our team (not through checkout).
@@ -200,35 +200,37 @@ export default function SendUsAMessage({ proposalIntent = false }: SendUsAMessag
                         </div>
 
                         <form className={styles.form} onSubmit={handleSubmit} noValidate>
-                            <FormControl>
-                                <FormLabel htmlFor="contact-name">Name *</FormLabel>
-                                <Input
-                                    id="contact-name"
-                                    name="name"
-                                    type="text"
-                                    placeholder="Your full name"
-                                    autoComplete="name"
-                                    value={formValues.name}
-                                    onChange={(event) => updateField("name", event.target.value)}
-                                    aria-invalid={Boolean(fieldErrors.name)}
-                                />
-                                {fieldErrors.name ? <p className={styles.fieldError}>{fieldErrors.name}</p> : null}
-                            </FormControl>
+                            <div className={styles.fieldRow}>
+                                <FormControl>
+                                    <FormLabel htmlFor="contact-name">Name <span className={styles.required}>*</span></FormLabel>
+                                    <Input
+                                        id="contact-name"
+                                        name="name"
+                                        type="text"
+                                        placeholder="Your full name"
+                                        autoComplete="name"
+                                        value={formValues.name}
+                                        onChange={(event) => updateField("name", event.target.value)}
+                                        aria-invalid={Boolean(fieldErrors.name)}
+                                    />
+                                    {fieldErrors.name ? <p className={styles.fieldError}>{fieldErrors.name}</p> : null}
+                                </FormControl>
 
-                            <FormControl>
-                                <FormLabel htmlFor="contact-email">Email *</FormLabel>
-                                <Input
-                                    id="contact-email"
-                                    name="email"
-                                    type="email"
-                                    placeholder="your.email@example.com"
-                                    autoComplete="email"
-                                    value={formValues.email}
-                                    onChange={(event) => updateField("email", event.target.value)}
-                                    aria-invalid={Boolean(fieldErrors.email)}
-                                />
-                                {fieldErrors.email ? <p className={styles.fieldError}>{fieldErrors.email}</p> : null}
-                            </FormControl>
+                                <FormControl>
+                                    <FormLabel htmlFor="contact-email">Email <span className={styles.required}>*</span></FormLabel>
+                                    <Input
+                                        id="contact-email"
+                                        name="email"
+                                        type="email"
+                                        placeholder="your.email@example.com"
+                                        autoComplete="email"
+                                        value={formValues.email}
+                                        onChange={(event) => updateField("email", event.target.value)}
+                                        aria-invalid={Boolean(fieldErrors.email)}
+                                    />
+                                    {fieldErrors.email ? <p className={styles.fieldError}>{fieldErrors.email}</p> : null}
+                                </FormControl>
+                            </div>
 
                             <FormControl>
                                 <FormLabel htmlFor="contact-organization">
@@ -248,7 +250,7 @@ export default function SendUsAMessage({ proposalIntent = false }: SendUsAMessag
                             </FormControl>
 
                             <FormControl>
-                                <FormLabel htmlFor="contact-inquiry-type">Inquiry Type *</FormLabel>
+                                <FormLabel htmlFor="contact-inquiry-type">Inquiry Type <span className={styles.required}>*</span></FormLabel>
                                 <Select
                                     id="contact-inquiry-type"
                                     name="inquiryType"
@@ -261,7 +263,7 @@ export default function SendUsAMessage({ proposalIntent = false }: SendUsAMessag
                             </FormControl>
 
                             <FormControl>
-                                <FormLabel htmlFor="contact-message">Message *</FormLabel>
+                                <FormLabel htmlFor="contact-message">Message <span className={styles.required}>*</span></FormLabel>
                                 <Textarea
                                     id="contact-message"
                                     name="message"
@@ -275,42 +277,41 @@ export default function SendUsAMessage({ proposalIntent = false }: SendUsAMessag
                             </FormControl>
 
                             <div className={styles.responseCard}>
-                                <strong>Response Expectation:</strong> We typically respond within 1-2 business days.
+                                <span className={styles.responseIcon}>
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <g clipPath="url(#clip0_830_563)">
+                                            <path d="M6.99947 12.8293C10.2201 12.8293 12.831 10.2184 12.831 6.99776C12.831 3.77711 10.2201 1.16626 6.99947 1.16626C3.77882 1.16626 1.16797 3.77711 1.16797 6.99776C1.16797 10.2184 3.77882 12.8293 6.99947 12.8293Z" stroke="#FFC400" strokeWidth="1.1663" strokeLinecap="round" strokeLinejoin="round" />
+                                            <path d="M6.99609 3.49878V6.99768L9.32869 8.16398" stroke="#FFC400" strokeWidth="1.1663" strokeLinecap="round" strokeLinejoin="round" />
+                                        </g>
+                                        <defs>
+                                            <clipPath id="clip0_830_563">
+                                                <rect width="13.9956" height="13.9956" fill="white" />
+                                            </clipPath>
+                                        </defs>
+                                    </svg>
+
+                                </span>
+                                <p><strong>Response Expectation:</strong> We typically respond within 1–2 business days.</p>
                             </div>
 
                             <Button variant="form" className={styles.submitButton} type="submit" disabled={isSubmitting}>
-                                <SendHorizontal size={18} strokeWidth={2} />
                                 {isSubmitting ? "Sending..." : "Send Message"}
+                                <SendHorizontal size={18} strokeWidth={2} />
                             </Button>
                         </form>
                     </div>
 
                     <aside className={styles.infoColumn}>
-                        <article className={`${styles.infoCard} ${styles.infoCardHighlighted}`}>
-                            <div className={styles.infoHeader}>
-                                <Mail size={22} strokeWidth={1.9} />
-                                <h2>Email Us</h2>
-                            </div>
+                        <article className={styles.infoCard}>
+                            <span className={styles.infoIcon}>
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2.99906 2.99805H14.9915C15.816 2.99805 16.4906 3.67262 16.4906 4.49711V13.4915C16.4906 14.3159 15.816 14.9905 14.9915 14.9905H2.99906C2.17458 14.9905 1.5 14.3159 1.5 13.4915V4.49711C1.5 3.67262 2.17458 2.99805 2.99906 2.99805Z" stroke="#FFC400" strokeWidth="1.34915" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M16.4906 4.49707L8.99529 9.74377L1.5 4.49707" stroke="#FFC400" strokeWidth="1.34915" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            </span>
+                            <span className={styles.infoLabel}>Email Us</span>
                             <a href="mailto:info@caribnewswire.com">info@caribnewswire.com</a>
-                        </article>
-
-                        <article className={styles.infoCard}>
-                            <h2>Business Hours</h2>
-                            <p>Monday - Friday</p>
-                            <strong>9:00 AM - 5:00 PM AST</strong>
-                        </article>
-
-                        <article className={styles.infoCard}>
-                            <h2>Address</h2>
-                            <address>
-                                Bayfront Innovation Group LLC
-                                <br />
-                                P.O. Box 2327
-                                <br />
-                                Kingshill, VI 00851-2327
-                                <br />
-                                St. Croix, USVI
-                            </address>
+                            <p>For all general, media, and submission inquiries.</p>
                         </article>
                     </aside>
                 </div>

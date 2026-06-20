@@ -45,3 +45,16 @@ export function buildNewsroomGridQueryString(filters: NewsroomGridListFilters): 
 
     return params.toString();
 }
+
+export function buildNewsroomSearchUrl(search: string): string {
+    const trimmed = search.trim();
+
+    if (!trimmed) {
+        return "/newsroom";
+    }
+
+    const params = new URLSearchParams();
+    params.set("search", trimmed);
+
+    return `/newsroom?${params.toString()}`;
+}

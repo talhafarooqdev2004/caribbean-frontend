@@ -3,64 +3,200 @@
 @use "../../styles/breakpoints" as *;
 
 .distributionStrategy {
-    background-color: $bg-section;
+    position: relative;
+    background-color: $white;
+    overflow-x: clip;
 
-    .distributionStrategyInner {
-        padding-block: 64px;
+    // Wave carrying the white form section down into the navy band.
+    .curve {
+        position: relative;
+        z-index: 2;
+        line-height: 0;
+        overflow: hidden;
+        margin-top: -1px;
+        background-color: $navy-deep;
 
-        .card {
-            background: linear-gradient(135deg, #274060 0%, #2A4669 7.14%, #2E4C71 14.29%, #31527A 21.43%, #345883 28.57%, #385E8C 35.71%, #3B6595 42.86%, #3F6B9F 50%, #4271A8 57.14%, #4678B1 64.29%, #497EBB 71.43%, #4D85C5 78.57%, #518CCE 85.71%, #5492D8 92.86%, #5899E2 100%);
-            border-radius: $radius-lg;
-            padding: $space-2xl;
+        svg {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: 90px;
 
-            >h1 {
-                color: $white;
-                font-weight: $weight-bold;
-                font-size: 30px;
-                line-height: 36px;
-                text-align: center;
-            }
-
-            >p {
-                margin-top: $space-base;
-                color: $white;
-                font-size: $text-base;
-                line-height: $line-height-md;
-                text-align: center;
-                margin-inline: auto;
-            }
-
-            >button {
-                margin-top: $space-xl;
-                width: 100%;
+            path {
+                fill: $white;
+                stroke: $white;
+                stroke-width: 2px;
+                stroke-linejoin: round;
             }
         }
     }
 
+    .navyContent {
+        position: relative;
+        margin-top: -1px;
+        background-color: $navy-deep;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    .decor {
+        display: none;
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .ringTop,
+    .ringBottom {
+        position: absolute;
+        border-radius: $radius-full;
+        border: 1px solid rgba($soft-blue-100, 0.18);
+    }
+
+    .ringTop {
+        width: 400px;
+        height: 400px;
+        top: -90px;
+        right: -110px;
+    }
+
+    .ringBottom {
+        width: 280px;
+        height: 280px;
+        bottom: 32px;
+        left: 32px;
+        border-color: rgba($soft-blue-100, 0.12);
+    }
+
+    .distributionStrategyInner {
+        position: relative;
+        z-index: 1;
+        padding-block: 48px 56px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 28px;
+    }
+
+    .copy {
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: $secondary;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 24px;
+                height: 1px;
+                background-color: $secondary;
+            }
+        }
+
+        >h2 {
+            margin-top: 16px;
+            font-family: $font-display;
+            color: $white;
+            font-size: 32px;
+            line-height: 1.12;
+            font-weight: $weight-bold;
+
+            >span {
+                display: block;
+                margin-top: 2px;
+                font-style: italic;
+                color: $secondary;
+            }
+        }
+
+        >p {
+            margin-top: 14px;
+            max-width: 100%;
+            color: #FFFFFF85;
+            font-size: 15px;
+            line-height: 26px;
+        }
+    }
+
+    .proposalButton {
+        width: 100%;
+        justify-content: center;
+        gap: $space-md;
+        height: 51px;
+        line-height: 51px;
+        padding-inline: 20px;
+        border-radius: 12px !important;
+        background-color: $secondary !important;
+        color: #172940 !important;
+        font-size: 15px !important;
+        font-weight: $weight-semi-bold !important;
+    }
+
+    @media (min-width: map-get($breakpoints, 'sm')) {
+        .copy>h2 {
+            font-size: 36px;
+        }
+    }
+
     @media (min-width: map-get($breakpoints, 'md')) {
+        .decor {
+            display: block;
+        }
+
         .distributionStrategyInner {
-            max-width: 1150px;
+            padding-block: $space-5xl;
+            padding-inline: 140px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: $space-4xl;
+        }
 
-            .card {
-                background: linear-gradient(135deg, #274060 0%, #2A4669 7.14%, #2E4C71 14.29%, #31527A 21.43%, #345883 28.57%, #385E8C 35.71%, #3B6595 42.86%, #3F6B9F 50%, #4271A8 57.14%, #4678B1 64.29%, #497EBB 71.43%, #4D85C5 78.57%, #518CCE 85.71%, #5492D8 92.86%, #5899E2 100%);
-                border-radius: $radius-lg;
-                padding: $space-2xl;
+        .copy {
+            .eyebrow {
+                font-size: 11px;
+                font-weight: $weight-md;
+            }
 
-                >h1 {
-                    font-size: $text-section;
-                    line-height: 40px;
-                }
+            >h2 {
+                margin-top: 18px;
+                font-size: 46px;
+                line-height: 51.52px;
 
-                >p {
-                    width: 78%;
-                }
-
-                >button {
-                    width: max-content;
-                    margin-inline: auto;
-                    padding-inline: $space-xl;
+                >span {
+                    margin-top: 0;
                 }
             }
+
+            >p {
+                margin-top: 16px;
+                max-width: 520px;
+                font-size: 17px;
+                line-height: 29.24px;
+            }
+        }
+
+        .proposalButton {
+            width: max-content;
+            flex-shrink: 0;
+            height: 55px;
+            line-height: 55px;
+            padding-inline: $space-xl;
+            border-radius: $radius-sm !important;
+            font-size: inherit !important;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'lg')) {
+        .copy>h2 {
+            font-size: $text-4xl;
+            line-height: 1.1;
         }
     }
 }

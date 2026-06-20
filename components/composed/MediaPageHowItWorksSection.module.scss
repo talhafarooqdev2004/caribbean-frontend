@@ -3,7 +3,7 @@
 @use "../../styles/breakpoints" as *;
 
 .mediaHowItWorks {
-    background-color: $bg-section;
+    background-color: $cream-band;
 
     .mediaHowItWorksInner {
         padding-block: 60px;
@@ -18,7 +18,7 @@
         >p {
             margin-top: $space-base;
             line-height: $line-height-md;
-            color: $grayish-blue-800;
+            color: $text-body;
             text-align: center;
             margin-inline: auto;
             font-size: $text-base;
@@ -59,6 +59,6 @@
 }
 
 .tagStep3 {
-    color: $yellow-600;
+    color: $accent-line;
     background-color: $yellow-100;
 }

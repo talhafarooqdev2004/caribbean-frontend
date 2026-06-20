@@ -9,4 +9,5 @@ export { default as TermsOfServiceClientPage } from "./TermsOfServiceClientPage"
 export { default as PrivacyPolicyClientPage } from "./PrivacyPolicyClientPage";
 export { default as CheckoutClientPage } from "./CheckoutClientPage";
 export { default as PaymentSuccessfulClientPage } from "./PaymentSuccessfulClientPage";
+export { default as OrderReceiptClientPage } from "./OrderReceiptClientPage";
 export { default as SubmitYourPressReleaseClientPage } from "./SubmitYourPressReleaseClientPage";

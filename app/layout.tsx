@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
 import "@/styles/globals.scss";
 import { MainLayout } from "@/components/layout";
 
-const inter = Inter({
-  variable: '--font-inter',
-  weight: ["400", "500", "600", "700"],
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-display",
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -15,9 +22,13 @@ export const metadata: Metadata = {
   },
   description: "Caribbean News",
   icons: {
-    icon: "/images/brand-logo.svg",
-    shortcut: "/images/brand-logo.svg",
-    apple: "/images/brand-logo-white.svg",
+    icon: [
+      { url: "/images/site-favicon.jpg", type: "image/jpeg", sizes: "32x32" },
+      { url: "/images/site-favicon.jpg", type: "image/jpeg", sizes: "16x16" },
+      { url: "/images/site-favicon.jpg", type: "image/jpeg" },
+    ],
+    shortcut: "/images/site-favicon.jpg",
+    apple: "/images/site-favicon.jpg",
   },
 };
 
@@ -27,11 +38,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable}`}>
+    <html lang="en" className={`${dmSans.variable} ${playfair.variable}`}>
       <body suppressHydrationWarning>
-        <MainLayout>
-          {children}
-        </MainLayout>
+        <MainLayout>{children}</MainLayout>
       </body>
     </html>
   );

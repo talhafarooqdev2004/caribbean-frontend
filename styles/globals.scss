@@ -1,35 +1,42 @@
-@use './primitive' as *;
-@use './semantic' as *;
-@use './variable' as *;
+@use "./primitive" as *;
+@use "./semantic" as *;
+@use "./variable" as *;
 
 *,
 *::after,
 *::before {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: $font-inter;
-    color: $primary;
+  font-family: $font-sans;
+  color: $primary;
+  width: 100%;
+  overflow-x: clip;
+}
+
+html {
+  overflow-x: clip;
 }
 
 p {
-    color: $grayish-blue-800;
-    line-height: $line-height-md;
+  color: $grayish-blue-800;
+  line-height: $line-height-md;
 }
 
 h1,
 h2,
 h3 {
-    font-weight: $weight-md;
+  font-family: $font-display;
+  font-weight: $weight-md;
 }
 
 a {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 ul {
-    list-style: none;
+  list-style: none;
 }

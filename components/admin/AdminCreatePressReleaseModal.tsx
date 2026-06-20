@@ -1,20 +1,23 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 
-import { AdminPressReleaseRichTextEditor } from "@/components/admin/AdminPressReleaseRichTextEditor";
 import styles from "@/components/admin/AdminEnquiriesPanel.module.scss";
 import {
     ADMIN_CREATE_FIELD_FROM_API,
     apiValidationErrorsByField,
     formatApiValidationErrors,
 } from "@/lib/format-api-validation-errors";
+import {
+    COVER_PHOTO_ACCEPT,
+    DOCUMENT_ACCEPT,
+    validateCoverPhotoFile,
+    validateDocumentFile,
+} from "@/lib/press-release-upload-limits";
 import { PRESS_RELEASE_CATEGORIES } from "@/lib/press-release-categories";
-import { Button, FormControl, FormLabel, Input } from "@/components/ui";
+import { Button, FormControl, FormLabel, Input, Textarea } from "@/components/ui";
 
-const COVER_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
-const DOCUMENT_ACCEPT =
-    ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+type UploadFieldKey = "coverPhoto" | "document";
 
 export type AdminCreatePressReleaseForm = {
     fullName: string;
@@ -25,6 +28,7 @@ export type AdminCreatePressReleaseForm = {
     category: string;
     island: string;
     outboundLink: string;
+    summary: string;
     content: string;
 };
 
@@ -39,7 +43,8 @@ export const defaultAdminCreatePressReleaseForm = (): AdminCreatePressReleaseFor
     category: "",
     island: "Regional",
     outboundLink: "",
-    content: "<p></p>",
+    summary: "",
+    content: "",
 });
 
 function validateCreateForm(form: AdminCreatePressReleaseForm): Partial<Record<FieldKey, string>> {
@@ -69,9 +74,13 @@ function validateCreateForm(form: AdminCreatePressReleaseForm): Partial<Record<F
         errors.category = "Category is required.";
     }
 
-    const plainContent = form.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    if (!form.summary.trim()) {
+        errors.summary = "Summary is required.";
+    } else if (form.summary.trim().length > 300) {
+        errors.summary = "Summary must be 300 characters or less.";
+    }
 
-    if (!plainContent) {
+    if (!form.content.trim()) {
         errors.content = "Press release content is required.";
     }
 
@@ -92,9 +101,9 @@ type AdminCreatePressReleaseModalProps = {
 };
 
 export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreatePressReleaseModalProps) {
-    const draftId = useId().replace(/[^a-zA-Z0-9_-]/g, "") || "new";
     const [form, setForm] = useState<AdminCreatePressReleaseForm>(defaultAdminCreatePressReleaseForm);
     const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
+    const [uploadFieldErrors, setUploadFieldErrors] = useState<Partial<Record<UploadFieldKey, string>>>({});
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [documentFile, setDocumentFile] = useState<File | null>(null);
     const [busy, setBusy] = useState(false);
@@ -112,18 +121,53 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
         });
     }
 
+    function clearUploadFieldError(key: UploadFieldKey) {
+        setUploadFieldErrors((prev) => {
+            if (!prev[key]) {
+                return prev;
+            }
+
+            const next = { ...prev };
+            delete next[key];
+            return next;
+        });
+    }
+
     async function handleSubmit() {
         const clientErrors = validateCreateForm(form);
+        const nextUploadErrors: Partial<Record<UploadFieldKey, string>> = {};
 
-        if (Object.keys(clientErrors).length > 0) {
+        if (coverFile) {
+            const coverError = validateCoverPhotoFile(coverFile);
+
+            if (coverError) {
+                nextUploadErrors.coverPhoto = coverError;
+            }
+        }
+
+        if (documentFile) {
+            const documentError = validateDocumentFile(documentFile);
+
+            if (documentError) {
+                nextUploadErrors.document = documentError;
+            }
+        }
+
+        if (Object.keys(clientErrors).length > 0 || Object.keys(nextUploadErrors).length > 0) {
             setFieldErrors(clientErrors);
-            setError("Please fix the fields marked below.");
+            setUploadFieldErrors(nextUploadErrors);
+            setError(
+                Object.keys(nextUploadErrors).length > 0
+                    ? Object.values(nextUploadErrors)[0] ?? "Please fix the fields marked below."
+                    : "Please fix the fields marked below.",
+            );
             return;
         }
 
         setBusy(true);
         setError(null);
         setFieldErrors({});
+        setUploadFieldErrors({});
 
         try {
             const body = new FormData();
@@ -135,6 +179,7 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
             body.append("category", form.category.trim());
             body.append("island", form.island.trim() || "Regional");
             body.append("outboundLink", form.outboundLink.trim());
+            body.append("summary", form.summary.trim());
             body.append("pressReleaseContent", form.content);
             body.append("packageId", "custom");
 
@@ -155,9 +200,15 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
             if (!response.ok) {
                 const byApiField = apiValidationErrorsByField(payload);
                 const mapped: Partial<Record<FieldKey, string>> = {};
+                const mappedUploadErrors: Partial<Record<UploadFieldKey, string>> = {};
 
                 for (const [apiField, message] of Object.entries(byApiField)) {
                     const formKey = ADMIN_CREATE_FIELD_FROM_API[apiField];
+
+                    if (formKey === "coverPhoto" || formKey === "document") {
+                        mappedUploadErrors[formKey] = message;
+                        continue;
+                    }
 
                     if (formKey && formKey in form) {
                         mapped[formKey as FieldKey] = message;
@@ -166,6 +217,10 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
 
                 if (Object.keys(mapped).length > 0) {
                     setFieldErrors(mapped);
+                }
+
+                if (Object.keys(mappedUploadErrors).length > 0) {
+                    setUploadFieldErrors(mappedUploadErrors);
                 }
 
                 setError(formatApiValidationErrors(payload, "Could not create press release."));
@@ -337,13 +392,32 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
                                     <span className={styles.editReleaseFileInputLabel}>Upload cover</span>
                                     <input
                                         type="file"
-                                        accept={COVER_ACCEPT}
+                                        accept={COVER_PHOTO_ACCEPT}
                                         className={styles.editReleaseFileInputNative}
-                                        onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
+                                        onChange={(event) => {
+                                            const selectedFile = event.target.files?.[0] ?? null;
+                                            setCoverFile(selectedFile);
+                                            clearUploadFieldError("coverPhoto");
+
+                                            if (!selectedFile) {
+                                                return;
+                                            }
+
+                                            const validationError = validateCoverPhotoFile(selectedFile);
+
+                                            if (validationError) {
+                                                setUploadFieldErrors((current) => ({
+                                                    ...current,
+                                                    coverPhoto: validationError,
+                                                }));
+                                                setError(validationError);
+                                            }
+                                        }}
                                     />
                                     {coverFile ? (
                                         <p className={styles.editReleaseFileSelected}>Selected: {coverFile.name}</p>
                                     ) : null}
+                                    <FieldError message={uploadFieldErrors.coverPhoto} />
                                 </div>
                             </div>
                             <div className={styles.editReleaseFileRow}>
@@ -357,11 +431,30 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
                                         type="file"
                                         accept={DOCUMENT_ACCEPT}
                                         className={styles.editReleaseFileInputNative}
-                                        onChange={(event) => setDocumentFile(event.target.files?.[0] ?? null)}
+                                        onChange={(event) => {
+                                            const selectedFile = event.target.files?.[0] ?? null;
+                                            setDocumentFile(selectedFile);
+                                            clearUploadFieldError("document");
+
+                                            if (!selectedFile) {
+                                                return;
+                                            }
+
+                                            const validationError = validateDocumentFile(selectedFile);
+
+                                            if (validationError) {
+                                                setUploadFieldErrors((current) => ({
+                                                    ...current,
+                                                    document: validationError,
+                                                }));
+                                                setError(validationError);
+                                            }
+                                        }}
                                     />
                                     {documentFile ? (
                                         <p className={styles.editReleaseFileSelected}>Selected: {documentFile.name}</p>
                                     ) : null}
+                                    <FieldError message={uploadFieldErrors.document} />
                                 </div>
                             </div>
                         </div>
@@ -369,16 +462,30 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
 
                     <div className={styles.editReleaseSection}>
                         <FormControl>
+                            <FormLabel htmlFor="create-release-summary">Summary</FormLabel>
+                            <Textarea
+                                id="create-release-summary"
+                                rows={4}
+                                value={form.summary}
+                                onChange={(event) => {
+                                    setForm((prev) => ({ ...prev, summary: event.target.value }));
+                                    clearFieldError("summary");
+                                }}
+                                aria-invalid={Boolean(fieldErrors.summary)}
+                            />
+                            <FieldError message={fieldErrors.summary} />
+                        </FormControl>
+                        <FormControl>
                             <FormLabel htmlFor="create-release-content">Press release content</FormLabel>
-                            <AdminPressReleaseRichTextEditor
-                                key={draftId}
-                                releaseId={draftId}
-                                initialHtml={form.content}
-                                disabled={busy}
-                                onChange={(html) => {
-                                    setForm((prev) => ({ ...prev, content: html }));
+                            <Textarea
+                                id="create-release-content"
+                                rows={10}
+                                value={form.content}
+                                onChange={(event) => {
+                                    setForm((prev) => ({ ...prev, content: event.target.value }));
                                     clearFieldError("content");
                                 }}
+                                aria-invalid={Boolean(fieldErrors.content)}
                             />
                             <FieldError message={fieldErrors.content} />
                         </FormControl>

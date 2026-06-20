@@ -1,0 +1,272 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.banner {
+  position: fixed;
+  inset-inline: 16px;
+  bottom: 16px;
+  z-index: 1900;
+  max-width: 560px;
+  margin-inline: auto;
+  padding: 18px 18px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba($white, 0.14);
+  background: linear-gradient(145deg, rgba(23, 40, 64, 0.98) 0%, rgba(15, 28, 45, 0.98) 100%);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.28);
+  color: rgba($white, 0.9);
+
+  @media (min-width: map-get($breakpoints, "md")) {
+    inset-inline: auto 24px;
+    margin-inline: 0;
+    bottom: 24px;
+    max-width: 420px;
+  }
+}
+
+.bannerTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: $weight-semi-bold;
+  color: $white;
+}
+
+.bannerText {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba($white, 0.72);
+}
+
+.bannerActions {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bannerButtonPrimary,
+.bannerButtonSecondary,
+.modalButtonPrimary,
+.modalButtonSecondary,
+.modalButtonTertiary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: $weight-semi-bold;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.bannerButtonPrimary,
+.modalButtonPrimary {
+  border: 0;
+  background-color: $secondary;
+  color: $navy-deep;
+
+  &:hover {
+    background-color: darken($secondary, 4%);
+  }
+}
+
+.bannerButtonSecondary {
+  border: 1px solid rgba($white, 0.22);
+  background: transparent;
+  color: $white;
+
+  &:hover {
+    border-color: rgba($white, 0.36);
+    background: rgba($white, 0.06);
+  }
+}
+
+.modalButtonSecondary {
+  border: 1px solid $card-border;
+  background: transparent;
+  color: $navy-deep;
+
+  &:hover {
+    border-color: darken($card-border, 8%);
+    background: #f8fafc;
+  }
+}
+
+.modalButtonTertiary {
+  border: 0;
+  background: transparent;
+  color: #6b849a;
+  min-height: 36px;
+
+  &:hover {
+    color: $navy-deep;
+    background: #f8fafc;
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.dialog {
+  width: min(100%, 520px);
+  max-height: min(92vh, 720px);
+  overflow: auto;
+  border-radius: 16px;
+  background: $white;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+}
+
+.dialogHeader {
+  padding: 22px 22px 0;
+}
+
+.dialogEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: $secondary;
+  font-size: 10px;
+  font-weight: $weight-semi-bold;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+
+  &::before {
+    content: "";
+    width: 18px;
+    height: 2px;
+    border-radius: 999px;
+    background-color: $secondary;
+  }
+}
+
+.dialogTitle {
+  margin: 10px 0 0;
+  font-family: $font-display;
+  font-size: 28px;
+  line-height: 1.15;
+  color: $navy-deep;
+}
+
+.dialogIntro {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b849a;
+}
+
+.preferenceList {
+  margin: 20px 22px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preferenceCard {
+  padding: 14px 16px;
+  border: 1px solid $card-border;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.preferenceRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.preferenceCopy {
+  min-width: 0;
+
+  strong {
+    display: block;
+    color: $navy-deep;
+    font-size: 14px;
+    font-weight: $weight-semi-bold;
+    line-height: 1.35;
+  }
+
+  span {
+    display: block;
+    margin-top: 4px;
+    color: #6b849a;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+.preferenceBadge {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba($secondary, 0.14);
+  color: #8a6418;
+  font-size: 11px;
+  font-weight: $weight-semi-bold;
+  line-height: 1.2;
+}
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 26px;
+  border: 0;
+  border-radius: 999px;
+  background-color: #d0d5dd;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &.switchOn {
+    background-color: $navy-deep;
+  }
+}
+
+.switchThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: $white;
+  transition: transform 0.2s ease;
+}
+
+.switchOn .switchThumb {
+  transform: translateX(20px);
+}
+
+.dialogFooter {
+  margin-top: 20px;
+  padding: 0 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policyLink {
+  margin-top: 2px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b849a;
+
+  a {
+    color: $soft-blue-100;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}

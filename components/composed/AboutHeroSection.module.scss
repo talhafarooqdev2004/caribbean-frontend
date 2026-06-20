@@ -3,54 +3,158 @@
 @use "../../styles/breakpoints" as *;
 
 .heroSection {
-    background-image: $hero-section-gradient , url("/images/about-hero-section.jpg");
-
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+    background-color: $navy-deep;
+    overflow-x: clip;
 
     .heroSectionInner {
-        padding-block: 90px;
+        padding-block: $section-block-mobile;
         display: flex;
         flex-direction: column;
         align-items: center;
+        text-align: center;
 
-        >span {
-            background-color: $white-100;
-            border: 1px solid $white-200;
-            color: $white;
-            height: 34px;
-            padding-inline: $space-base;
-            border-radius: $radius-full;
+        .badge {
             display: inline-flex;
-            justify-content: center;
             align-items: center;
-            font-size: $text-sm;
+            gap: $space-sm;
+            height: 32px;
+            padding-inline: 14px;
+            background-color: transparent;
+            border: 1px solid rgba($soft-blue-100, 0.45);
+            border-radius: $radius-full;
+            color: $soft-blue-100;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: $radius-full;
+                background-color: $soft-blue-100;
+            }
         }
 
         >h1 {
-            margin-top: $space-md;
-            font-size: $text-section-lg;
+            margin-top: 20px;
+            font-size: 38px;
+            line-height: 1.08;
             color: $white;
-            text-align: center;
+
+            >span {
+                display: block;
+                font-style: italic;
+                color: $soft-blue-100;
+            }
         }
 
         >p {
-            margin-top: $space-lg;
-            font-size: $text-lg;
-            color: $grayish-blue-100;
-            text-align: center;
-            width: 95%;
+            margin-top: 16px;
+            max-width: 100%;
+            font-size: 14.5px;
+            color: #ffffff8c;
+            line-height: 24px;
+        }
+
+        .stats {
+            margin-top: 28px;
+            margin-inline: -$space-mobile;
+            width: calc(100% + 2 * #{$space-mobile});
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+
+            .stat {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+                padding: 24px 20px;
+                text-align: left;
+
+                &:nth-child(odd) {
+                    border-right: 1px solid #ffffff1a;
+                }
+
+                .statValue {
+                    font-family: $font-display;
+                    font-weight: $weight-md;
+                    font-size: 32px;
+                    line-height: 1.05;
+                    color: $white;
+                }
+
+                .statSuffix {
+                    color: $secondary;
+                }
+
+                .statLabel {
+                    font-size: 12.5px;
+                    line-height: 1.35;
+                    color: #ffffff66;
+                }
+            }
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: map-get($breakpoints, "md")) {
         .heroSectionInner {
-            padding-block: $space-5xl;
+            padding-block: 116px;
+
+            .badge {
+                height: 34px;
+                padding-inline: $space-base;
+                background-color: $soft-blue-50;
+                border: 1px solid $white-200;
+                font-size: 10px;
+                font-weight: $weight-md;
+                letter-spacing: 1.4px;
+            }
 
             >h1 {
-                margin-top: 10px;
-                font-size: $text-5xl;
+                margin-top: 32px;
+                font-size: 76px;
+                line-height: 1.05;
+            }
+
+            >p {
+                margin-top: $space-lg;
+                max-width: 580px;
+                font-size: 20px;
+                line-height: 33px;
+            }
+
+            .stats {
+                margin-top: $space-2xl;
+                margin-inline: 0;
+                width: max-content;
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: center;
+
+                .stat {
+                    flex: 1;
+                    align-items: center;
+                    text-align: center;
+                    gap: $space-xs;
+                    padding-inline: $space-xl;
+                    padding-block: 0;
+                    border-right: none;
+
+                    &:not(:last-child) {
+                        border-right: 1px solid #ffffff1a;
+                    }
+
+                    .statValue {
+                        font-weight: $weight-bold;
+                        font-size: 32px;
+                    }
+
+                    .statLabel {
+                        font-size: 12.5px;
+                    }
+                }
             }
         }
     }

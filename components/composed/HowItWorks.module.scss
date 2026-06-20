@@ -3,60 +3,266 @@
 @use "../../styles/breakpoints" as *;
 
 .howItWorks {
-    background-color: $white;
+    background-color: #274060;
 
     .howItWorksInner {
-        padding-block: $space-lg;
+        padding-block: 40px;
+    }
 
-        >h1 {
-            font-size: $text-section;
-            text-align: center;
+    .header {
+        margin-bottom: 28px;
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #5899e2;
+            font-size: 10px;
+            font-weight: $weight-md;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 20px;
+                height: 1px;
+                background-color: #5899e2;
+            }
+        }
+
+        >div>h2 {
+            margin-top: 16px;
+            font-size: 36px;
+            font-weight: $weight-bold;
+            line-height: 1.1;
+            color: $white;
         }
 
         >p {
-            margin-top: $space-base;
-            line-height: $line-height-md;
-            color: $grayish-blue-800;
-            width: 80%;
-            text-align: center;
-            margin-inline: auto;
+            margin-top: 16px;
+            color: #FFFFFF7A;
+            font-size: 15px;
+            line-height: 26px;
         }
     }
-}
 
-.iconStep1 {
-    background: $linear-gradient-soft-blue-300;
-}
+    .steps {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr;
+    }
 
-.iconStep2 {
-    background: $linear-gradient-blue-500;
-}
+    .step {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background-color: #FFFFFF0A;
+        border: 1px solid #FFFFFF12;
+        border-radius: 16px;
+        overflow: hidden;
+        padding: 24px 20px 28px;
 
-.iconStep3 {
-    background: $linear-gradient-yellow-900;
-}
+        .stepArrow {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: $radius-full;
+            background-color: #274060;
+            border: 1px solid #5899E24D;
+            color: #5899E2;
+        }
 
-.tagStep1 {
-    color: $soft-blue-100;
-    background-color: $bg-tag;
-}
+        .stepNumber {
+            position: absolute;
+            top: 8px;
+            left: 16px;
+            font-family: $font-display;
+            font-size: 64px;
+            font-weight: $weight-bold;
+            line-height: 1;
+            color: #FFFFFF0D;
+            pointer-events: none;
+            user-select: none;
+        }
 
-.tagStep2 {
-    color: $dark-blue-900;
-    background-color: $dark-blue-300;
-}
+        .stepIcon {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            margin-top: 28px;
+            border-radius: 12px;
+            border: 1px solid #5899E233;
+            background-color: #5899E21F;
+            color: $secondary;
+        }
 
-.tagStep3 {
-    color: $yellow-600;
-    background-color: $yellow-100;
-}
+        .stepLabel {
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin-top: 16px;
+            color: $secondary;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
 
-.howItWorksInner {
-    @media (min-width: map-get($breakpoints, 'md')) {
-        padding-block: $space-5xl;
+        >h3 {
+            position: relative;
+            z-index: 1;
+            margin-top: 8px;
+            font-family: $font-display;
+            font-size: 20px;
+            font-weight: $weight-semi-bold;
+            line-height: 1.35;
+            color: $white;
+        }
 
-        >h1 {
-            font-size: $text-section-lg;
+        >p {
+            position: relative;
+            z-index: 1;
+            margin-top: 12px;
+            color: #FFFFFF7A;
+            font-size: 14.5px;
+            line-height: 24px;
+            width: 100%;
+            max-width: 32ch;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, "md")) {
+        .howItWorksInner {
+            padding-block: 72px;
+        }
+
+        .header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: $space-2xl;
+            margin-bottom: 64px;
+
+            .eyebrow {
+                font-size: 11px;
+                letter-spacing: 1.5px;
+
+                &::before {
+                    width: 24px;
+                }
+            }
+
+            >div>h2 {
+                margin-top: 20px;
+                font-size: 46px;
+                line-height: 51.52px;
+            }
+
+            >p {
+                max-width: 520px;
+                margin-top: 0;
+                font-size: 16px;
+                line-height: 27.52px;
+                text-align: left;
+            }
+        }
+
+        .steps {
+            gap: 2.5px;
+            border: 1px solid #FFFFFF12;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .step {
+            display: block;
+            padding: 44px 36px;
+            border: none;
+            border-radius: 0;
+
+            .stepArrow {
+                top: $space-lg;
+                right: 1px;
+                width: 24px;
+                height: 24px;
+            }
+
+            .stepNumber {
+                top: 18px;
+                left: $space-xl;
+                font-size: 72px;
+                line-height: 72px;
+            }
+
+            .stepIcon {
+                position: relative;
+                top: 25px;
+                left: -8px;
+                width: 48px;
+                height: 48px;
+                margin-top: 0;
+            }
+
+            .stepLabel {
+                position: relative;
+                top: 20px;
+                margin-top: $space-lg;
+                font-size: 11px;
+                letter-spacing: 1.5px;
+                font-weight: $weight-md;
+            }
+
+            >h3 {
+                position: relative;
+                top: 20px;
+                margin-top: $space-sm;
+                font-size: 22px;
+                line-height: 33px;
+            }
+
+            >p {
+                position: relative;
+                top: 20px;
+                margin-top: $space-md;
+                font-size: 15px;
+                line-height: 25.5px;
+                width: 90%;
+                max-width: none;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, "md")) {
+        .steps {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .step:not(:last-child) {
+            border-right: 1px solid rgba($white-900, 0.08);
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, "lg")) {
+        .howItWorksInner {
+            padding-block: 100px;
+            padding-inline: 120px;
+        }
+
+        .header>div>h2 {
+            font-size: 46px;
+        }
+
+        .step {
+            padding: 48px 40px;
         }
     }
 }

@@ -272,29 +272,38 @@ export default function PortalPageClient() {
     }
 
     return (
-        <section className={styles.section}>
-            <Container className={styles.inner}>
-                <div className={styles.hero}>
-                    <div>
-                        <h1>Hi, {profile.firstName}</h1>
-                        <p>Manage submissions, credits, saved releases, and your profile in one place.</p>
-                        <div className={styles.quickNav}>
-                            <Button size="md" onClick={() => router.push("/submit-your-press-release")}>
-                                Submit your release
-                            </Button>
-                            <Button size="md" variant="secondary" onClick={() => router.push("/newsroom")}>
-                                View public newsroom
-                            </Button>
-                            <Button size="md" variant="secondary" onClick={() => router.push("/pricing")}>
-                                View pricing
-                            </Button>
-                            <Button size="md" variant="secondary" onClick={() => router.push("/")}>
-                                Back to homepage
-                            </Button>
-                        </div>
+        <div className={styles.portalPage}>
+            <section className={styles.portalHero}>
+                <Container className={styles.portalHeroInner}>
+                    <span className={styles.portalBadge}>Portal</span>
+                    <h1>
+                        Hi, <span>{profile.firstName}</span>
+                    </h1>
+                    <p>Manage submissions, credits, saved releases, and your profile in one place.</p>
+                    <div className={styles.quickNav}>
+                        <Button size="md" onClick={() => router.push("/submit-your-press-release")}>
+                            Submit your release
+                        </Button>
+                        <Button size="md" variant="secondary" onClick={() => router.push("/newsroom")}>
+                            View public newsroom
+                        </Button>
+                        <Button size="md" variant="secondary" onClick={() => router.push("/pricing")}>
+                            View pricing
+                        </Button>
+                        <Button size="md" variant="secondary" onClick={() => router.push("/")}>
+                            Back to homepage
+                        </Button>
                     </div>
-                </div>
+                </Container>
+            </section>
 
+            <div className={styles.curve} aria-hidden="true">
+                <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+                    <path d="M0,0 L1440,0 L1440,48 C1300,52 1180,66 1040,66 C900,66 820,44 680,40 C540,36 460,64 320,64 C200,64 120,54 0,42 Z" />
+                </svg>
+            </div>
+
+            <Container className={styles.portalBody}>
                 <div className={styles.tabs} role="tablist" aria-label="Portal sections">
                     {(
                         [
@@ -590,6 +599,6 @@ export default function PortalPageClient() {
                     </div>
                 ) : null}
             </Container>
-        </section>
+        </div>
     );
 }

@@ -7,6 +7,7 @@ import SvgIcon from "./SvgIcon";
 import clsx from "clsx";
 import Link from "next/link";
 import { trackPressReleaseClick } from "@/lib/press-release-click";
+import { getPressReleaseCategorySlug } from "@/lib/press-release-category";
 import { shouldUnoptimizeReleaseImage } from "@/lib/press-release-display";
 
 const News = function ({
@@ -14,7 +15,7 @@ const News = function ({
     children,
 }: React.PropsWithChildren<{ variant?: "default" | "featured" | "recent-releases" | "portal-bookmark" }>) {
     const variants = {
-        default: "",
+        default: styles.defaultCard,
         featured: styles.featured,
         "recent-releases": styles.recentReleases,
         "portal-bookmark": styles.portalBookmark,
@@ -42,6 +43,28 @@ News.Image = function NewsImage({ imgSrc }: { imgSrc: string }) {
 
 News.Badge = function NewsBadge({ children }: React.PropsWithChildren) {
     return <span className={styles.newsBadge}>{children}</span>;
+};
+
+News.Category = function NewsCategory({ children }: React.PropsWithChildren) {
+    const slug = typeof children === "string" ? getPressReleaseCategorySlug(children) : undefined;
+    return <span className={styles.newsCategory} data-category={slug}>{children}</span>;
+};
+
+News.ReadTime = function NewsReadTime({ children }: React.PropsWithChildren) {
+    return <span className={styles.newsReadTime}>{children}</span>;
+};
+
+News.Footer = function NewsFooter({ children }: React.PropsWithChildren) {
+    return <div className={styles.newsFooter}>{children}</div>;
+};
+
+News.Author = function NewsAuthor({ initials, name }: { initials: string; name: string }) {
+    return (
+        <span className={styles.newsAuthor}>
+            <span className={styles.newsAvatar}>{initials}</span>
+            {name}
+        </span>
+    );
 };
 
 News.Body = function NewsBody({ children }: React.PropsWithChildren) {
@@ -84,7 +107,12 @@ News.Tag = function NewsTag({ children }: React.PropsWithChildren) {
     return <span className={styles.newsTag}>{children}</span>;
 };
 
-News.ReadLink = function NewsReadLink({ link, releaseId, trackClicks = true }: { link: string; releaseId?: string; trackClicks?: boolean }) {
+News.ReadLink = function NewsReadLink({
+    link,
+    releaseId,
+    trackClicks = true,
+    children = "Read",
+}: React.PropsWithChildren<{ link: string; releaseId?: string; trackClicks?: boolean }>) {
     function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
         // Nested inside card hit-areas that use onClick + router.push; Link clicks must not bubble or we skip parent tracking and can double-navigate.
         event.stopPropagation();
@@ -95,7 +123,7 @@ News.ReadLink = function NewsReadLink({ link, releaseId, trackClicks = true }: {
 
     return (
         <Link className={styles.newsReadLink} href={link} onClick={handleClick}>
-            Read Full Release
+            {children}
             <SvgIcon icon="right-arrow-large" />
         </Link>
     );

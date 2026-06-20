@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
     SubmitYourPressReleaseForm,
     SubmitYourPressReleaseHeroSection,
@@ -24,10 +26,20 @@ export default function SubmitYourPressReleaseClientPage({
     submitter,
     selectedPackage,
 }: SubmitYourPressReleaseClientPageProps) {
+    const [activeStep, setActiveStep] = useState(1);
+    const [expandedStep, setExpandedStep] = useState<number | null>(1);
+
     return (
         <>
-            <SubmitYourPressReleaseHeroSection />
-            <SubmitYourPressReleaseForm submitter={submitter} initialPackage={selectedPackage} />
+            <SubmitYourPressReleaseHeroSection activeStep={activeStep} />
+            <SubmitYourPressReleaseForm
+                submitter={submitter}
+                initialPackage={selectedPackage}
+                activeStep={activeStep}
+                expandedStep={expandedStep}
+                onStepChange={setActiveStep}
+                onExpandedStepChange={setExpandedStep}
+            />
         </>
     );
 }

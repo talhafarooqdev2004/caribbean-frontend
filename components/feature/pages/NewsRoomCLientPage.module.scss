@@ -1,8 +1,11 @@
 @use "../../../styles/primitive" as *;
 @use "../../../styles/semantic" as *;
+@use "../../../styles/breakpoints" as *;
 
 .newsroomLoadMoreStrip {
-    margin-top: $space-lg;
+    margin-top: 0;
+    padding-bottom: 0;
+    background-color: $white;
 }
 
 @keyframes newsroomSpinnerRotate {
@@ -16,9 +19,46 @@
     justify-content: center;
     align-items: center;
     margin-inline: auto;
-    margin-bottom: $space-2xl;
-    /* Match outline `md` button height so swapping loading row vs button does not shift layout */
-    min-height: 40px;
+    min-height: 51px;
+    padding-block: 0px 40px;
+}
+
+.loadMoreButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: auto;
+    min-height: 51px;
+    padding-inline: 24px;
+    border-radius: 999px;
+    background-color: $white;
+    border: 1px solid #c4a35a;
+    color: #c4a35a;
+    font-size: 15px;
+    font-weight: $weight-md;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    svg path {
+        stroke: #c4a35a;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: #fdf9f0;
+        border-color: #b8954a;
+        color: #b8954a;
+
+        svg path {
+            stroke: #b8954a;
+        }
+    }
+
+    &:disabled {
+        cursor: wait;
+        opacity: 0.7;
+    }
 }
 
 .loadMoreLoadingRow {
@@ -26,7 +66,8 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 40px;
+    width: 100%;
+    min-height: 51px;
     padding-inline: $space-md;
 }
 
@@ -35,16 +76,16 @@
     width: 20px;
     height: 20px;
     border: 2px solid #e8edf3;
-    border-top-color: #16477c;
+    border-top-color: #c4a35a;
     border-radius: 50%;
     animation: newsroomSpinnerRotate 0.7s linear infinite;
     flex-shrink: 0;
 }
 
 .loadMoreLoadingLabel {
-    font-size: $text-sm;
-    color: #475569;
-    font-weight: $weight-semi-bold;
+    font-size: 15px;
+    color: #c4a35a;
+    font-weight: $weight-md;
     line-height: 1.2;
     white-space: nowrap;
 }
@@ -61,6 +102,26 @@
 
 .newsroomPaginationStatus {
     font-size: $text-sm;
-    color: $grayish-blue-800;
+    color: $text-body;
     font-weight: $weight-semi-bold;
+}
+
+@media (min-width: map-get($breakpoints, "md")) {
+    .newsroomLoadMoreStrip {
+        margin-top: $space-2xl;
+    }
+
+    .loadMoreReleases {
+        padding-block: 0px 64px;
+    }
+
+    .loadMoreButton {
+        width: auto;
+        max-width: none;
+        padding-inline: 40px;
+    }
+
+    .loadMoreLoadingRow {
+        width: auto;
+    }
 }

@@ -23,6 +23,8 @@ type RecentReleasesSectionProps = {
 
 const RecentReleaseGridCard = memo(function RecentReleaseGridCard({ release }: { release: PressReleaseRecord }) {
     const router = useRouter();
+    const publishedAt = release.publishedAt || release.createdAt;
+    const releaseTime = formatReleaseTime(publishedAt);
 
     return (
         <div
@@ -49,22 +51,27 @@ const RecentReleaseGridCard = memo(function RecentReleaseGridCard({ release }: {
 
                 <News.Body>
                     <News.Meta>
-                        <News.Territory>{release.island || "Regional"}</News.Territory>
-                        <News.Seprator type="line-seprator" />
-                        <News.Date>{formatReleaseDate(release.publishedAt || release.createdAt)}</News.Date>
+                        <News.Category>{release.category}</News.Category>
                         <News.Seprator />
-                        <News.Time>{formatReleaseTime(release.publishedAt || release.createdAt)}</News.Time>
+                        <News.Territory>{release.island || "Regional"}</News.Territory>
+                        <span className={styles.metaDot} aria-hidden>·</span>
+                        <News.Date>{formatReleaseDate(publishedAt)}</News.Date>
                     </News.Meta>
 
                     <News.Title>{stripTagsToPlainText(release.title)}</News.Title>
                     <News.Description>{releaseCardExcerpt(release)}</News.Description>
 
-                    <News.TagsList>
-                        <News.Tag>{release.category}</News.Tag>
-                        {release.featured ? <News.Tag>Featured</News.Tag> : null}
-                    </News.TagsList>
+                    {release.featured ? (
+                        <News.TagsList>
+                            <News.Tag>Featured</News.Tag>
+                        </News.TagsList>
+                    ) : null}
 
-                    <News.ReadLink link={getReleaseUrl(release)} releaseId={release.id} />
+                    {releaseTime ? (
+                        <div className={styles.releaseFooter}>
+                            <News.Time>{releaseTime}</News.Time>
+                        </div>
+                    ) : null}
                 </News.Body>
             </News>
         </div>
@@ -75,7 +82,12 @@ export default function RecentReleasesSection({ releases = [] }: RecentReleasesS
     return (
         <section className={styles.recentReleases}>
             <Container className={styles.recentReleasesInner}>
-                <h2>Recent Releases</h2>
+                <div className={styles.recentReleasesHeader}>
+                    <h2>Recent Releases</h2>
+                    {releases.length > 0 ? (
+                        <span className={styles.count}>{releases.length} releases</span>
+                    ) : null}
+                </div>
 
                 {releases.length === 0 ? (
                     <div className={styles.emptyState}>

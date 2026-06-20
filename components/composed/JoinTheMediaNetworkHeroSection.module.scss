@@ -3,69 +3,495 @@
 @use '../../styles/breakpoints' as *;
 
 .heroSection {
-    background-image: $hero-section-gradient , url("/images/join-the-media-network-hero-section.jpg");
+    position: relative;
+    background-color: $navy-deep;
+    overflow-x: clip;
 
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(88, 153, 226, 0.12) 0%, transparent 70%);
+    }
 
-    .heroSectionInner {
-        padding-block: 90px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    .sideAccent {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(62vw, 280px);
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
 
-        .heroSectionBadge {
-            background-color: $white-100;
-            border: 1px solid $white-200;
-            color: $white;
-            height: 34px;
-            padding-inline: $space-base;
-            border-radius: $radius-full;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            font-size: $text-sm;
-        }
-
-        >h1 {
-            margin-top: $space-md;
-            color: $white;
-            font-size: $text-section-lg;
-            line-height: 48px;
-            text-align: center;
-        }
-
-        >p {
-            margin-top: $space-lg;
-            color: $grayish-blue-100;
-            font-size: $text-lg;
-            line-height: $line-height-md;
-            text-align: center;
+        svg {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
-        .heroSectionInner {
-            padding-block: 90px;
+    .heroSectionInner {
+        position: relative;
+        z-index: 1;
+        padding-block: 48px 32px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 28px;
+        align-items: start;
+    }
+
+    // ---- Left content ----
+    .heroContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: $space-sm;
+            height: 32px;
+            padding-inline: 14px;
+            background-color: transparent;
+            border: 1px solid rgba($soft-blue-100, 0.45);
+            border-radius: $radius-full;
+            color: $soft-blue-100;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: $radius-full;
+                background-color: $soft-blue-100;
+            }
+        }
+
+        >h1 {
+            margin-top: 20px;
+            font-family: $font-display;
+            color: $white;
+            font-weight: $weight-bold;
+            font-size: 38px;
+            line-height: 1.05;
+
+            >span {
+                display: block;
+                margin-top: 2px;
+                font-style: italic;
+                color: #5899E2;
+            }
+        }
+
+        .freePill {
+            display: flex;
+            align-items: center;
+            gap: $space-md;
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px 14px;
+            background-color: $soft-blue-50;
+            border: 1px solid rgba($soft-blue-100, 0.3);
+            border-radius: 12px;
+            color: #5899E2;
+            font-size: 14px;
+            line-height: 1.35;
+            text-align: left;
+
+            .freeIcon {
+                display: inline-flex;
+                flex-shrink: 0;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                border-radius: $radius-sm;
+                background-color: #5899E233;
+            }
+        }
+
+        >p {
+            margin-top: 20px;
+            max-width: 100%;
+            color: #FFFFFF8C;
+            font-size: 15px;
+            line-height: 26px;
+        }
+
+        .ctaBtns {
+            width: 100%;
+            margin-top: 28px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            gap: 12px;
 
+            .joinButton,
+            .learnButton {
+                width: 100%;
+                justify-content: center;
+                height: 51px;
+                line-height: 51px;
+                padding-inline: 20px;
+                border-radius: 12px !important;
+                font-size: 15px !important;
+            }
+
+            .joinButton {
+                gap: $space-sm;
+            }
+        }
+    }
+
+    // ---- Stats card ----
+    .statsCard {
+        width: 100%;
+        padding: 20px;
+        background-color: #FFFFFF0E;
+        border: 1px solid #FFFFFF1A;
+        border-radius: 18px;
+
+        .statsHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: $text-sm;
+
+            .live {
+                display: inline-flex;
+                align-items: center;
+                gap: 11px;
+                color: #FFFFFF61;
+                font-size: 13px;
+
+                &::before {
+                    content: "";
+                    width: 8px;
+                    height: 8px;
+                    border-radius: $radius-full;
+                    background-color: #4ADE80;
+                }
+            }
+
+            .updated {
+                font-size: 11px;
+                color: #FFFFFF59;
+            }
+        }
+
+        .statsGrid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+
+            .statBox {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding: 14px 12px;
+                background-color: #FFFFFF0D;
+                border: 1px solid #FFFFFF12;
+                border-radius: 14px;
+
+                .statValue {
+                    font-family: $font-display;
+                    font-weight: $weight-bold;
+                    font-size: 24px;
+                    line-height: 1.1;
+                    color: $white;
+                }
+
+                .valueBlue {
+                    color: #5899E2;
+                }
+
+                .valueGold {
+                    color: $secondary;
+                }
+
+                .statLabel {
+                    font-size: 11px;
+                    line-height: 1.3;
+                    color: #FFFFFF66;
+                }
+
+                .statSkeletonValue,
+                .statSkeletonLabel {
+                    display: block;
+                    border-radius: 6px;
+                    background: linear-gradient(
+                        110deg,
+                        rgba(255, 255, 255, 0.08) 0%,
+                        rgba(255, 255, 255, 0.08) 40%,
+                        rgba(255, 255, 255, 0.16) 50%,
+                        rgba(255, 255, 255, 0.08) 60%,
+                        rgba(255, 255, 255, 0.08) 100%
+                    );
+                    background-size: 200% 100%;
+                    animation: statsShimmer 1.35s ease-in-out infinite;
+                }
+
+                .statSkeletonValue {
+                    height: 26px;
+                    width: 72px;
+                }
+
+                .statSkeletonLabel {
+                    height: 11px;
+                    width: 92px;
+                }
+            }
+        }
+
+        .srOnly {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @keyframes statsShimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .lastRelease {
+            margin-top: 14px;
+            padding-top: 16px;
+            border-top: 1px solid $white-200;
+            text-align: center;
+            color: #FFFFFF52;
+            font-size: 12px;
+        }
+
+        .networkEyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: $space-md;
+            margin-top: 18px;
+            color: $secondary;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 18px;
+                height: 1px;
+                background-color: $secondary;
+            }
+        }
+
+        .networkList {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            li {
+                position: relative;
+                padding-left: 15px;
+                color: #FFFFFF99;
+                font-size: 13px;
+                line-height: 1.4;
+
+                &::before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    top: 7px;
+                    width: 5px;
+                    height: 5px;
+                    border-radius: $radius-full;
+                    background-color: $secondary;
+                }
+            }
+        }
+    }
+
+    .curve {
+        position: relative;
+        z-index: 1;
+        line-height: 0;
+        overflow: hidden;
+        margin-bottom: -1px;
+
+        svg {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: 44px;
+
+            path {
+                fill: $white;
+                stroke: $white;
+                stroke-width: 2px;
+                stroke-linejoin: round;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .sideAccent {
+            display: block;
+            width: 320px;
+        }
+
+        .heroSectionInner {
+            padding-block: 64px 40px;
+            gap: 40px;
+        }
+
+        .heroContent {
             >h1 {
-                margin-top: $space-md;
-                color: $white;
-                font-size: $text-5xl;
-                line-height: 48px;
-                text-align: center;
+                font-size: 44px;
             }
 
             >p {
-                font-size: $text-xl;
-                line-height: $line-height-base;
-                width: 54%;
-                margin-inline: auto;
+                font-size: 16px;
+                line-height: 28px;
             }
+        }
+
+        .statsCard {
+            padding: 28px;
+
+            .statsGrid .statBox .statValue {
+                font-size: 26px;
+            }
+        }
+
+        .curve svg {
+            height: 56px;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'lg')) {
+        .sideAccent {
+            width: 400px;
+        }
+
+        .heroSectionInner {
+            grid-template-columns: 1.1fr 1fr;
+            gap: 200px;
+            padding-block: 125px 32px;
+            padding-inline: 140px;
+        }
+
+        .heroContent {
+            align-items: flex-start;
+            text-align: left;
+
+            .badge {
+                height: 34px;
+                padding-inline: $space-base;
+                background-color: $soft-blue-50;
+                border-color: $white-200;
+                font-size: 10px;
+                font-weight: $weight-md;
+                letter-spacing: 1.4px;
+            }
+
+            >h1 {
+                margin-top: $space-lg;
+                font-size: $text-5xl;
+            }
+
+            .freePill {
+                width: auto;
+                margin-top: $space-lg;
+                padding: $space-md $space-base;
+            }
+
+            >p {
+                margin-top: 32px;
+                max-width: 480px;
+                font-size: 17px;
+                line-height: 29.75px;
+            }
+
+            .ctaBtns {
+                width: auto;
+                margin-top: $space-xl;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: $space-base;
+
+                .joinButton,
+                .learnButton {
+                    width: auto;
+                    padding-inline: 28px;
+                    border-radius: $radius-sm !important;
+                    font-size: inherit !important;
+                }
+            }
+        }
+
+        .statsCard {
+            padding: 32px;
+            border-radius: 22px;
+
+            .statsGrid {
+                margin-top: 24px;
+                gap: 16px;
+
+                .statBox {
+                    gap: $space-xs;
+                    padding: $space-base;
+
+                    .statValue {
+                        font-size: 28px;
+                    }
+
+                    .statLabel {
+                        font-size: 11.5px;
+                    }
+                }
+            }
+
+            .lastRelease {
+                margin-top: 15px;
+                padding-top: $space-lg;
+                padding-bottom: $space-lg;
+            }
+
+            .networkEyebrow {
+                margin-top: 20px;
+                font-size: 11px;
+            }
+
+            .networkList {
+                margin-top: $space-base;
+
+                li {
+                    font-size: 13.5px;
+
+                    &::before {
+                        top: 6.5px;
+                    }
+                }
+            }
+        }
+
+        .curve svg {
+            height: 90px;
         }
     }
 }

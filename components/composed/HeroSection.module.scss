@@ -3,105 +3,501 @@
 @use '../../styles/breakpoints' as *;
 
 .heroSection {
-    background: $linear-gradient-blue-900;
+    background-color: #172840;
+    background-image: radial-gradient(ellipse 90% 55% at 50% 18%, rgba(88, 153, 226, 0.14) 0%, transparent 72%);
+    overflow-x: clip;
 
     .heroSectionInner {
         padding-block: 40px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 28px;
+        align-items: center;
+    }
+
+    // ---- Left (mobile: centered stack) ----
+    .detailSection {
         display: flex;
         flex-direction: column;
-        gap: 37px;
+        align-items: center;
+        text-align: center;
 
         .heroSectionBadge {
-            background-color: $white-100;
-            border: 1px solid $white-200;
-            color: $white;
-            height: 34px;
-            padding-inline: $space-base;
-            border-radius: $radius-full;
             display: inline-flex;
-            justify-content: center;
             align-items: center;
-            font-size: $text-sm;
+            gap: $space-sm;
+            height: 32px;
+            padding-inline: 14px;
+            background-color: transparent;
+            border: 1px solid rgba($soft-blue-100, 0.45);
+            border-radius: $radius-full;
+            color: $soft-blue-100;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: $radius-full;
+                background-color: $soft-blue-100;
+            }
         }
 
         .heroSectionHeading {
-            margin-top: $space-md;
+            margin-top: 20px;
+            font-size: 38px;
+            line-height: 1.08;
             color: $white;
-            font-size: 40px;
-            line-height: $line-height-lg;
 
             .prominentText {
-                color: $secondary;
+                display: block;
+                font-style: italic;
+                color: $soft-blue-100;
             }
         }
 
         .heroSectionDescription {
-            margin-top: 14.5;
-            color: $grayish-blue-100;
-            font-size: $text-lg;
-            line-height: $line-height-base;
+            margin-top: 16px;
+            max-width: 100%;
+            color: #FFFFFF9E;
+            font-size: 14.5px;
+            line-height: 24px;
+        }
+
+        .searchBar {
+            margin-top: 24px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: $space-sm;
+            padding: 6px;
+            padding-left: 40px;
+            position: relative;
+            background-color: #FFFFFF12;
+            border: 1px solid #FFFFFF24;
+            border-radius: 10px;
+
+            .searchIcon {
+                position: absolute;
+                left: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #FFFFFF66;
+                line-height: 0;
+            }
+
+            >input {
+                flex: 1;
+                min-width: 0;
+                background: none;
+                border: none;
+                outline: none;
+                color: $white;
+                font-size: 14px;
+
+                &::placeholder {
+                    color: #FFFFFF66;
+                }
+            }
+
+            .searchButton {
+                flex-shrink: 0;
+                height: 40px;
+                line-height: 40px;
+                font-size: 13px;
+                padding-inline: 16px;
+            }
         }
 
         .ctaBtns {
-            margin-top: 69px;
+            margin-top: 14px;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: $space-base;
+            gap: 12px;
+
+            >button {
+                width: 100%;
+            }
 
             .submitReleaseBtn {
-                gap: $space-base;
-            }
-
-            @media(min-width: map-get($breakpoints, 'sm')) {
-                flex-direction: row;
-            }
-        }
-
-        .imageWrapper {
-            width: 100%;
-            height: 536px;
-            position: relative;
-
-            .heroSectionImage {
-                border-radius: $radius-xl;
-                object-fit: cover;
-            }
-        }
-
-        @media(min-width: map-get($breakpoints, 'sm')) {
-            flex-direction: row;
-            align-items: center;
-            gap: $space-lg;
-            padding-inline: $space-4xl;
-
-            .detailSection {
-                flex: 1;
-
-                .heroSectionHeading {
-                    margin-top: $space-lg;
-                    font-size: 72px;
-                    line-height: $line-height-xl;
-                }
-
-                .heroSectionDescription {
-                    margin-top: $space-lg;
-                    font-size: $text-xl;
-                    line-height: 39px;
-                }
-
-                .ctaBtns {
-                    margin-top: $space-lg;
-                }
-            }
-
-            .imageWrapper {
-                flex: 1;
-                height: 400px;
+                gap: $space-sm;
+                padding-inline: 22px;
             }
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'lg')) {
-        padding-block: $space-5xl;
+    // ---- Preview card ----
+    .previewColumn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .palmDecor {
+        position: absolute;
+        top: 48px;
+        right: 0;
+        width: 210px;
+        color: $white;
+        opacity: 0.07;
+        pointer-events: none;
+        transform: translateX(12%);
+        z-index: 0;
+
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    .previewCard {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        padding: 20px 16px;
+        background: #FFFFFF0D;
+        border: 1px solid #FFFFFF1A;
+        border-radius: 16px;
+
+        .previewHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: $space-base;
+
+            .previewEyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: $space-md;
+                color: $soft-blue-100;
+                font-size: 10px;
+                font-weight: $weight-md;
+                letter-spacing: 1.2px;
+                text-transform: uppercase;
+
+                &::before {
+                    content: "";
+                    flex-shrink: 0;
+                    width: 16px;
+                    height: 1px;
+                    background-color: $soft-blue-100;
+                }
+            }
+
+            .previewLive {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                color: #FFFFFF66;
+                font-size: 10px;
+                font-weight: $weight-regular;
+                white-space: nowrap;
+
+                &::before {
+                    content: "";
+                    flex-shrink: 0;
+                    width: 7px;
+                    height: 7px;
+                    border-radius: $radius-full;
+                    background-color: #22c55e;
+                    box-shadow:
+                        0 0 6px rgba(34, 197, 94, 0.9),
+                        0 0 14px rgba(34, 197, 94, 0.45);
+                }
+            }
+        }
+
+        .previewList {
+            margin-top: $space-base;
+            display: flex;
+            flex-direction: column;
+
+            .previewItem {
+                display: flex;
+                flex-direction: row;
+                align-items: flex-start;
+                gap: $space-md;
+                padding-block: 14px;
+
+                &:first-child {
+                    padding-top: 0;
+                }
+
+                &:not(:last-child) {
+                    border-bottom: 1px solid rgba($white-900, 0.07);
+                }
+
+                .previewItemButton {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: flex-start;
+                    gap: $space-md;
+                    width: 100%;
+                    padding: 0;
+                    border: 0;
+                    background: transparent;
+                    text-align: left;
+                    cursor: pointer;
+                }
+
+                .previewCategory {
+                    flex-shrink: 0;
+                    margin-top: 2px;
+                    padding: 4px 10px;
+                    border-radius: $radius-full;
+                    font-size: 9px;
+                    font-weight: $weight-semi-bold;
+                    letter-spacing: 0.8px;
+                    text-transform: uppercase;
+                    background-color: rgba($secondary, 0.15);
+                    color: $secondary;
+
+                    &[data-category="business"],
+                    &[data-category="government"] {
+                        background-color: rgba(88, 153, 226, 0.15);
+                        color: #5899e2;
+                    }
+
+                    &[data-category="culture"] {
+                        background-color: rgba(217, 119, 6, 0.15);
+                        color: #f59e0b;
+                    }
+
+                    &[data-category="education"] {
+                        background-color: rgba(20, 184, 166, 0.15);
+                        color: #14b8a6;
+                    }
+
+                    &[data-category="environment"],
+                    &[data-category="healthcare"] {
+                        background-color: rgba(22, 163, 74, 0.15);
+                        color: #22c55e;
+                    }
+
+                    &[data-category="sports"] {
+                        background-color: rgba(239, 68, 68, 0.15);
+                        color: #f87171;
+                    }
+
+                    &[data-category="technology"] {
+                        background-color: rgba(124, 58, 237, 0.15);
+                        color: #a78bfa;
+                    }
+
+                    &[data-category="tourism"] {
+                        background-color: rgba(198, 149, 0, 0.15);
+                        color: #e2a83c;
+                    }
+                }
+
+                .previewBody {
+                    width: 100%;
+                    min-width: 0;
+                }
+
+                .previewTitle {
+                    color: #FFFFFFC7;
+                    font-size: 13px;
+                    font-weight: $weight-regular;
+                    line-height: 19px;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                .previewNote {
+                    display: block;
+                    margin-top: 3px;
+                    color: #FFFFFF4D;
+                    font-size: 11px;
+                    line-height: 16px;
+                }
+            }
+        }
+
+        .previewFooter {
+            margin-top: $space-base;
+            padding-top: 14px;
+            border-top: 1px solid rgba($white-900, 0.07);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 18px;
+
+            span {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                color: #FFFFFF66;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .heroSectionInner {
+            padding-block: 56px 40px;
+            gap: $space-2xl;
+        }
+
+        .detailSection {
+            .heroSectionHeading {
+                font-size: 44px;
+            }
+
+            .heroSectionDescription {
+                font-size: $text-md;
+                line-height: $line-height-md;
+            }
+
+            .ctaBtns {
+                flex-direction: row;
+                flex-wrap: wrap;
+
+                >button {
+                    width: auto;
+                }
+            }
+        }
+
+        .previewCard {
+            padding: 24px 20px;
+
+            .previewHeader {
+                .previewEyebrow {
+                    font-size: 11px;
+
+                    &::before {
+                        width: 20px;
+                    }
+                }
+
+                .previewLive {
+                    font-size: 11px;
+                }
+            }
+
+            .previewList .previewItem {
+                .previewCategory {
+                    font-size: 10px;
+                }
+
+                .previewTitle {
+                    font-size: 13.5px;
+                    line-height: 20.25px;
+                }
+
+                .previewNote {
+                    font-size: 11.5px;
+                    line-height: 17.25px;
+                }
+            }
+
+            .previewFooter span {
+                font-size: 12px;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'lg')) {
+        background-image: none;
+        overflow-x: visible;
+
+        .heroSectionInner {
+            grid-template-columns: 1.05fr 1fr;
+            gap: 230px;
+            padding-block: 112px;
+            padding-inline: 130px;
+        }
+
+        .detailSection {
+            align-items: flex-start;
+            text-align: left;
+
+            .heroSectionBadge {
+                height: 34px;
+                padding-inline: $space-base;
+                background-color: $soft-blue-50;
+                border: 1px solid $white-200;
+                font-size: $text-xs;
+                letter-spacing: 1px;
+            }
+
+            .heroSectionHeading {
+                margin-top: 28px;
+                font-size: 62px;
+                line-height: 1.05;
+            }
+
+            .heroSectionDescription {
+                margin-top: 28px;
+                max-width: 460px;
+            }
+
+            .searchBar {
+                margin-top: 40px;
+                padding: $space-sm;
+                padding-left: $space-2xl;
+                border-radius: 12px;
+
+                .searchIcon {
+                    left: $space-base;
+                }
+
+                >input {
+                    font-size: 14.5px;
+                }
+
+                .searchButton {
+                    height: 36px;
+                    line-height: 36px;
+                }
+            }
+
+            .ctaBtns {
+                margin-top: 28px;
+                width: auto;
+                gap: 14px;
+            }
+        }
+
+        .previewColumn {
+            min-height: 520px;
+            overflow: visible;
+        }
+
+        .palmDecor {
+            top: 170px;
+            right: -36px;
+            width: 282px;
+            opacity: 0.08;
+            transform: none;
+        }
+
+        .previewCard {
+            padding: $space-xl $space-lg;
+            border-radius: 20px;
+
+            .previewList {
+                margin-top: $space-lg;
+            }
+
+            .previewFooter {
+                margin-top: $space-lg;
+                padding-top: $space-base;
+                flex-wrap: nowrap;
+                gap: 20px;
+            }
+        }
     }
 }

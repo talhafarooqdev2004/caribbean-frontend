@@ -3,98 +3,134 @@
 @use "../../styles/breakpoints" as *;
 
 .contactUsPage {
-    background-color: #ffffff;
+    background-color: $white;
 
     .contactUsInner {
-        padding-block: 80px;
+        padding-block: 48px 56px;
     }
 
     .contentGrid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: $space-2xl;
+        gap: 28px;
         align-items: start;
     }
 
-    .formPanel,
-    .infoCard {
-        border: 1px solid #ebeff5;
-        border-radius: $radius-lg;
-        background-color: #ffffff;
-        box-shadow: 0px 20px 25px -5px #0000001A;
-    }
-
-    .formPanel {
-        padding: $space-xl;
-    }
-
+    // ---- Form column ----
     .panelHeader {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: $space-md;
-        color: #5d9bef;
-
-        >h1 {
-            color: $dark-blue-800;
-            font-size: $text-xl;
-            line-height: 1.15;
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #FFC400;
+            font-size: 10px;
             font-weight: $weight-semi-bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 24px;
+                height: 1px;
+                background-color: #FFC400;
+            }
+        }
+
+        >h2 {
+            margin-top: 16px;
+            font-family: $font-display;
+            font-size: 32px;
+            line-height: 1.12;
+            color: #172940;
+            font-weight: $weight-bold;
+
+            em {
+                font-style: italic;
+            }
         }
     }
 
     .proposalHint {
-        flex: 1 1 100%;
-        margin: 0;
-        margin-top: -4px;
-        color: $grayish-blue-900;
-        font-size: $text-sm;
+        margin-top: 14px;
+        color: $navy-deep;
+        font-size: 14px;
         line-height: 1.45;
-        font-weight: $weight-regular;
     }
 
     .form {
         display: flex;
         flex-direction: column;
-        gap: 20px;
-        margin-top: $space-lg;
-    }
+        gap: 16px;
+        margin-top: 28px;
 
-    .optional {
-        color: $grayish-blue-850;
-        font-size: $text-sm;
-    }
-
-    .responseCard {
-        margin-top: $space-md;
-        border: 1px solid #DBEAFE;
-        border-radius: $radius-md;
-        background-color: #EFF6FF;
-        padding: $space-base;
-        color: $grayish-blue-900;
-        font-size: $text-sm;
-        line-height: 20px;
-
-        strong {
-            color: $grayish-blue-900;
-            font-weight: $weight-semi-bold;
+        label {
+            font-size: 14px;
+            color: $text-body;
         }
     }
 
-    .submitButton {
-        margin-top: 6px;
-        width: 100%;
-        border-radius: $radius-sm;
-        background: $soft-blue-100;
-        font-size: $text-sm;
-        gap: 15px;
+    .fieldRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
 
-    .submissionMessage {
-        color: #4c5b75;
-        font-size: 14px;
-        text-align: center;
-        margin-top: -8px;
+    .required {
+        color: $secondary;
+    }
+
+    .optional {
+        color: #6B849A;
+        font-size: 12px;
+    }
+
+    .responseCard {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-top: 4px;
+        padding: 14px 16px;
+        border: 1px solid #FFC40040;
+        border-radius: 10px;
+        background-color: #C4922A24;
+
+        .responseIcon {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: #C4922A24;
+            border: 1px solid #FFC40040;
+        }
+
+        >p {
+            font-size: 13px;
+            line-height: 1.45;
+            font-weight: $weight-regular;
+            color: #172940;
+
+            strong {
+                color: #FFC400;
+                font-weight: $weight-semi-bold;
+            }
+        }
+    }
+
+    button.submitButton {
+        width: 100%;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 4px;
+        background: $primary !important;
+        color: #FFFFFF !important;
+        font-size: 15px !important;
+        font-weight: $weight-semi-bold !important;
+        height: 51px;
+        line-height: 51px;
+        border-radius: 12px !important;
     }
 
     .fieldError {
@@ -103,6 +139,7 @@
         margin-top: -2px;
     }
 
+    // ---- Info column ----
     .infoColumn {
         display: flex;
         flex-direction: column;
@@ -110,72 +147,153 @@
     }
 
     .infoCard {
-        padding: 25px;
-        box-shadow: 0px 4px 6px -1px #0000001A;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: 22px 20px;
+        border: 1px solid #FFC400;
+        border-left: 4px solid #FFC400;
+        border-radius: 16px;
+        background-color: $white;
 
-        h2 {
-            color: #101828;
-            font-size: $text-base;
+        .infoIcon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background-color: #C4922A24;
+        }
+
+        .infoLabel {
+            margin-top: 16px;
+            color: #6B849A;
+            font-size: 10px;
             font-weight: $weight-bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        p,
-        address,
-        a,
-        strong {
-            margin-top: $space-base;
-        }
-
-        p,
-        address {
-            color: #4A5565;
-            font-style: normal;
-            font-size: $text-sm;
-            line-height: 1.55;
-        }
-
-        strong {
-            display: block;
-            color: #101828;
-            font-size: $text-md;
-            font-weight: $weight-md;
-        }
-
-        a {
-            display: inline-block;
-            color: $soft-blue-100;
-            font-size: $text-base;
+        >a {
+            margin-top: 8px;
+            color: #FFC400;
+            font-size: 15px;
+            font-weight: $weight-semi-bold;
             text-decoration: none;
             word-break: break-word;
         }
+
+        >p {
+            margin-top: 6px;
+            color: #6B849A;
+            font-size: 13px;
+            line-height: 1.5;
+        }
     }
 
-    .infoCardHighlighted {
-        background: linear-gradient(135deg, rgba(88, 153, 226, 0.1) 0%, rgba(39, 64, 96, 0.1) 100%);
-        border-color: #5899E233;
-    }
-
-    .infoHeader {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #5d9bef;
+    @media (min-width: map-get($breakpoints, "sm")) {
+        .panelHeader>h2 {
+            font-size: 36px;
+        }
     }
 
     @media (min-width: map-get($breakpoints, "md")) {
         .contactUsInner {
-            width: 1400px;
-            padding-block: $space-4xl;
+            padding-block: 80px;
+            padding-inline: 140px;
         }
 
         .contentGrid {
-            grid-template-columns: 2fr 1fr;
+            gap: $space-2xl;
         }
 
         .panelHeader {
-            >h1 {
-                font-weight: $weight-bold;
+            .eyebrow {
+                font-size: 11px;
+
+                &::before {
+                    width: 20px;
+                }
             }
+
+            >h2 {
+                margin-top: 18px;
+                font-size: 38px;
+            }
+        }
+
+        .proposalHint {
+            margin-top: $space-md;
+            font-size: $text-sm;
+        }
+
+        .form {
+            gap: $space-lg;
+            margin-top: 36px;
+
+            label {
+                font-size: $text-md;
+            }
+        }
+
+        .fieldRow {
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .optional {
+            font-size: 12.5px;
+        }
+
+        .responseCard {
+            align-items: center;
+            margin-top: 20px;
+            padding: $space-base 18px;
+            border-radius: 8px;
+
+            >p {
+                font-size: 13.5px;
+                line-height: 22.27px;
+            }
+        }
+
+        button.submitButton {
+            font-size: 15.5px !important;
+            height: 53px;
+            line-height: 53px;
+            border-radius: $radius-sm !important;
+        }
+
+        .infoCard {
+            padding: 28px 26px;
+            border-radius: $radius-lg;
+
+            .infoIcon {
+                width: 42px;
+                height: 42px;
+            }
+
+            .infoLabel {
+                margin-top: 18px;
+                font-size: 10.5px;
+            }
+
+            >a {
+                font-size: 15.5px;
+            }
+
+            >p {
+                font-size: 13px;
+                line-height: 21.6px;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, "lg")) {
+        .contentGrid {
+            grid-template-columns: 1.8fr 1fr;
+            gap: $space-4xl;
         }
     }
 }

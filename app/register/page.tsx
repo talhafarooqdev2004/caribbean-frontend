@@ -3,7 +3,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+import AuthPageShell from "@/components/auth/AuthPageShell";
 import { armJoinMediaNetworkFormIntent, joinMediaNetworkFormHref } from "@/lib/join-media-network-form-intent";
+
+import styles from "./RegisterRedirect.module.scss";
 
 /**
  * /register is kept for bookmarks and external links. Next.js redirects cannot
@@ -19,8 +22,14 @@ export default function RegisterRedirectPage() {
     }, [router]);
 
     return (
-        <p style={{ padding: "2rem", textAlign: "center", color: "#274060" }}>
-            Taking you to sign up…
-        </p>
+        <AuthPageShell
+            badge="Join"
+            title={<>Create Your <span>Account</span></>}
+            subtitle="Taking you to sign up…"
+        >
+            <p className={styles.message} role="status" aria-live="polite">
+                Redirecting to the registration form.
+            </p>
+        </AuthPageShell>
     );
 }

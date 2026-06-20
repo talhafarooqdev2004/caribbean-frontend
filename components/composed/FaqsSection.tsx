@@ -2,19 +2,41 @@ import styles from "./FaqsSection.module.scss";
 
 import { Container } from "../layout";
 import React from "react";
-import { SvgIcon } from "../ui";
 
 export default function FaqsSection() {
     return (
         <section className={styles.faqsSection}>
             <Container className={styles.faqsSectionInner}>
-                <h1>Frequently Asked Questions</h1>
+                <header className={styles.sectionHeader}>
+                    <span className={styles.eyebrow}>FAQ</span>
+                    <h2>Common <span>questions</span></h2>
+                </header>
 
                 <Faqs>
-                    <Faq question="How quickly will my release be published?" answer="Most press releases are published within 24-48 hours of submission. During peak times, it may take up to 72 hours." />
-                    <Faq question="Do you guarantee media pickups?" answer="We don't guarantee pickups, but our experienced team works to maximize your release's visibility to relevant media outlets." />
-                    <Faq question="Can I schedule my release for a specific date?" answer="Yes, you can schedule your release to go out on a specific date. This is useful for coordinating announcements with product launches." />
-                    <Faq question="Do credits expire?" answer="Credits are valid for 6 months from the date of purchase. We recommend using them within that period to maximize your PR efforts." />
+                    <Faq
+                        question="What counts as one press release?"
+                        answer="One press release is a single announcement of up to 700 words with one cover image and one outbound link, distributed to our journalist network and published in the newsroom."
+                    />
+                    <Faq
+                        question="How long are 3-Release Pack credits valid?"
+                        answer="3-Release Pack credits are valid for 6 months from the date of purchase and can be used across multiple campaigns whenever you're ready."
+                    />
+                    <Faq
+                        question="Can I add Featured Placement to a 3-Release Pack release?"
+                        answer="Yes. Featured Placement is a $99 add-on that can be applied to any release — including releases from a 3-Release Pack — and is selected at checkout."
+                    />
+                    <Faq
+                        question="How does the editorial review work?"
+                        answer="Every submission is reviewed by our editorial team for clarity and style before publication, typically within 48 hours, or same day for Professional Campaigns."
+                    />
+                    <Faq
+                        question="Do you distribute outside the Caribbean?"
+                        answer="Yes. Alongside Caribbean-wide distribution, Professional Campaigns include diaspora distribution to Caribbean media in the US, UK, and Canada."
+                    />
+                    <Faq
+                        question="How is the Professional Campaign package priced?"
+                        answer="Professional Campaigns start at $999 and are tailored to your goals with a custom quote. Reach out and we'll prepare a proposal for your campaign."
+                    />
                 </Faqs>
             </Container>
         </section>
@@ -34,9 +56,10 @@ function Faq({ question, answer }: { question: string, answer: string }) {
                 className={styles.question}
                 onClick={() => setIsOpen(!isOpen)}
                 type="button"
+                aria-expanded={isOpen}
             >
                 <span>{question}</span>
-                <SvgIcon icon="down-arrow" />
+                <span className={styles.toggle} aria-hidden="true" />
             </button>
             {isOpen && (
                 <div className={styles.answer}>

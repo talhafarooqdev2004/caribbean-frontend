@@ -58,7 +58,7 @@ export default function FeaturedPressReleases({ releases = [] }: FeaturedPressRe
         <section className={styles.featuredPressReleases}>
             <Container className={styles.featuredPressReleasesInner}>
                 <div className={styles.featuredHeader}>
-                    <h3>Featured</h3>
+                    <span className={styles.eyebrow}>Featured Release</span>
 
                     <div className={styles.featuredAction}>
                         <Button
@@ -113,25 +113,29 @@ export default function FeaturedPressReleases({ releases = [] }: FeaturedPressRe
                                 .join(" ")}
                         >
                             <News variant="featured" key={activeRelease.id}>
-                            <News.Header>
-                                <News.Image imgSrc={getReleaseImageSrc(activeRelease)} />
-                                <News.Badge>FEATURED</News.Badge>
-                            </News.Header>
+                                <News.Header>
+                                    <News.Image imgSrc={getReleaseImageSrc(activeRelease)} />
+                                </News.Header>
 
-                            <News.Body>
-                                <News.Meta>
-                                    <News.Territory>{activeRelease.island || "Regional"}</News.Territory>
-                                    <News.Seprator />
-                                    <News.Date>{formatReleaseDate(activeRelease.publishedAt || activeRelease.createdAt)}</News.Date>
-                                </News.Meta>
+                                <News.Body>
+                                    <News.Badge>FEATURED</News.Badge>
 
-                                <News.Title>{stripTagsToPlainText(activeRelease.title)}</News.Title>
+                                    <News.Meta>
+                                        <News.Category>{activeRelease.category}</News.Category>
+                                        <News.Territory>{activeRelease.island || "Regional"}</News.Territory>
+                                        <News.Seprator />
+                                        <News.Date>{formatReleaseDate(activeRelease.publishedAt || activeRelease.createdAt)}</News.Date>
+                                    </News.Meta>
 
-                                <News.Description>{releaseCardExcerpt(activeRelease)}</News.Description>
+                                    <News.Title>{stripTagsToPlainText(activeRelease.title)}</News.Title>
 
-                                <News.ReadLink link={getReleaseUrl(activeRelease)} releaseId={activeRelease.id} />
-                            </News.Body>
-                        </News>
+                                    <News.Description>{releaseCardExcerpt(activeRelease)}</News.Description>
+
+                                    <News.ReadLink link={getReleaseUrl(activeRelease)} releaseId={activeRelease.id}>
+                                        Read Full Release
+                                    </News.ReadLink>
+                                </News.Body>
+                            </News>
                         </div>
                     </div>
                 </div>

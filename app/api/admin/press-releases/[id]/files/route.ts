@@ -1,7 +1,8 @@
 import { type NextRequest } from "next/server";
 
 import { getAdminAuthorizationHeader } from "@/lib/admin-auth";
-import { caribApiFetch, getCaribApiMessage, parseCaribApiJson } from "@/lib/backend-api";
+import { caribApiFetch, parseCaribApiJson } from "@/lib/backend-api";
+import { formatApiValidationErrors } from "@/lib/format-api-validation-errors";
 
 export const runtime = "nodejs";
 
@@ -31,8 +32,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (!response.ok) {
         return Response.json(
             {
-                error: getCaribApiMessage(payload, "Unable to upload files."),
+                error: formatApiValidationErrors(payload, "Unable to upload files."),
                 message: payload?.message,
+                errors: payload?.errors,
             },
             { status: response.status }
         );

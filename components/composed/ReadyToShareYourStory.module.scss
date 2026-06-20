@@ -3,76 +3,194 @@
 @use "../../styles/breakpoints" as *;
 
 .footerCTA {
-    background: $linear-gradient-blue-700;
+    background-color: $navy-deep;
+    overflow-x: clip;
 
     .footerCTAInner {
-        padding-block: 35px;
+        padding-block: 48px 56px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        text-align: center;
 
-        >h1 {
-            font-size: $text-section;
-            color: $white;
-            text-align: center;
-            width: 90%;
-            margin-inline: auto;
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+
+            .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: $space-md;
+                color: #5899E2;
+                font-size: 10px;
+                font-weight: $weight-md;
+                letter-spacing: 1.4px;
+                text-transform: uppercase;
+
+                &::before,
+                &::after {
+                    content: "";
+                    width: 24px;
+                    height: 1px;
+                    background-color: #5899E2;
+                }
+            }
+
+            > h2 {
+                margin-top: 20px;
+                line-height: 1.05;
+
+                .headingLead {
+                    display: block;
+                    font-family: $font-display;
+                    font-size: 32px;
+                    font-weight: $weight-bold;
+                    color: $white;
+                }
+
+                .headingAccent {
+                    display: block;
+                    margin-top: 4px;
+                    font-family: $font-display;
+                    font-style: italic;
+                    font-size: 36px;
+                    font-weight: $weight-bold;
+                    color: #5899E2;
+                }
+            }
         }
 
-        >P {
-            margin-top: $space-lg;
-            font-size: $text-lg;
-            color: $grayish-blue-100;
-            line-height: $line-height-md;
-            text-align: center;
+        > p {
+            margin-top: 16px;
+            max-width: 320px;
+            font-size: 15px;
+            color: #FFFFFF85;
+            line-height: 26px;
         }
 
         .ctaBtns {
             width: 100%;
-            margin-top: 26px;
+            max-width: 360px;
+            margin-top: 28px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: $space-base;
+            align-items: stretch;
+            gap: 12px;
 
-            .pressReleaseBtn {
+            .pressReleaseBtn,
+            .talkToSalesBtn {
                 width: 100%;
-                padding-inline: 40px;
+                height: 51px;
+                line-height: 51px;
+                padding-inline: 20px;
+                border-radius: 12px !important;
+                font-size: 15px !important;
+                font-weight: $weight-semi-bold !important;
             }
 
-            .viewPricingBtn {
-                width: 100%;
-                padding-inline: 40px;
+            .pressReleaseBtn {
+                background-color: $secondary !important;
+                color: #0a1b33 !important;
+                border: none !important;
+            }
+        }
+
+        .metaLine {
+            margin-top: 20px;
+            max-width: 320px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #FFFFFF4D;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'sm')) {
+        .footerCTAInner {
+            .header {
+                .eyebrow {
+                    font-size: 11px;
+                }
+
+                > h2 {
+                    .headingLead {
+                        font-size: 36px;
+                    }
+
+                    .headingAccent {
+                        font-size: 40px;
+                    }
+                }
+            }
+
+            > p {
+                max-width: 400px;
+            }
+
+            .metaLine {
+                max-width: 420px;
+                font-size: 13px;
             }
         }
     }
 
     @media (min-width: map-get($breakpoints, 'md')) {
         .footerCTAInner {
-            padding-block: $space-4xl;
+            padding-block: 80px 96px;
 
-            >h1 {
-                font-size: $text-4xl;
-                width: 100%;
+            .header > h2 {
+                margin-top: $space-lg;
+
+                .headingLead {
+                    font-size: 48px;
+                }
+
+                .headingAccent {
+                    font-size: 58px;
+                }
             }
 
-            >P {
-                margin-top: 20px;
-                font-size: $text-xl;
-                margin-inline: auto;
+            > p {
+                margin-top: 18px;
+                max-width: 760px;
+                font-size: 17px;
+                line-height: 29.24px;
             }
 
             .ctaBtns {
-                margin-top: 40px;
                 flex-direction: row;
-                width: fit-content;
+                justify-content: center;
+                align-items: center;
+                width: auto;
+                max-width: none;
+                margin-top: 40px;
+                gap: $space-base;
 
-                .pressReleaseBtn {
+                .pressReleaseBtn,
+                .talkToSalesBtn {
                     width: auto;
+                    padding-inline: $space-2xl;
+                }
+            }
+
+            .metaLine {
+                max-width: none;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'lg')) {
+        .footerCTAInner {
+            padding-block: $space-5xl;
+
+            .header > h2 {
+                .headingLead {
+                    font-size: 50px;
                 }
 
-                .viewPricingBtn {
-                    width: auto;
+                .headingAccent {
+                    font-size: 60px;
                 }
             }
         }

@@ -4,86 +4,244 @@
 
 .startAccessing {
     background-color: $white;
+    overflow-x: clip;
 
-    .startAccessingInner {
-        padding-block: 25px;
+    .curve {
+        line-height: 0;
+        overflow: hidden;
+        margin-top: -1px;
 
-        >h1 {
-            font-size: $text-section;
-            line-height: 40px;
-            text-align: center;
-        }
+        svg {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: 44px;
 
-        >p {
-            margin-top: $space-lg;
-            font-size: $text-base;
-            color: $grayish-blue-900;
-            line-height: $line-height-md;
-            text-align: center;
-            width: 95%;
-            margin-inline: auto;
-        }
-
-        .points {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: $space-lg;
-
-            .point {
-                border-radius: $radius-lg;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: $space-md;
-                padding: $space-lg;
-
-                >span {
-                    color: $grayish-blue-800;
-                    font-size: $text-sm;
-                    line-height: 20px;
-                    text-align: center;
-                }
-            }
-
-            .freeForMedia {
-                background: linear-gradient(135deg, rgba(88, 153, 226, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
-            }
-
-            .verifiedContentOnly {
-                background: linear-gradient(135deg, rgba(51, 92, 129, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
-            }
-
-            .regionalFocus {
-                background: linear-gradient(135deg, rgba(39, 64, 96, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
-            }
-
-            .curatedDistribution {
-                background: linear-gradient(135deg, rgba(255, 196, 0, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+            path {
+                fill: $cream-band;
+                stroke: $cream-band;
+                stroke-width: 2px;
+                stroke-linejoin: round;
             }
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
-        .startAccessingInner {
-            padding-block: 95px;
+    .startAccessingInner {
+        padding-block: 20px 48px;
+    }
 
-            >h1 {
-                font-size: $text-section-lg;
-                line-height: 48px;
-                width: 60%;
-                margin-inline: auto;
+    .card {
+        position: relative;
+        overflow: hidden;
+        padding: 28px 20px 32px;
+        border-radius: 28px 28px 24px 24px;
+        background-color: $navy-deep;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .sideAccent {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(62vw, 280px);
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+
+        svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .copy {
+        position: relative;
+        z-index: 1;
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: $secondary;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 24px;
+                height: 1px;
+                background-color: $secondary;
+            }
+        }
+
+        >h2 {
+            margin-top: 16px;
+            font-family: $font-display;
+            font-size: 32px;
+            line-height: 1.12;
+            font-weight: $weight-bold;
+            color: $white;
+
+            >span {
+                display: block;
+                margin-top: 2px;
+                font-style: italic;
+                color: $secondary;
+            }
+        }
+
+        >p {
+            margin-top: 14px;
+            max-width: 100%;
+            color: #FFFFFF85;
+            font-size: 15px;
+            line-height: 26px;
+        }
+
+        .joinButton {
+            margin-top: 24px;
+            gap: $space-sm;
+            width: 100%;
+            justify-content: center;
+            height: 51px;
+            line-height: 51px;
+            padding-inline: 24px;
+            border-radius: 12px !important;
+            background-color: $secondary !important;
+            color: #172940 !important;
+            font-size: 15px !important;
+            font-weight: $weight-semi-bold !important;
+        }
+    }
+
+    .points {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+
+        .point {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background-color: #FFFFFF0F;
+            border: 1px solid #FFFFFF1A;
+            color: #FFFFFFBF;
+            font-size: 13px;
+            font-weight: $weight-md;
+            line-height: 1.3;
+
+            svg {
+                flex-shrink: 0;
+                color: #5899E2;
+            }
+        }
+
+        .pointHighlighted {
+            background-color: #FFC4001F;
+            border-color: #FFC40047;
+            color: $secondary;
+
+            svg {
+                color: $secondary;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'sm')) {
+        .copy>h2 {
+            font-size: 36px;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .sideAccent {
+            display: block;
+            width: 320px;
+        }
+
+        .curve svg {
+            height: 56px;
+        }
+
+        .startAccessingInner {
+            padding-block: 0 64px;
+        }
+
+        .card {
+            padding: $space-2xl;
+            border-radius: $radius-xl;
+            gap: $space-lg;
+        }
+
+        .copy {
+            .eyebrow {
+                font-size: 11px;
+            }
+
+            >h2 {
+                margin-top: $space-base;
+                font-size: 40px;
+                line-height: 47.2px;
             }
 
             >p {
-                width: 65%;
+                margin-top: 16px;
+                max-width: 820px;
+                font-size: 16px;
+                line-height: 27.52px;
             }
 
-            .points {
-                max-width: 900px;
-                margin-inline: auto;
-                grid-template-columns: repeat(4, 1fr);
+            .joinButton {
+                margin-top: 32px;
+                width: max-content;
+                border-radius: $radius-sm !important;
+                font-size: inherit !important;
             }
+        }
+
+        .points {
+            align-items: flex-end;
+            gap: 14px;
+
+            .point {
+                width: 240px;
+                padding: 15px 23px;
+                font-size: 13.5px;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'lg')) {
+        .sideAccent {
+            width: 400px;
+        }
+
+        .curve svg {
+            height: 90px;
+        }
+
+        .startAccessingInner {
+            padding-block: $space-5xl;
+            padding-inline: 140px;
+        }
+
+        .card {
+            grid-template-columns: 1.6fr 1fr;
+            gap: $space-xl;
+            padding: $space-4xl;
         }
     }
 }

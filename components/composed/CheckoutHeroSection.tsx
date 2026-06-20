@@ -1,17 +1,23 @@
 import styles from "./CheckoutHeroSection.module.scss";
 
+import { Lock } from "lucide-react";
 import { Container } from "../layout";
 
 export default function CheckoutHeroSection() {
     return (
         <section className={styles.heroSection}>
             <Container className={styles.heroSectionInner}>
-                <div className={styles.heroSectionBadge}>💬 Checkout</div>
+                <span className={styles.badge}>
+                    <Lock size={14} strokeWidth={2} aria-hidden />
+                    Secure Checkout
+                </span>
 
-                <h1>Checkout</h1>
+                <h1>
+                    Complete Your <span>Order</span>
+                </h1>
 
-                <p>Have a question about your order or need assistance during checkout? We&apos;re here to help.</p>
+                <p>Complete your order to start distributing your news across the Caribbean</p>
             </Container>
         </section>
     );
-};
+}

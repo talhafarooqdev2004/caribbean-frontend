@@ -47,13 +47,58 @@ export function formatReleaseTime(value: string | null) {
         return "";
     }
 
-    return new Intl.DateTimeFormat(undefined, {
+    const time = new Intl.DateTimeFormat("en-US", {
         hour: "numeric",
         minute: "2-digit",
-        timeZoneName: "short",
+        timeZone: "America/New_York",
     }).format(new Date(value));
+
+    return `${time} EST`;
 }
 
 export function getReleaseUrl(release: Pick<PressReleaseRecord, "slug" | "id">) {
     return `/newsroom/${release.slug || release.id}`;
+}
+
+/** Normalize DB document path to a same-origin `/uploads/...` URL. */
+export function getReleaseDocumentUrl(release: Pick<PressReleaseRecord, "documentPath">) {
+    if (!release.documentPath?.trim()) {
+        return null;
+    }
+
+    const raw = release.documentPath.trim();
+
+    if (/^https?:\/\//i.test(raw)) {
+        return raw;
+    }
+
+    if (raw.startsWith("/uploads/")) {
+        return raw;
+    }
+
+    if (raw.startsWith("uploads/")) {
+        return `/${raw}`;
+    }
+
+    return raw.startsWith("/") ? raw : `/${raw}`;
+}
+
+export function getReleaseDocumentLabel(documentPath: string | null | undefined) {
+    if (!documentPath?.trim()) {
+        return "Download document";
+    }
+
+    const filename = documentPath.trim().split("/").pop() ?? "";
+    const withoutTimestamp = filename.replace(/^\d{10,}-/, "");
+    const base = withoutTimestamp || filename || "document";
+
+    if (/\.pdf$/i.test(base)) {
+        return "Download PDF";
+    }
+
+    if (/\.docx?$/i.test(base)) {
+        return "Download document";
+    }
+
+    return "Download attachment";
 }

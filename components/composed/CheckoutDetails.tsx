@@ -2,18 +2,20 @@
 
 import styles from "./CheckoutDetails.module.scss";
 
-import { Loader2, Lock, Minus, Plus, X } from "lucide-react";
+import { Check, Loader2, Lock, Monitor, Wallet } from "lucide-react";
 import { Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { Container } from "../layout";
-import { Button, FormControl, FormLabel, Input } from "../ui";
+import { Button, FormControl, FormLabel, Input, Select } from "../ui";
+import { territoryOptions } from "@/lib/enquiry-options";
 import {
     CheckoutSquareCardAttacher,
     CheckoutSquareCardSuspenseFallback,
     resetSquareWebClientConfigCache,
     type SquareCard,
 } from "./CheckoutSquareCardAttacher";
+import CheckoutPaymentSuccessModal from "./CheckoutPaymentSuccessModal";
 
 function CheckoutSquareCardAttacherGate({
     mountSelector,
@@ -53,14 +55,43 @@ type OrderDetails = {
 };
 
 type CheckoutFormValues = {
+    firstName: string;
+    lastName: string;
     email: string;
-    cardholderName: string;
+    organization: string;
+    country: string;
 };
 
-const unitPrice = 149;
+const CHECKOUT_QUANTITY = 1;
+
+const countryOptions = [
+    { value: "", label: "Select country / territory" },
+    ...territoryOptions.map((option) => ({ value: option.value, label: option.label })),
+];
+
+function matchCountryFromLocation(location: string) {
+    const normalized = location.trim().toLowerCase();
+
+    if (!normalized) {
+        return "";
+    }
+
+    const match = territoryOptions.find(
+        (option) =>
+            option.value === normalized
+            || option.label.toLowerCase() === normalized
+            || normalized.includes(option.label.toLowerCase()),
+    );
+
+    return match?.value ?? "";
+}
+
 const initialFormValues: CheckoutFormValues = {
+    firstName: "",
+    lastName: "",
     email: "",
-    cardholderName: "",
+    organization: "",
+    country: "",
 };
 
 function formatCurrency(value: number | null) {
@@ -71,8 +102,93 @@ function formatCurrency(value: number | null) {
     return `$${value}`;
 }
 
+function formatCurrencyDetailed(value: number | null) {
+    if (value === null || Number.isNaN(value)) {
+        return "—";
+    }
+
+    return `$${value.toFixed(2)}`;
+}
+
+function getPackageTitle(packageId: string | undefined, featuredUpgrade: boolean) {
+    const base =
+        packageId === "bundle"
+            ? "3-Release Package"
+            : packageId === "custom"
+                ? "Professional Campaign"
+                : "Single Release";
+
+    return featuredUpgrade ? `${base} + Featured Placement` : base;
+}
+
+function getPackageSubtitle(packageId: string | undefined) {
+    if (packageId === "custom") {
+        return "Multi-island campaign distribution";
+    }
+
+    return "Caribbean-wide distribution";
+}
+
+const SINGLE_INCLUDED_ITEMS = [
+    "Up to 700 words",
+    "Up to 2 images",
+    "1 outbound link",
+    "Targeted journalist distribution",
+    "Newsroom publication",
+    "48-hour editorial review",
+] as const;
+
+const BUNDLE_INCLUDED_ITEMS = [
+    "Everything in Single Release",
+    "3 total release credits",
+    "Flexible scheduling",
+    "Use across multiple campaigns",
+    "Credit validity for 6 months",
+] as const;
+
+const CUSTOM_INCLUDED_ITEMS = [
+    "Multi-release campaign distribution",
+    "Custom island & diaspora targeting",
+    "Coordinated scheduling",
+    "Campaign performance summary",
+    "Dedicated support",
+] as const;
+
+const FEATURED_INCLUDED_ITEMS = [
+    "Homepage spotlight (48 hours)",
+    "Priority editorial review",
+    "Top-of-email distribution",
+] as const;
+
+function getIncludedItems(packageId: string | undefined, featuredUpgrade: boolean) {
+    let items: readonly string[] = [];
+
+    switch (packageId) {
+        case "bundle":
+            items = BUNDLE_INCLUDED_ITEMS;
+            break;
+        case "custom":
+            items = CUSTOM_INCLUDED_ITEMS;
+            break;
+        case "single":
+            items = SINGLE_INCLUDED_ITEMS;
+            break;
+        default:
+            items = [];
+            break;
+    }
+
+    if (featuredUpgrade) {
+        return [...items, ...FEATURED_INCLUDED_ITEMS];
+    }
+
+    return [...items];
+}
+
 const DEFAULT_PAYMENT_ERROR = "We could not complete your payment. Please try again.";
 const MAX_SQUARE_SETUP_RETRIES = 3;
+/** Match site `md` breakpoint — card entry is desktop-only until mobile Square is fixed. */
+const MOBILE_CHECKOUT_MAX_WIDTH_PX = 767;
 
 /** Keep checkout copy short; raw SDK strings are noisy and not helpful for buyers. */
 function briefSquareLoadDetail(reason?: string): string | undefined {
@@ -151,12 +267,23 @@ function paymentErrorMessage(payload: unknown): string {
 }
 
 function validateCheckoutForm(values: CheckoutFormValues) {
-    const normalizedValues: CheckoutFormValues = {
+    const normalizedValues = {
+        firstName: values.firstName.trim().replace(/\s+/g, " "),
+        lastName: values.lastName.trim().replace(/\s+/g, " "),
         email: values.email.trim().toLowerCase(),
-        cardholderName: values.cardholderName.trim().replace(/\s+/g, " "),
+        organization: values.organization.trim().replace(/\s+/g, " "),
+        country: values.country.trim(),
     };
 
     const errors: Partial<Record<keyof CheckoutFormValues, string>> = {};
+
+    if (!normalizedValues.firstName) {
+        errors.firstName = "First name is required.";
+    }
+
+    if (!normalizedValues.lastName) {
+        errors.lastName = "Last name is required.";
+    }
 
     if (!normalizedValues.email) {
         errors.email = "Email is required.";
@@ -164,12 +291,15 @@ function validateCheckoutForm(values: CheckoutFormValues) {
         errors.email = "Enter a valid email address.";
     }
 
-    if (!normalizedValues.cardholderName) {
-        errors.cardholderName = "Cardholder name is required.";
-    }
+    const cardholderName = `${normalizedValues.firstName} ${normalizedValues.lastName}`.trim();
 
     return {
-        values: Object.keys(errors).length > 0 ? null : normalizedValues,
+        values: Object.keys(errors).length > 0
+            ? null
+            : {
+                ...normalizedValues,
+                cardholderName,
+            },
         errors,
     };
 }
@@ -179,7 +309,6 @@ type CheckoutDetailsProps = {
 };
 
 export default function CheckoutDetails({ creditPackage = null }: CheckoutDetailsProps) {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const squareHostDomId = useId().replace(/[^a-zA-Z0-9_-]/g, "") || "host";
     const squareMountSelector = `#square-card-host-${squareHostDomId}`;
@@ -187,7 +316,6 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
 
     const releaseId = searchParams.get("releaseId");
     const checkoutSessionId = searchParams.get("checkoutSessionId");
-    const [quantity, setQuantity] = useState(1);
     const [releaseOrderDetails, setReleaseOrderDetails] = useState<OrderDetails | null>(null);
     const [releaseOrderError, setReleaseOrderError] = useState(false);
     const [creditFeaturedFromSession, setCreditFeaturedFromSession] = useState(false);
@@ -200,11 +328,84 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
     const [squareInitAttempt, setSquareInitAttempt] = useState(0);
     const [squareLoadMessage, setSquareLoadMessage] = useState<string | null>(null);
     const [squareRetryStopped, setSquareRetryStopped] = useState(false);
+    const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
+    const [isMobileCheckout, setIsMobileCheckout] = useState(false);
     const squareLoadFailuresRef = useRef(0);
     const squareCardHostRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         squareLoadFailuresRef.current = 0;
+    }, []);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_CHECKOUT_MAX_WIDTH_PX}px)`);
+        const syncViewport = () => setIsMobileCheckout(mediaQuery.matches);
+
+        syncViewport();
+        mediaQuery.addEventListener("change", syncViewport);
+
+        return () => mediaQuery.removeEventListener("change", syncViewport);
+    }, []);
+
+    useEffect(() => {
+        const paymentSuccess = searchParams.get("paymentSuccess");
+        const successId = searchParams.get("orderId")?.trim();
+        if (paymentSuccess === "1" && successId) {
+            setSuccessOrderId(successId);
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function prefillLoggedInUser() {
+            try {
+                const meResponse = await fetch("/api/auth/me", {
+                    credentials: "include",
+                    cache: "no-store",
+                });
+
+                if (!meResponse.ok || cancelled) {
+                    return;
+                }
+
+                const mePayload = await meResponse.json() as {
+                    user?: {
+                        firstName?: string;
+                        lastName?: string;
+                        email?: string;
+                        organization?: string | null;
+                        country?: string | null;
+                        journalistProfile?: {
+                            location?: string | null;
+                        } | null;
+                    };
+                };
+
+                const user = mePayload.user;
+                if (!user || cancelled) {
+                    return;
+                }
+
+                const profileCountry = matchCountryFromLocation(user.journalistProfile?.location?.trim() ?? "");
+
+                setFormValues((current) => ({
+                    firstName: current.firstName || user.firstName?.trim() || "",
+                    lastName: current.lastName || user.lastName?.trim() || "",
+                    email: current.email || user.email?.trim().toLowerCase() || "",
+                    organization: current.organization || user.organization?.trim() || "",
+                    country: current.country || user.country?.trim() || profileCountry,
+                }));
+            } catch {
+
+            }
+        }
+
+        void prefillLoggedInUser();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const handleSquareCardReady = useCallback((card: SquareCard) => {
@@ -309,25 +510,15 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
 
         const unitCents = creditPackage === "bundle" ? 39900 : 14900;
 
-        if (quantity <= 0) {
-            return {
-                packageId: creditPackage,
-                amountCents: 0,
-                featuredUpgrade: creditFeaturedFromSession,
-            };
-        }
-
         return {
             packageId: creditPackage,
-            amountCents: unitCents * quantity + (creditFeaturedFromSession ? 9900 : 0),
+            amountCents: unitCents * CHECKOUT_QUANTITY + (creditFeaturedFromSession ? 9900 : 0),
             featuredUpgrade: creditFeaturedFromSession,
         };
-    }, [releaseId, creditPackage, quantity, creditFeaturedFromSession]);
+    }, [releaseId, creditPackage, creditFeaturedFromSession]);
 
     const orderDetails = releaseId ? releaseOrderDetails : creditOrderDetails;
     const isCreditCheckout = Boolean(creditPackage && !releaseId && orderDetails);
-    const creditsPerPackageUnit =
-        orderDetails?.packageId === "bundle" ? 3 : orderDetails?.packageId === "single" ? 1 : 0;
 
     const isReleaseOrderLoading = Boolean(releaseId && !releaseOrderDetails && !releaseOrderError);
 
@@ -356,7 +547,6 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
         return Math.round(orderDetails.amountCents / 100);
     }, [orderDetails]);
 
-    /** Credit checkout: total cents include package × quantity + optional featured ($99 once). Release: fixed release amount. */
     const subtotal = useMemo((): number | null => {
         if (releaseId && !orderDetails) {
             return null;
@@ -370,8 +560,8 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
             return Math.round(orderDetails.amountCents / 100);
         }
 
-        return quantity * unitPrice;
-    }, [orderDetails, releaseId, isCreditCheckout, unitAmountDollars, quantity]);
+        return null;
+    }, [orderDetails, releaseId, isCreditCheckout, unitAmountDollars]);
 
     useEffect(() => {
         if (!releaseId) {
@@ -420,7 +610,6 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
                     ...current,
                     email: typeof release.email === "string" ? release.email : current.email,
                 }));
-                setQuantity(1);
             })
             .catch(() => {
                 if (!cancelled) {
@@ -569,8 +758,11 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        if (quantity === 0) {
-            setSubmissionMessage("Add an item to your order before proceeding.");
+        if (isMobileCheckout) {
+            setSubmissionMessage(null);
+            setToast({
+                message: "Card payments are temporarily available on desktop only. Please open checkout on a PC or laptop.",
+            });
             return;
         }
 
@@ -627,11 +819,13 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
                         ? {
                             sourceId: tokenResult.token,
                             creditPackage,
-                            quantity: quantity,
+                            quantity: CHECKOUT_QUANTITY,
                             featuredAddon: orderDetails.featuredUpgrade,
                             amount: subtotal,
                             email: validation.values.email,
                             cardholderName: validation.values.cardholderName,
+                            organization: validation.values.organization || null,
+                            country: validation.values.country || null,
                             ...(checkoutSessionId ? { creditCheckoutSessionId: checkoutSessionId } : {}),
                         }
                         : {
@@ -642,6 +836,8 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
                             amount: subtotal,
                             email: validation.values.email,
                             cardholderName: validation.values.cardholderName,
+                            organization: validation.values.organization || null,
+                            country: validation.values.country || null,
                         },
                 ),
             });
@@ -658,7 +854,7 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
                 return;
             }
 
-            router.push(`/payment-successful?orderId=${encodeURIComponent(String(orderId))}`);
+            setSuccessOrderId(String(orderId));
         } catch {
             setToast({ message: DEFAULT_PAYMENT_ERROR });
         } finally {
@@ -666,13 +862,19 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
         }
     }
 
-    const lineItemQuantity = quantity;
+    const packageTitle = getPackageTitle(orderDetails?.packageId, Boolean(orderDetails?.featuredUpgrade));
+    const packageSubtitle = getPackageSubtitle(orderDetails?.packageId);
+    const includedItems = getIncludedItems(orderDetails?.packageId, Boolean(orderDetails?.featuredUpgrade));
 
     return (
         <section className={styles.checkoutSection}>
-            <Container className={styles.checkoutInner}>
-                <h1>Checkout</h1>
+            <div className={styles.curve} aria-hidden="true">
+                <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+                    <path d="M0,0 L1440,0 L1440,48 C1300,52 1180,66 1040,66 C900,66 820,44 680,40 C540,36 460,64 320,64 C200,64 120,54 0,42 Z" />
+                </svg>
+            </div>
 
+            <Container className={styles.checkoutInner}>
                 {toast ? (
                     <div
                         className={`${styles.toast} ${styles.toastError}`}
@@ -685,9 +887,196 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
 
                 <div className={styles.checkoutGrid}>
                     <div className={styles.checkoutMainColumn}>
-                        <section className={styles.card}>
-                            <h2>Your Order</h2>
+                        <section className={styles.billingCard}>
+                            <header className={styles.billingHeader}>
+                                <span className={styles.billingHeaderIcon} aria-hidden>
+                                    <Wallet size={18} strokeWidth={1.8} />
+                                </span>
+                                <div>
+                                    <h2>Billing Information</h2>
+                                    <p>Your details are secured and encrypted</p>
+                                </div>
+                            </header>
 
+                            <div className={styles.billingBody}>
+                                <form
+                                    id="checkout-payment-form"
+                                    className={`${styles.form} ${styles.checkoutPaymentForm}`}
+                                    onSubmit={handleSubmit}
+                                    noValidate
+                                >
+                                    <div className={styles.formSection}>
+                                        <span className={styles.sectionEyebrow}>Contact Details</span>
+
+                                        <div className={styles.formRow}>
+                                            <FormControl>
+                                                <FormLabel htmlFor="checkout-first-name">
+                                                    First Name <span className={styles.required}>*</span>
+                                                </FormLabel>
+                                                <Input
+                                                    id="checkout-first-name"
+                                                    name="firstName"
+                                                    type="text"
+                                                    placeholder="First name"
+                                                    autoComplete="given-name"
+                                                    value={formValues.firstName}
+                                                    onChange={(event) => updateField("firstName", event.target.value)}
+                                                    aria-invalid={Boolean(fieldErrors.firstName)}
+                                                />
+                                                {fieldErrors.firstName ? <p className={styles.fieldError}>{fieldErrors.firstName}</p> : null}
+                                            </FormControl>
+
+                                            <FormControl>
+                                                <FormLabel htmlFor="checkout-last-name">
+                                                    Last Name <span className={styles.required}>*</span>
+                                                </FormLabel>
+                                                <Input
+                                                    id="checkout-last-name"
+                                                    name="lastName"
+                                                    type="text"
+                                                    placeholder="Last name"
+                                                    autoComplete="family-name"
+                                                    value={formValues.lastName}
+                                                    onChange={(event) => updateField("lastName", event.target.value)}
+                                                    aria-invalid={Boolean(fieldErrors.lastName)}
+                                                />
+                                                {fieldErrors.lastName ? <p className={styles.fieldError}>{fieldErrors.lastName}</p> : null}
+                                            </FormControl>
+                                        </div>
+
+                                        <FormControl>
+                                            <FormLabel htmlFor="checkout-email">
+                                                Email Address <span className={styles.required}>*</span>
+                                            </FormLabel>
+                                            <Input
+                                                id="checkout-email"
+                                                name="email"
+                                                type="email"
+                                                placeholder="your@email.com"
+                                                autoComplete="email"
+                                                value={formValues.email}
+                                                onChange={(event) => updateField("email", event.target.value)}
+                                                aria-invalid={Boolean(fieldErrors.email)}
+                                            />
+                                            {fieldErrors.email ? <p className={styles.fieldError}>{fieldErrors.email}</p> : null}
+                                        </FormControl>
+
+                                        <FormControl>
+                                            <FormLabel htmlFor="checkout-organization">Organization</FormLabel>
+                                            <Input
+                                                id="checkout-organization"
+                                                name="organization"
+                                                type="text"
+                                                placeholder="Your organization name"
+                                                autoComplete="organization"
+                                                value={formValues.organization}
+                                                onChange={(event) => updateField("organization", event.target.value)}
+                                                aria-invalid={Boolean(fieldErrors.organization)}
+                                            />
+                                            {fieldErrors.organization ? <p className={styles.fieldError}>{fieldErrors.organization}</p> : null}
+                                        </FormControl>
+
+                                        <FormControl>
+                                            <FormLabel htmlFor="checkout-country">Country / Territory</FormLabel>
+                                            <Select
+                                                id="checkout-country"
+                                                name="country"
+                                                options={countryOptions}
+                                                value={formValues.country}
+                                                onChange={(event) => updateField("country", event.target.value)}
+                                                aria-invalid={Boolean(fieldErrors.country)}
+                                            />
+                                            {fieldErrors.country ? <p className={styles.fieldError}>{fieldErrors.country}</p> : null}
+                                        </FormControl>
+                                    </div>
+
+                                    <div className={styles.formSection}>
+                                        <span className={styles.sectionEyebrow}>Payment Method</span>
+
+                                        {isMobileCheckout ? (
+                                            <div className={styles.mobilePaymentNotice} role="status" aria-live="polite">
+                                                <span className={styles.mobilePaymentNoticeIcon} aria-hidden>
+                                                    <Monitor size={22} strokeWidth={1.8} />
+                                                </span>
+                                                <div>
+                                                    <strong>Please complete payment on a computer</strong>
+                                                    <p>
+                                                        We&apos;re sorry — secure card payments aren&apos;t available on
+                                                        mobile devices right now. To finish your order, open this page on
+                                                        a PC or laptop. Your package and details will be ready when you
+                                                        return.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {releaseId && !squarePrereleaseReady ? (
+                                                    <p className={styles.paymentFieldHint}>
+                                                        Loading your order so we can activate the secure card field.
+                                                    </p>
+                                                ) : null}
+                                                {squarePrereleaseReady ? (
+                                                    <>
+                                                        <span id={squareCardLabelId} className={styles.visuallyHidden}>Card</span>
+                                                        <Suspense fallback={null}>
+                                                            <CheckoutSquareCardAttacherGate
+                                                                key={squareInitAttempt}
+                                                                mountSelector={squareMountSelector}
+                                                                onCardReady={handleSquareCardReady}
+                                                                onSetupFailed={handleSquareSetupFailed}
+                                                                onHostCleared={handleSquareHostCleared}
+                                                            />
+                                                        </Suspense>
+                                                        <div
+                                                            className={styles.squareCardWrap}
+                                                            role="group"
+                                                            aria-labelledby={squareCardLabelId}
+                                                        >
+                                                            <div
+                                                                ref={squareCardHostRef}
+                                                                id={`square-card-host-${squareHostDomId}`}
+                                                                className={styles.squareCardContainer}
+                                                                suppressHydrationWarning
+                                                            />
+                                                            {!squareCard ? (
+                                                                <div className={styles.squareCardSuspenseOverlay} aria-hidden="true">
+                                                                    <CheckoutSquareCardSuspenseFallback />
+                                                                </div>
+                                                            ) : null}
+                                                        </div>
+                                                    </>
+                                                ) : null}
+                                                {squarePrereleaseReady && !squareCard && squareLoadMessage ? (
+                                                    <p className={styles.paymentFieldHint} role="status" aria-live="polite">
+                                                        {squareLoadMessage}
+                                                    </p>
+                                                ) : null}
+                                                {squareRetryStopped ? (
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        size="md"
+                                                        className={styles.squareRetryButton}
+                                                        onClick={retrySquareCardLoad}
+                                                    >
+                                                        Try loading card again
+                                                    </Button>
+                                                ) : null}
+                                            </>
+                                        )}
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
+                    </div>
+
+                    <aside className={styles.summaryCard}>
+                        <header className={styles.summaryHeader}>
+                            <span className={styles.summaryEyebrow}>Order Summary</span>
+                            <h2>Your Package</h2>
+                        </header>
+
+                        <div className={styles.summaryBody}>
                             {isReleaseOrderLoading ? (
                                 <div className={styles.orderLoading} role="status" aria-live="polite">
                                     <Loader2 className={styles.orderLoadingSpinner} size={20} strokeWidth={2} aria-hidden />
@@ -697,266 +1086,99 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
                                 <p className={styles.orderLoadError}>
                                     We could not load this order. Return to the submit page and try again, or contact support.
                                 </p>
-                            ) : lineItemQuantity > 0 ? (
-                                <div className={styles.orderItemRow}>
-                                    <div className={styles.orderItemDetails}>
-                                        <strong>
-                                            {orderDetails?.packageId === "bundle"
-                                                ? "3-Release Package"
-                                                : orderDetails?.packageId === "custom"
-                                                    ? "Professional Campaign"
-                                                    : "Single Release"}
-                                            {orderDetails?.featuredUpgrade ? " + Featured Placement" : ""}
-                                        </strong>
-                                        {isCreditCheckout ? (
-                                            <span>
-                                                {creditsPerPackageUnit * quantity}{" "}
-                                                {creditsPerPackageUnit * quantity === 1 ? "credit" : "credits"}
-                                            </span>
-                                        ) : (
-                                            <span>{formatCurrency(unitAmountDollars)}</span>
-                                        )}
+                            ) : orderDetails ? (
+                                <div className={styles.packageRow}>
+                                    <div className={styles.packageInfo}>
+                                        <strong>{packageTitle}</strong>
+                                        <span>{packageSubtitle}</span>
                                     </div>
-
-                                    {isCreditCheckout ? (
-                                        <div className={styles.orderItemActions}>
-                                            <button
-                                                type="button"
-                                                className={styles.quantityButton}
-                                                aria-label="Decrease quantity"
-                                                onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                                            >
-                                                <Minus size={16} strokeWidth={2} />
-                                            </button>
-
-                                            <span className={styles.quantityValue}>{quantity}</span>
-
-                                            <button
-                                                type="button"
-                                                className={styles.quantityButton}
-                                                aria-label="Increase quantity"
-                                                onClick={() => setQuantity((current) => Math.min(25, current + 1))}
-                                            >
-                                                <Plus size={16} strokeWidth={2} />
-                                            </button>
-
-                                            <strong className={styles.orderLineTotal}>{formatCurrency(subtotal)}</strong>
-
-                                            <button
-                                                type="button"
-                                                className={styles.removeButton}
-                                                aria-label="Remove item"
-                                                onClick={() => setQuantity(0)}
-                                            >
-                                                <X size={20} strokeWidth={2} />
-                                            </button>
-                                        </div>
-                                    ) : orderDetails ? (
-                                        <strong className={styles.orderLineTotal}>{formatCurrency(subtotal)}</strong>
-                                    ) : (
-                                        <div className={styles.orderItemActions}>
-                                            <button
-                                                type="button"
-                                                className={styles.quantityButton}
-                                                aria-label="Decrease quantity"
-                                                onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                                            >
-                                                <Minus size={16} strokeWidth={2} />
-                                            </button>
-
-                                            <span className={styles.quantityValue}>{quantity}</span>
-
-                                            <button
-                                                type="button"
-                                                className={styles.quantityButton}
-                                                aria-label="Increase quantity"
-                                                onClick={() => setQuantity((current) => Math.min(25, current + 1))}
-                                            >
-                                                <Plus size={16} strokeWidth={2} />
-                                            </button>
-
-                                            <strong className={styles.orderLineTotal}>{formatCurrency(subtotal)}</strong>
-
-                                            <button
-                                                type="button"
-                                                className={styles.removeButton}
-                                                aria-label="Remove item"
-                                                onClick={() => setQuantity(0)}
-                                            >
-                                                <X size={20} strokeWidth={2} />
-                                            </button>
-                                        </div>
-                                    )}
+                                    <strong className={styles.packagePrice}>{formatCurrency(subtotal)}</strong>
                                 </div>
                             ) : (
-                                <div className={styles.emptyOrderState}>
-                                    <p>Your order is empty.</p>
-                                    <Button
-                                        type="button"
-                                        variant="join-the-network"
-                                        className={styles.restoreButton}
-                                        onClick={() => setQuantity(1)}
-                                    >
-                                        Add Single Release
-                                    </Button>
-                                </div>
+                                <p className={styles.emptyOrderState}>
+                                    {emptyCartMessage ?? "Your order is loading."}
+                                </p>
                             )}
-                        </section>
 
-                        <section className={styles.card}>
-                            <h2>Payment Details</h2>
+                            <div className={styles.summaryRow}>
+                                <span>Subtotal</span>
+                                <span>{formatCurrencyDetailed(subtotal)}</span>
+                            </div>
 
-                            <form
-                                id="checkout-payment-form"
-                                className={`${styles.form} ${styles.checkoutPaymentForm}`}
-                                onSubmit={handleSubmit}
-                                noValidate
+                            <div className={styles.summaryRow}>
+                                <span>Tax</span>
+                                <span>{formatCurrencyDetailed(0)}</span>
+                            </div>
+
+                            <hr className={styles.summaryDivider} />
+
+                            <div className={`${styles.summaryRow} ${styles.summaryTotalRow}`}>
+                                <strong>Total</strong>
+                                <strong>{formatCurrency(subtotal)}</strong>
+                            </div>
+
+                            {includedItems.length > 0 ? (
+                                <div className={styles.includedSection}>
+                                    <span className={styles.includedEyebrow}>What&apos;s Included</span>
+                                    <ul className={styles.includedList}>
+                                        {includedItems.map((item) => (
+                                            <li key={item}>
+                                                <Check size={14} strokeWidth={2.5} aria-hidden />
+                                                <span>{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : null}
+
+                            <Button
+                                type="submit"
+                                variant="form"
+                                className={`${styles.payButton} ${isSubmitting ? styles.payButtonBusy : ""}`}
+                                form="checkout-payment-form"
+                                disabled={
+                                    isSubmitting
+                                    || isMobileCheckout
+                                    || !squareCard
+                                    || subtotal === null
+                                    || releaseOrderError
+                                    || isReleaseOrderLoading
+                                }
+                                aria-busy={isSubmitting}
                             >
-                                <FormControl>
-                                    <FormLabel htmlFor="checkout-email">Email</FormLabel>
-                                    <Input
-                                        id="checkout-email"
-                                        name="email"
-                                        type="email"
-                                        placeholder="your@email.com"
-                                        autoComplete="email"
-                                        value={formValues.email}
-                                        onChange={(event) => updateField("email", event.target.value)}
-                                        aria-invalid={Boolean(fieldErrors.email)}
-                                    />
-                                    {fieldErrors.email ? <p className={styles.fieldError}>{fieldErrors.email}</p> : null}
-                                </FormControl>
+                                {isSubmitting ? (
+                                    <span className={styles.payButtonContent}>
+                                        <Loader2 className={styles.payButtonSpinner} size={18} aria-hidden />
+                                        Processing payment…
+                                    </span>
+                                ) : (
+                                    <span className={styles.payButtonContent}>
+                                        <Lock size={16} strokeWidth={2} aria-hidden />
+                                        {subtotal !== null ? `Pay ${formatCurrency(subtotal)} Now` : "Loading order…"}
+                                    </span>
+                                )}
+                            </Button>
 
-                                <FormControl>
-                                    <FormLabel htmlFor="checkout-cardholder-name">Cardholder Name</FormLabel>
-                                    <Input
-                                        id="checkout-cardholder-name"
-                                        name="cardholderName"
-                                        type="text"
-                                        placeholder="John Doe"
-                                        autoComplete="cc-name"
-                                        value={formValues.cardholderName}
-                                        onChange={(event) => updateField("cardholderName", event.target.value)}
-                                        aria-invalid={Boolean(fieldErrors.cardholderName)}
-                                    />
-                                    {fieldErrors.cardholderName ? <p className={styles.fieldError}>{fieldErrors.cardholderName}</p> : null}
-                                </FormControl>
-
-                                <FormControl>
-                                    <FormLabel id={squareCardLabelId}>Card</FormLabel>
-                                    {releaseId && !squarePrereleaseReady ? (
-                                        <p className={styles.paymentFieldHint}>
-                                            Loading your order so we can activate the secure card field.
-                                        </p>
-                                    ) : null}
-                                    {squarePrereleaseReady ? (
-                                        <>
-                                            <Suspense fallback={null}>
-                                                <CheckoutSquareCardAttacherGate
-                                                    key={squareInitAttempt}
-                                                    mountSelector={squareMountSelector}
-                                                    onCardReady={handleSquareCardReady}
-                                                    onSetupFailed={handleSquareSetupFailed}
-                                                    onHostCleared={handleSquareHostCleared}
-                                                />
-                                            </Suspense>
-                                            <div
-                                                className={styles.squareCardWrap}
-                                                role="group"
-                                                aria-labelledby={squareCardLabelId}
-                                            >
-                                                <div
-                                                    ref={squareCardHostRef}
-                                                    id={`square-card-host-${squareHostDomId}`}
-                                                    className={styles.squareCardContainer}
-                                                    suppressHydrationWarning
-                                                />
-                                                {!squareCard ? (
-                                                    <div className={styles.squareCardSuspenseOverlay} aria-hidden="true">
-                                                        <CheckoutSquareCardSuspenseFallback />
-                                                    </div>
-                                                ) : null}
-                                            </div>
-                                        </>
-                                    ) : null}
-                                    {squarePrereleaseReady && !squareCard && squareLoadMessage ? (
-                                        <p className={styles.paymentFieldHint} role="status" aria-live="polite">
-                                            {squareLoadMessage}
-                                        </p>
-                                    ) : null}
-                                    {squareRetryStopped ? (
-                                        <Button
-                                            type="button"
-                                            variant="secondary"
-                                            size="md"
-                                            className={styles.squareRetryButton}
-                                            onClick={retrySquareCardLoad}
-                                        >
-                                            Try loading card again
-                                        </Button>
-                                    ) : null}
-                                </FormControl>
-                            </form>
-                        </section>
-                    </div>
-
-                    <aside className={styles.summaryCard}>
-                        <h2>Order Summary</h2>
-
-                        <div className={styles.summaryRow}>
-                            <span>Subtotal</span>
-                            <span>{formatCurrency(subtotal)}</span>
-                        </div>
-
-                        <div className={styles.summaryRow}>
-                            <span>Processing Fee</span>
-                            <span>{formatCurrency(0)}</span>
-                        </div>
-
-                        <hr className={styles.summaryDivider} />
-
-                        <div className={`${styles.summaryRow} ${styles.summaryTotalRow}`}>
-                            <strong>Total</strong>
-                            <strong>{formatCurrency(subtotal)}</strong>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            variant="form"
-                            className={`${styles.payButton} ${isSubmitting ? styles.payButtonBusy : ""}`}
-                            form="checkout-payment-form"
-                            disabled={
-                                isSubmitting
-                                || !squareCard
-                                || subtotal === null
-                                || releaseOrderError
-                                || isReleaseOrderLoading
-                            }
-                            aria-busy={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <span className={styles.payButtonContent}>
-                                    <Loader2 className={styles.payButtonSpinner} size={18} aria-hidden />
-                                    Processing payment…
+                            <div className={styles.secureNote}>
+                                <Lock size={14} strokeWidth={2} aria-hidden />
+                                <span>
+                                    {isMobileCheckout
+                                        ? "Card payments are available on desktop browsers only for now."
+                                        : "256-bit SSL encrypted"}
                                 </span>
-                            ) : (
-                                subtotal !== null ? `Pay ${formatCurrency(subtotal)}` : "Loading order…"
-                            )}
-                        </Button>
+                            </div>
 
-                        <div className={styles.secureNote}>
-                            <Lock size={14} strokeWidth={2} />
-                            <span>Your payment information is secure and encrypted</span>
+                            {submissionMessage || emptyCartMessage ? (
+                                <p className={styles.submissionMessage} role="status" aria-live="polite">
+                                    {submissionMessage ?? emptyCartMessage}
+                                </p>
+                            ) : null}
                         </div>
-
-                        {submissionMessage || emptyCartMessage ? (
-                            <p className={styles.submissionMessage} role="status" aria-live="polite">
-                                {submissionMessage ?? emptyCartMessage}
-                            </p>
-                        ) : null}
                     </aside>
                 </div>
             </Container>
+
+            {successOrderId ? <CheckoutPaymentSuccessModal orderId={successOrderId} /> : null}
         </section>
     );
 }

@@ -2,82 +2,236 @@
 @use "../../styles/semantic" as *;
 @use "../../styles/breakpoints" as *;
 
-.footerCTA {
-    background-image: $linear-gradient-blue-600, url("/images/ready-to-share-your-news.jpg");
+.newsletter {
+    position: relative;
+    background-color: #274060;
+    overflow-x: clip;
 
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+    .curve {
+        line-height: 0;
+        overflow: hidden;
+        margin-top: -1px;
 
-    .footerCTAInner {
-        padding-block: $space-5xl;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        >h1 {
-            font-size: $text-section;
-            color: $white;
-            text-align: center;
-            width: 90%;
-            margin-inline: auto;
-        }
-
-        >P {
-            margin-top: $space-lg;
-            font-size: $text-lg;
-            color: $grayish-blue-100;
-            line-height: $line-height-md;
-            text-align: center;
-        }
-
-        .ctaBtns {
+        svg {
+            display: block;
             width: 100%;
-            margin-top: $space-md;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: $space-base;
+            max-width: 100%;
+            height: 44px;
 
-            .pressReleaseBtn {
-                width: 100%;
-                padding-inline: 40px;
-            }
-
-            .viewPricingBtn {
-                width: 100%;
-                padding-inline: 40px;
+            path {
+                fill: #F7F5F2;
             }
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'lg')) {
-        .footerCTAInner {
-            >h1 {
-                font-size: $text-5xl;
+    .newsletterInner {
+        padding-block: 40px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 28px;
+        align-items: start;
+    }
+
+    .copy {
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #5899E2;
+            font-size: 10px;
+            font-weight: $weight-md;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 20px;
+                height: 1px;
+                background-color: #5899E2;
+            }
+        }
+
+        >h2 {
+            margin-top: 16px;
+            font-size: 34px;
+            line-height: 1.12;
+            font-weight: $weight-bold;
+            color: $white;
+
+            >span {
+                display: block;
+                font-style: italic;
+                color: #5899E2;
+            }
+        }
+
+        >p {
+            margin-top: 14px;
+            max-width: 100%;
+            color: #FFFFFF80;
+            font-size: 15px;
+            line-height: 26px;
+        }
+    }
+
+    .signup {
+        min-width: 0;
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            >input {
                 width: 100%;
-            }
+                min-width: 0;
+                height: 48px;
+                padding-inline: $space-base;
+                background-color: #FFFFFF14;
+                border: 1px solid #FFFFFF24;
+                border-radius: $radius-md;
+                color: $white;
+                font-size: 14.5px;
+                outline: none;
 
-            >P {
-                margin-top: $space-lg;
-                font-size: $text-xl;
-                width: 40%;
-                margin-inline: auto;
-            }
-
-            .ctaBtns {
-                margin-top: 40px;
-                flex-direction: row;
-                width: fit-content;
-
-                .pressReleaseBtn {
-                    width: auto;
-                }
-
-                .viewPricingBtn {
-                    width: auto;
+                &::placeholder {
+                    color: #FFFFFF80;
                 }
             }
+
+            .subscribeButton {
+                width: 100%;
+                gap: 6px;
+                height: 48px !important;
+                line-height: 48px !important;
+                padding-inline: 24px !important;
+                background: #5899E2 !important;
+                color: #172840 !important;
+                border-radius: $radius-md !important;
+                border: none !important;
+            }
+        }
+
+        .disclaimer {
+            font-weight: $weight-regular;
+            margin-top: $space-md;
+            color: #FFFFFF4D;
+            font-size: $text-xs;
+            line-height: 1.5;
+
+            a {
+                color: #5899E2B2;
+            }
+        }
+
+        .statusMessage {
+            margin-top: $space-md;
+            font-size: $text-xs;
+            line-height: 1.5;
+        }
+
+        .statusMessageSuccess {
+            color: #8FD4B0;
+        }
+
+        .statusMessageInfo {
+            color: #B9DAFF;
+        }
+
+        .social {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+
+            .avatars {
+                display: inline-flex;
+                flex-shrink: 0;
+
+                .avatar {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: $radius-full;
+                    color: $white;
+                    font-size: 10px;
+                    font-weight: $weight-semi-bold;
+
+                    &:not(:first-child) {
+                        margin-left: -10px;
+                    }
+                }
+            }
+
+            .socialLabel {
+                color: #FFFFFF66;
+                font-size: 12px;
+                line-height: 1.4;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, "md")) {
+        .curve svg {
+            height: 56px;
+        }
+
+        .newsletterInner {
+            gap: $space-2xl;
+        }
+
+        .copy {
+            .eyebrow {
+                font-size: 11px;
+                letter-spacing: 1.5px;
+
+                &::before {
+                    width: 24px;
+                }
+            }
+
+            >h2 {
+                margin-top: 20px;
+                font-size: 40px;
+            }
+
+            >p {
+                font-size: 15.5px;
+                line-height: 26.35px;
+                max-width: 570px;
+            }
+        }
+
+        .signup .form {
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            >input {
+                flex: 1 1 220px;
+                width: auto;
+            }
+
+            .subscribeButton {
+                width: auto;
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, "lg")) {
+        .curve svg {
+            height: 72px;
+        }
+
+        .newsletterInner {
+            grid-template-columns: 1fr 1fr;
+            gap: $space-4xl;
+            padding-block: 90px;
+            padding-inline: 120px;
+            align-items: center;
         }
     }
 }

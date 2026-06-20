@@ -3,6 +3,7 @@
 import styles from "./BecomeACaribNewaMediaPartner.module.scss";
 
 import Link from "next/link";
+import { ArrowRight, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -12,7 +13,6 @@ import {
     FormControl,
     FormLabel,
     Input,
-    SvgIcon,
     Textarea,
 } from "../ui";
 
@@ -258,38 +258,43 @@ export default function BecomeACaribNewaMediaPartner() {
 
             <Container className={styles.becomeAPartnerInner}>
                 <div className={styles.detailsSection}>
-                    <h1>Become a Carib Newswire Media Partner</h1>
+                    <span className={styles.eyebrow}>Join the Network</span>
 
-                    <p>Create one account for submissions, credits, and saved stories.</p>
+                    <h2>Become a Carib Newswire <em>Media Partner.</em></h2>
+
+                    <p>Joining takes less than two minutes. Get instant access to verified Caribbean press releases filtered by your beat.</p>
 
                     <div className={styles.points}>
-                        <div className={styles.point}>
-                            <SvgIcon icon="become-partner-point" />
-                            Stay informed
-                        </div>
-                        <div className={styles.point}>
-                            <SvgIcon icon="become-partner-point" />
-                            Stay connected
-                        </div>
-                        <div className={styles.point}>
-                            <SvgIcon icon="become-partner-point" />
-                            Stay ahead
-                        </div>
+                        {["Stay informed", "Stay connected", "Stay ahead"].map((point) => (
+                            <div key={point} className={styles.point}>
+                                <span className={styles.pointIcon}>
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.6624 3.4989L5.24778 9.91355L2.33203 6.9978" stroke="#FFC400" strokeWidth="1.45788" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                </span>
+                                {point}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className={styles.freePill}>
+                        <Check size={16} strokeWidth={3} />
+                        100% Free for Media Professionals
                     </div>
                 </div>
 
                 <div id="join-network-form" className={styles.formCard}>
-                    <h1>Join the Network</h1>
+                    <h2>Sign Up for Free</h2>
 
                     <form className={styles.form} onSubmit={handleSubmit} noValidate>
                         <div className={styles.formRow}>
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.firstName}>First Name *</FormLabel>
+                                <FormLabel htmlFor={fieldIds.firstName}>First Name <span className={styles.required}>*</span></FormLabel>
                                 <Input
                                     id={fieldIds.firstName}
                                     name="firstName"
                                     type="text"
-                                    placeholder="John"
+                                    placeholder="First name"
                                     autoComplete="given-name"
                                     value={formValues.firstName}
                                     onChange={(event) => updateField("firstName", event.target.value)}
@@ -299,12 +304,12 @@ export default function BecomeACaribNewaMediaPartner() {
                             </FormControl>
 
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.lastName}>Last Name *</FormLabel>
+                                <FormLabel htmlFor={fieldIds.lastName}>Last Name <span className={styles.required}>*</span></FormLabel>
                                 <Input
                                     id={fieldIds.lastName}
                                     name="lastName"
                                     type="text"
-                                    placeholder="Smith"
+                                    placeholder="Last name"
                                     autoComplete="family-name"
                                     value={formValues.lastName}
                                     onChange={(event) => updateField("lastName", event.target.value)}
@@ -315,12 +320,12 @@ export default function BecomeACaribNewaMediaPartner() {
                         </div>
 
                         <FormControl>
-                            <FormLabel htmlFor={fieldIds.email}>Email Address *</FormLabel>
+                            <FormLabel htmlFor={fieldIds.email}>Email Address <span className={styles.required}>*</span></FormLabel>
                             <Input
                                 id={fieldIds.email}
                                 name="email"
                                 type="email"
-                                placeholder="john@newsoutlet.com"
+                                placeholder="your.email@example.com"
                                 autoComplete="email"
                                 value={formValues.email}
                                 onChange={(event) => updateField("email", event.target.value)}
@@ -331,7 +336,7 @@ export default function BecomeACaribNewaMediaPartner() {
 
                         <div className={styles.formRow}>
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.password}>Password *</FormLabel>
+                                <FormLabel htmlFor={fieldIds.password}>Password <span className={styles.required}>*</span></FormLabel>
                                 <Input
                                     id={fieldIds.password}
                                     name="password"
@@ -345,7 +350,7 @@ export default function BecomeACaribNewaMediaPartner() {
                             </FormControl>
 
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.confirmPassword}>Confirm Password *</FormLabel>
+                                <FormLabel htmlFor={fieldIds.confirmPassword}>Confirm Password <span className={styles.required}>*</span></FormLabel>
                                 <Input
                                     id={fieldIds.confirmPassword}
                                     name="confirmPassword"
@@ -361,11 +366,12 @@ export default function BecomeACaribNewaMediaPartner() {
 
                         <div className={styles.formRow}>
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.organization}>Organization (optional)</FormLabel>
+                                <FormLabel htmlFor={fieldIds.organization}>Organization <span className={styles.optional}>(optional)</span></FormLabel>
                                 <Input
                                     id={fieldIds.organization}
                                     name="organization"
                                     type="text"
+                                    placeholder="Your company or organization"
                                     value={formValues.organization}
                                     onChange={(event) => updateField("organization", event.target.value)}
                                     aria-invalid={Boolean(fieldErrors.organization)}
@@ -374,7 +380,7 @@ export default function BecomeACaribNewaMediaPartner() {
                             </FormControl>
 
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.phone}>Phone (optional)</FormLabel>
+                                <FormLabel htmlFor={fieldIds.phone}>Phone <span className={styles.optional}>(optional)</span></FormLabel>
                                 <Input
                                     id={fieldIds.phone}
                                     name="phone"
@@ -389,12 +395,12 @@ export default function BecomeACaribNewaMediaPartner() {
 
                         <div className={styles.formRow}>
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.mediaOutlet}>Media Outlet (optional)</FormLabel>
+                                <FormLabel htmlFor={fieldIds.mediaOutlet}>Media Outlet <span className={styles.optional}>(optional)</span></FormLabel>
                                 <Input
                                     id={fieldIds.mediaOutlet}
                                     name="mediaOutlet"
                                     type="text"
-                                    placeholder="Caribbean News Network"
+                                    placeholder="Your publication or organization"
                                     value={formValues.mediaOutlet}
                                     onChange={(event) => updateField("mediaOutlet", event.target.value)}
                                     aria-invalid={Boolean(fieldErrors.mediaOutlet)}
@@ -403,7 +409,7 @@ export default function BecomeACaribNewaMediaPartner() {
                             </FormControl>
 
                             <FormControl>
-                                <FormLabel htmlFor={fieldIds.location}>Location (optional)</FormLabel>
+                                <FormLabel htmlFor={fieldIds.location}>Location <span className={styles.optional}>(optional)</span></FormLabel>
                                 <Input
                                     id={fieldIds.location}
                                     name="location"
@@ -419,7 +425,7 @@ export default function BecomeACaribNewaMediaPartner() {
                         </div>
 
                         <FormControl>
-                            <FormLabel htmlFor={fieldIds.primaryBeat}>Primary Beat/Category (optional)</FormLabel>
+                            <FormLabel htmlFor={fieldIds.primaryBeat}>Primary Beat/Category <span className={styles.optional}>(optional)</span></FormLabel>
                             <Input
                                 id={fieldIds.primaryBeat}
                                 name="primaryBeat"
@@ -433,12 +439,12 @@ export default function BecomeACaribNewaMediaPartner() {
                         </FormControl>
 
                         <FormControl>
-                            <FormLabel htmlFor={fieldIds.briefBio}>Brief Bio (optional)</FormLabel>
+                            <FormLabel htmlFor={fieldIds.briefBio}>Brief Bio <span className={styles.optional}>(Optional)</span></FormLabel>
                             <Textarea
                                 className={styles.briefBioTextarea}
                                 id={fieldIds.briefBio}
                                 name="briefBio"
-                                placeholder="Tell us a bit about your work and coverage."
+                                placeholder="Tell us a little about your work and coverage area..."
                                 value={formValues.briefBio}
                                 onChange={(event) => updateField("briefBio", event.target.value)}
                                 aria-invalid={Boolean(fieldErrors.briefBio)}
@@ -447,18 +453,18 @@ export default function BecomeACaribNewaMediaPartner() {
                         </FormControl>
 
                         <Button
-                            variant="join-the-network"
                             className={styles.submitButton}
                             type="submit"
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? "Submitting..." : "Join the Network"}
+                            <ArrowRight size={18} strokeWidth={2} />
                         </Button>
                     </form>
 
                     <p className={styles.disclaimer}>
                         By signing up, you agree to receive press releases and updates from Carib Newswire.
-                        {" "}Already a member? <Link href="/login">Log in</Link>
+                        {" "}View our <Link href="/privacy-policy">Privacy Policy</Link>.
                     </p>
                 </div>
             </Container>

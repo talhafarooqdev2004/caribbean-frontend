@@ -35,24 +35,35 @@
 .outline {
   background-color: $white-100;
   color: $black;
-  border: 2px solid $grayish-blue-200;
+  border: 1.8px solid #274060;
 }
 
 .outlineBlack {
   font-size: $text-sm;
-  border-color: $primary;
+  border-color: #274060;
   padding-inline: $space-xl;
+  height: 51px !important;
+  line-height: 51px !important;
 }
 
 .joinAsMedia {
-  background-color: #ffffff1a;
-  border-color: #ffffff;
-  color: $white;
+  background-color: transparent;
+  border-color: #FFFFFF29;
+  color: #FFFFFFB2;
+  font-size: 15px;
+  border-radius: $radius-md;
+  padding-inline: 22px;
+  height: 51px !important;
+  line-height: 51px !important;
 }
 
 .form {
-  color: $white;
-  background: $linear-gradient-soft-blue-300;
+  font-size: 15px;
+  color: #172840;
+  background: #5899E2;
+  border-radius: $radius-md;
+  height: 51px;
+  line-height: 51px !important;
 }
 
 .newsRoomFilter {

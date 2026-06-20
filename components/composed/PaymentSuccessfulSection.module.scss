@@ -5,17 +5,13 @@
 .paymentSuccessfulPage {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    rgba(39, 64, 96, 0.98) 0%,
-    rgba(49, 82, 123, 0.96) 52%,
-    rgba(88, 153, 226, 0.92) 100%
-  );
+  background-color: $navy-deep;
+  background-image: radial-gradient(ellipse 90% 55% at 50% 18%, rgba(88, 153, 226, 0.14) 0%, transparent 72%);
   border-top: 4px solid $white;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 36px 16px;
+  padding: $section-block-mobile 16px;
   overflow: hidden;
 }
 
@@ -54,7 +50,7 @@
 
 .successCard > p {
   margin-top: $space-base;
-  color: $grayish-blue-800;
+  color: $text-body;
   font-size: $text-lg;
   line-height: 28px;
   text-align: center;
@@ -135,7 +131,7 @@
 
 .orderMetaHeader {
   span {
-    color: $grayish-blue-800;
+    color: $text-body;
     font-size: $text-md;
     line-height: 24px;
   }

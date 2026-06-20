@@ -1,6 +1,7 @@
 import { NewsRoomCLientPage } from "@/components/feature/pages";
 import { listApprovedPressReleases, listNewsroomDefaultGrid } from "@/lib/press-releases";
 import { type PressReleaseRecord } from "@/lib/press-release-types";
+import { Suspense } from "react";
 
 export default async function NewsRoom() {
     let initialFeaturedReleases: PressReleaseRecord[] = [];
@@ -22,10 +23,12 @@ export default async function NewsRoom() {
     }
 
     return (
-        <NewsRoomCLientPage
-            initialFeaturedReleases={initialFeaturedReleases}
-            initialGridReleases={initialGridReleases}
-            initialTotalPages={initialTotalPages}
-        />
+        <Suspense fallback={null}>
+            <NewsRoomCLientPage
+                initialFeaturedReleases={initialFeaturedReleases}
+                initialGridReleases={initialGridReleases}
+                initialTotalPages={initialTotalPages}
+            />
+        </Suspense>
     );
 };

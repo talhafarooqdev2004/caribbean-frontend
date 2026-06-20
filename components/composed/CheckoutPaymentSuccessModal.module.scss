@@ -1,0 +1,141 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: rgba($navy-deep, 0.72);
+    backdrop-filter: blur(6px);
+}
+
+.modal {
+    width: min(100%, 520px);
+    padding: 36px 28px 32px;
+    border-radius: 16px;
+    background-color: $white;
+    box-shadow: 0 24px 64px rgba($navy-deep, 0.28);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.iconWrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(196, 146, 42, 0.13) 0%, #F9EDD3 100%);
+    border: 1px solid #C4922A4D;
+}
+
+.title {
+    margin-top: 24px;
+    font-family: $font-display;
+    font-size: 32px;
+    font-weight: $weight-bold;
+    line-height: 48px;
+    color: #172840;
+
+    >span {
+        font-style: italic;
+        color: #C4922A;
+    }
+}
+
+.description {
+    margin-top: 12px;
+    max-width: 420px;
+    color: #3A526B;
+    font-size: 15.5px;
+    line-height: 26.66px;
+}
+
+.orderRef {
+    margin-top: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: $radius-full;
+    background-color: #F4F1EC;
+    font-size: 13px;
+    color: #6B849A;
+
+    strong {
+        color: #C4922A;
+        font-weight: $weight-semi-bold;
+        letter-spacing: 0.3px;
+    }
+}
+
+.actions {
+    margin-top: 28px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.primaryAction,
+.secondaryAction {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: $weight-semi-bold;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.primaryAction {
+    background-color: $navy-deep;
+    color: $white;
+
+    &:hover {
+        background-color: darken($navy-deep, 4%);
+        color: $white;
+    }
+}
+
+.secondaryAction {
+    border: 1.5px solid #C4922A;
+    background-color: $white;
+    color: #C4922A;
+
+    &:hover {
+        background-color: rgba($secondary, 0.08);
+        color: darken($secondary, 8%);
+    }
+}
+
+.actionArrow {
+    font-size: 16px;
+    line-height: 1;
+}
+
+@media (min-width: map-get($breakpoints, "sm")) {
+    .modal {
+        padding: 50px 44px;
+    }
+
+    .title {
+        font-size: 36px;
+    }
+
+    .actions {
+        grid-template-columns: 1fr 1fr;
+    }
+}

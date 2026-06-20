@@ -1,277 +1,163 @@
-import { Ban, CircleAlert, FileText, Scale, Shield, Users } from "lucide-react";
+import LegalDocumentBody, { type LegalSection } from "./LegalDocumentBody";
 
-import LegalDocumentContent, {
-  type LegalDocumentSection,
-} from "./LegalDocumentContent";
-
-const termsSections: LegalDocumentSection[] = [
+const sections: LegalSection[] = [
   {
-    id: "terms-overview",
-    number: 1,
-    title: "Overview",
-    icon: FileText,
-    cards: [
-      {
-        content: (
-          <>
-            Carib Newswire is a media distribution and content platform operated
-            by <strong>Bayfront Innovation Group LLC.</strong> Our services
-            include press release distribution, media exposure, and related
-            communications services.
-          </>
-        ),
-      },
+    number: "01",
+    id: "overview",
+    tocLabel: "Overview",
+    title: <>Overview</>,
+    blocks: [
+      { type: "lead", text: "Carib Newswire is a platform that provides press release distribution and media outreach services for organizations across the Caribbean and its global diaspora." },
+      { type: "lead", text: "By accessing or using our services, you agree to comply with these Terms of Service." },
+      { type: "callout", tone: "gold", content: <><strong>Important:</strong> Please read these terms carefully before using Carib Newswire. Using our platform constitutes your agreement to these terms.</> },
     ],
   },
   {
-    id: "terms-eligibility",
-    number: 2,
-    title: "Eligibility",
-    icon: Users,
-    cards: [
-      {
-        content: (
-          <>
-            You must be at least <strong>18 years old</strong> to use this
-            platform.
-          </>
-        ),
-      },
+    number: "02",
+    id: "eligibility",
+    tocLabel: "Eligibility",
+    title: <>Eligibility</>,
+    blocks: [
+      { type: "lead", text: "To use our services, you must:" },
+      { type: "list", items: ["Be at least 18 years old", "Have authority to act on behalf of your organization", "Provide accurate and complete information", "Comply with all applicable laws and regulations"] },
     ],
   },
   {
-    id: "terms-user-accounts",
-    number: 3,
-    title: "User Accounts",
-    icon: Users,
-    cards: [
-      {
-        items: [
-          "You are responsible for maintaining the confidentiality of your account",
-          "You agree to provide accurate and complete information",
-          "We reserve the right to suspend or terminate accounts at our discretion",
-        ],
-      },
+    number: "03",
+    id: "user-accounts",
+    tocLabel: "User Accounts",
+    title: <>User Accounts</>,
+    blocks: [
+      { type: "lead", text: "Users may be required to create an account to submit releases or access platform features. You are responsible for:" },
+      { type: "list", items: ["Maintaining account security", "Protecting login credentials", "All activities occurring under your account"] },
     ],
   },
   {
-    id: "terms-services-payments",
-    number: 4,
-    title: "Services and Payments",
-    icon: FileText,
-    cards: [
-      {
-        items: [
-          "Carib Newswire operates on a one-time purchase model (with custom pricing available via proposal)",
-          "All payments are final unless otherwise stated",
-          "We reserve the right to modify pricing at any time",
-        ],
-      },
+    number: "04",
+    id: "services-payments",
+    tocLabel: "Services & Payments",
+    title: <>Services <em>&</em> Payments</>,
+    blocks: [
+      { type: "subheading", text: "Distribution Services", dash: "teal" },
+      { type: "lead", text: "Carib Newswire offers:" },
+      { type: "list", items: ["Press release distribution", "Media outreach campaigns", "Featured placements", "Professional campaign services"] },
+      { type: "subheading", text: "Payment Terms", dash: "teal" },
+      { type: "list", items: ["All fees are listed in USD", "Payments are due before distribution", "Certain services may require custom proposals", "Refunds are subject to company review"] },
     ],
   },
   {
-    id: "terms-content-ownership",
-    number: 5,
-    title: "Content Ownership and License",
-    icon: Users,
-    cards: [
-      {
-        title: "Ownership",
-        content: "You retain ownership of all content you submit.",
-      },
-      {
-        title: "License to Us",
-        content:
-          "By submitting content, you grant Carib Newswire a non-exclusive, worldwide, royalty-free license to:",
-        items: ["Publish", "Distribute", "Reproduce", "Promote"],
-        footer: "your content across our platform and media channels.",
-      },
+    number: "05",
+    id: "content-ownership",
+    tocLabel: "Content Ownership",
+    title: <>Content Ownership <em>&</em> License</>,
+    blocks: [
+      { type: "subheading", text: "Ownership", dash: "teal" },
+      { type: "lead", text: "You retain ownership of all submitted content." },
+      { type: "subheading", text: "License Granted", dash: "teal" },
+      { type: "lead", text: "By submitting content, you grant Carib Newswire the right to:" },
+      { type: "list", items: ["Publish content", "Distribute content", "Archive content", "Display content on platform channels"] },
     ],
   },
   {
-    id: "terms-content-guidelines",
-    number: 6,
-    title: "Content Guidelines",
-    icon: Shield,
-    cards: [
-      {
-        content: "You agree not to submit content that:",
-        items: [
-          "Is false, misleading, or defamatory",
-          "Violates any laws or regulations",
-          "Infringes on intellectual property rights",
-          "Contains harmful, abusive, or unlawful material",
-        ],
-        footer:
-          "We reserve the right to remove or reject content at our discretion.",
-      },
+    number: "06",
+    id: "content-guidelines",
+    tocLabel: "Content Guidelines",
+    title: <>Content Guidelines</>,
+    blocks: [
+      { type: "lead", text: "Submitted content must not contain:" },
+      { type: "list", items: ["False or misleading information", "Defamatory statements", "Copyright infringement", "Illegal content", "Harmful or malicious materials"] },
+      { type: "callout", tone: "teal", content: "Carib Newswire reserves the right to reject submissions that do not meet editorial standards." },
     ],
   },
   {
-    id: "terms-political-sponsored-content",
-    number: 7,
-    title: "Political and Sponsored Content",
-    icon: Shield,
-    cards: [
-      {
-        content: "Carib Newswire may accept:",
-        items: ["Political content", "Sponsored or promotional content"],
-        footer:
-          "We do not guarantee endorsement or verification of such content.",
-      },
+    number: "07",
+    id: "political-content",
+    tocLabel: "Political Content",
+    title: <>Political <em>&</em> Sponsored Content</>,
+    blocks: [
+      { type: "lead", text: "Certain categories of political or sponsored content may require additional review before publication. Appropriate disclosure may be required where applicable." },
     ],
   },
   {
-    id: "terms-no-user-messaging",
-    number: 8,
-    title: "No User Messaging or Comments",
-    icon: Ban,
-    cards: [
-      {
-        content: "At this time:",
-        items: [
-          "The platform does not support user-to-user messaging",
-          "Public commenting features are not enabled",
-        ],
-      },
+    number: "08",
+    id: "no-messaging",
+    tocLabel: "No Messaging",
+    title: <>No User Messaging or Comments</>,
+    blocks: [
+      { type: "lead", text: "The platform is designed for content distribution and does not currently provide public messaging, commenting, or social interaction features." },
     ],
   },
   {
-    id: "terms-disclaimer-warranties",
-    number: 9,
-    title: "Disclaimer of Warranties",
-    icon: CircleAlert,
-    cards: [
-      {
-        tone: "warning",
-        content: (
-          <>
-            Carib Newswire provides services <strong>&quot;as is&quot;</strong>{" "}
-            without warranties of any kind.
-            <br />
-            <br />
-            We do not guarantee:
-          </>
-        ),
-        items: [
-          "Media pickup or coverage",
-          "Specific performance outcomes",
-          "Uninterrupted platform access",
-        ],
-      },
+    number: "09",
+    id: "disclaimer",
+    tocLabel: "Disclaimer",
+    title: <>Disclaimer of Warranties</>,
+    blocks: [
+      { type: "lead", text: "Services are provided on an “as available” and “as is” basis. Carib Newswire does not guarantee:" },
+      { type: "list", items: ["Media pickup", "Publication by third-party outlets", "Specific audience reach", "Particular business outcomes"] },
     ],
   },
   {
-    id: "terms-limitation-liability",
-    number: 10,
-    title: "Limitation of Liability",
-    icon: CircleAlert,
-    cards: [
-      {
-        tone: "danger",
-        content:
-          "To the fullest extent permitted by law, Bayfront Innovation Group LLC shall not be liable for:",
-        items: [
-          "Indirect or consequential damages",
-          "Loss of revenue, data, or business opportunities",
-          "Content submitted by users",
-        ],
-      },
+    number: "10",
+    id: "liability",
+    tocLabel: "Liability",
+    title: <>Limitation of Liability</>,
+    blocks: [
+      { type: "lead", text: "Carib Newswire shall not be liable for:" },
+      { type: "list", items: ["Indirect damages", "Consequential damages", "Lost profits", "Business interruption", "Third-party actions"] },
+      { type: "callout", tone: "gold", content: "Liability shall not exceed the amount paid for services in the relevant transaction." },
     ],
   },
   {
-    id: "terms-indemnification",
-    number: 11,
-    title: "Indemnification",
-    icon: Shield,
-    cards: [
-      {
-        content:
-          "You agree to indemnify and hold harmless Carib Newswire from any claims arising from:",
-        items: [
-          "Your content",
-          "Your use of the platform",
-          "Your violation of these terms",
-        ],
-      },
+    number: "11",
+    id: "indemnification",
+    tocLabel: "Indemnification",
+    title: <>Indemnification</>,
+    blocks: [
+      { type: "lead", text: "Users agree to indemnify and hold harmless Carib Newswire from claims arising from:" },
+      { type: "list", items: ["Submitted content", "Violations of these terms", "Misuse of services"] },
     ],
   },
   {
-    id: "terms-termination",
-    number: 12,
-    title: "Termination",
-    icon: Ban,
-    cards: [
-      {
-        content:
-          "We may suspend or terminate your access at any time for violations of these terms.",
-      },
+    number: "12",
+    id: "termination",
+    tocLabel: "Termination",
+    title: <>Termination</>,
+    blocks: [
+      { type: "lead", text: "We reserve the right to suspend or terminate access if:" },
+      { type: "list", items: ["Terms are violated", "Fraudulent activity occurs", "Misuse of the platform is detected"] },
     ],
   },
   {
-    id: "terms-governing-law",
-    number: 13,
-    title: "Governing Law",
-    icon: Scale,
-    cards: [
-      {
-        content: (
-          <>
-            These Terms are governed by the laws of the{" "}
-            <strong>United States Virgin Islands.</strong>
-          </>
-        ),
-      },
+    number: "13",
+    id: "governing-law",
+    tocLabel: "Governing Law",
+    title: <>Governing Law</>,
+    blocks: [
+      { type: "lead", text: "These terms shall be governed by applicable laws of the operating jurisdiction of Carib Newswire." },
     ],
   },
   {
-    id: "terms-changes-to-terms",
-    number: 14,
-    title: "Changes to Terms",
-    icon: FileText,
-    cards: [
-      {
-        content:
-          "We may update these Terms at any time. Continued use of the platform constitutes acceptance of those changes.",
-      },
+    number: "14",
+    id: "changes",
+    tocLabel: "Changes",
+    title: <>Changes to Terms</>,
+    blocks: [
+      { type: "lead", text: "Carib Newswire may update these terms periodically. Continued use of the platform constitutes acceptance of updated terms." },
     ],
   },
   {
-    id: "terms-contact-information",
-    number: 15,
-    title: "Contact Information",
-    icon: Shield,
-    cards: [
-      {
-        tone: "info",
-        content: (
-          <div>
-            <strong>Bayfront Innovation Group LLC</strong>
-            <div style={{ marginTop: "10px" }} />
-            Carib Newswire
-            <br />
-            P.O. Box 2327
-            <br />
-            Kingshill, VI 00851-2327
-            <br />
-            St. Croix, United States Virgin Islands
-            <div />
-            <div style={{ marginTop: "10px" }}>
-              Email:{" "}
-              <a href="mailto:info@caribnewswire.com">info@caribnewswire.com</a>
-            </div>
-          </div>
-        ),
-      },
+    number: "15",
+    id: "contact",
+    tocLabel: "Contact",
+    title: <>Contact Information</>,
+    blocks: [
+      { type: "lead", text: "For questions about these Terms of Service, please contact us:" },
+      { type: "callout", tone: "gold", content: <><strong>Carib Newswire</strong><br />Email: <a href="mailto:info@caribnewswire.com">info@caribnewswire.com</a></> },
     ],
   },
 ];
 
 export default function TermsOfServiceContent() {
-  return (
-    <LegalDocumentContent
-      intro="Welcome to Carib Newswire. By accessing or using our platform, you agree to the following Terms of Service."
-      sections={termsSections}
-    />
-  );
+  return <LegalDocumentBody accent="gold" sections={sections} />;
 }

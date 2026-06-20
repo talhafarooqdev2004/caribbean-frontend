@@ -42,7 +42,7 @@
     gap: 12px;
 
     h2 {
-      color: #101828;
+      color: $navy-deep;
       font-size: 28px;
       line-height: 32px;
       font-weight: $weight-bold;
@@ -63,7 +63,7 @@
 
   .sectionLead {
     margin-top: 8px;
-    color: $grayish-blue-800;
+    color: $text-body;
     font-size: $text-md;
     line-height: $line-height-md;
 
@@ -102,7 +102,7 @@
     }
 
     strong {
-      color: $grayish-blue-900;
+      color: $navy-deep;
       font-weight: $weight-semi-bold;
     }
 
@@ -167,7 +167,7 @@
 
   .cardFooter {
     margin-top: 12px;
-    color: $grayish-blue-800;
+    color: $text-body;
     font-size: 16px;
     line-height: 24px;
 
@@ -176,7 +176,7 @@
       line-height: 24px;
 
       > strong {
-        color: #101828;
+        color: $navy-deep;
         font-family: $weight-bold;
       }
     }

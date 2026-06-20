@@ -2,94 +2,172 @@
 @use "../../styles/semantic" as *;
 @use "../../styles/breakpoints" as *;
 
-.section {
+.portalPage {
     min-height: 560px;
-    background-color: $bg-section;
+    background-color: $cream-band;
     width: 100%;
     min-width: 0;
+    overflow-x: clip;
     box-sizing: border-box;
 }
 
-.inner {
-    padding-block: $space-3xl;
+.portalHero {
+    background-color: $navy-deep;
+    background-image: radial-gradient(ellipse 90% 55% at 50% 18%, rgba(88, 153, 226, 0.14) 0%, transparent 72%);
+
+    .portalHeroInner {
+        padding-block: 40px 36px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+}
+
+.portalBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-sm;
+    height: 32px;
+    padding-inline: 14px;
+    background-color: transparent;
+    border: 1px solid rgba($soft-blue-100, 0.45);
+    border-radius: $radius-full;
+    color: $soft-blue-100;
+    font-size: 10px;
+    font-weight: $weight-semi-bold;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+
+    &::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: $radius-full;
+        background-color: $soft-blue-100;
+    }
+}
+
+.portalHeroInner {
+    h1 {
+        margin-top: 18px;
+        font-family: $font-display;
+        color: $white;
+        font-size: 36px;
+        font-weight: $weight-bold;
+        line-height: 1.1;
+
+        > span {
+            font-style: italic;
+            color: #5899E2;
+        }
+    }
+
+    p {
+        margin-top: 12px;
+        max-width: 560px;
+        color: rgba($white, 0.55);
+        font-size: 15px;
+        line-height: 1.6;
+    }
+}
+
+.curve {
+    position: relative;
+    z-index: 2;
+    line-height: 0;
+    overflow: hidden;
+    margin-top: -1px;
+
+    svg {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: 60px;
+
+        path {
+            fill: $navy-deep;
+            stroke: $navy-deep;
+            stroke-width: 2px;
+            stroke-linejoin: round;
+        }
+    }
+}
+
+.portalBody {
+    margin-top: -1px;
+    padding-block: 28px 56px;
     display: grid;
-    gap: $space-xl;
+    gap: $space-lg;
     width: 100%;
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
 }
 
-.hero {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: $space-lg;
-    width: 100%;
-    min-width: 0;
-
-    > div {
-        min-width: 0;
-        flex: 1 1 100%;
-        max-width: 100%;
-    }
-
-    h1 {
-        color: $primary;
-        font-size: $text-3xl;
-    }
-
-    p {
-        color: $grayish-blue-800;
-        max-width: 640px;
-    }
-}
-
 .quickNav {
-    margin-top: $space-lg;
+    margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
-    gap: $space-sm;
+    justify-content: center;
+    gap: 10px;
+
+    button {
+        height: 51px;
+        min-height: 51px;
+        line-height: 51px;
+        box-sizing: border-box;
+    }
 }
 
 .tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: $space-xs;
-    border-bottom: 1px solid $card-border;
+    gap: 6px;
     width: 100%;
     min-width: 0;
     max-width: 100%;
+    padding-bottom: 4px;
 }
 
 .tab {
-    padding: $space-sm $space-base;
-    border: none;
+    padding: 10px 16px;
+    border: 1px solid transparent;
     background: transparent;
-    color: $grayish-blue-800;
+    color: #6B849A;
+    font-size: 14px;
     font-weight: $weight-semi-bold;
     cursor: pointer;
-    border-radius: $radius-sm $radius-sm 0 0;
+    border-radius: $radius-full;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .tabActive {
-    color: $primary;
+    color: $navy-deep;
     background: $white;
-    border: 1px solid $card-border;
-    border-bottom-color: $white;
-    margin-bottom: -1px;
+    border-color: rgba($navy-deep, 0.1);
+    box-shadow: 0 2px 12px rgba($navy-deep, 0.06);
 }
 
 .panel {
-    border: 1px solid $card-border;
-    border-radius: $radius-sm;
+    border: 1px solid rgba($navy-deep, 0.08);
+    border-radius: 12px;
     background: $white;
     padding: $space-xl;
-    box-shadow: 0 20px 45px rgba(39, 64, 96, 0.08);
+    box-shadow: 0 4px 24px rgba($navy-deep, 0.06);
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
+}
+
+/* Skeleton loading state */
+.loadingHero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $space-sm;
+    width: 100%;
 }
 
 .tableWrap {
@@ -136,7 +214,7 @@
 }
 
 .submissionStatusLabel {
-    color: $primary;
+    color: $navy-deep;
     font-weight: $weight-md;
 }
 
@@ -170,7 +248,7 @@
 
 .creditsPackageTitle {
     margin: 0;
-    color: $primary;
+    color: $navy-deep;
     font-size: $text-xl;
     font-weight: $weight-semi-bold;
     line-height: 1.3;
@@ -669,20 +747,18 @@
 
 /* Tablet and below: match public pages — readable type, full-width CTAs, scrollable tabs, lighter panels */
 @media (max-width: map-get($breakpoints, "md") - 1px) {
-    .section {
+    .portalPage {
         min-height: auto;
     }
 
-    .inner {
+    .portalBody {
         padding-block: $space-xl;
         gap: $space-lg;
     }
 
-    .hero {
-        gap: $space-base;
-
+    .portalHeroInner {
         h1 {
-            font-size: $text-2xl;
+            font-size: 30px;
             line-height: 1.2;
         }
 
@@ -737,12 +813,10 @@
         margin-inline: 0;
         touch-action: pan-x;
         overscroll-behavior-x: contain;
-        /* Room so the horizontal scrollbar is not clipped by the card radius */
         padding-bottom: $space-xs;
     }
 
     .table {
-        /* Wider than typical phones → horizontal scroll inside .tableWrap */
         width: max-content;
         min-width: 640px;
         table-layout: auto;
@@ -796,7 +870,23 @@
 }
 
 @media (min-width: map-get($breakpoints, "md")) {
-    .hero h1 {
-        font-size: $text-4xl;
+    .curve svg {
+        height: 90px;
+    }
+
+    .portalHero .portalHeroInner {
+        padding-block: 64px 56px;
+
+        h1 {
+            font-size: 48px;
+        }
+
+        p {
+            font-size: 17px;
+        }
+    }
+
+    .portalBody {
+        padding-block: 40px 72px;
     }
 }

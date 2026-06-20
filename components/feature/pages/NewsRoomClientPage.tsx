@@ -9,7 +9,7 @@ import {
     WantToBeFeaturedHere,
 } from "@/components/composed";
 import { Container } from "@/components/layout";
-import { Button } from "@/components/ui";
+import { SvgIcon } from "@/components/ui";
 import { fetchPublicPressReleaseListClient } from "@/lib/fetch-public-press-release-list";
 import {
     buildNewsroomGridQueryString,
@@ -18,6 +18,7 @@ import {
 } from "@/lib/newsroom-press-release-query";
 import { type PressReleaseRecord } from "@/lib/press-release-types";
 import { useEffect, useMemo, useRef, useState, startTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function mergeReleasesById(a: PressReleaseRecord[], b: PressReleaseRecord[]) {
     const map = new Map<string, PressReleaseRecord>();
@@ -54,56 +55,54 @@ export default function NewsRoomCLientPage({
     initialGridReleases = [],
     initialTotalPages = 1,
 }: NewsRoomClientPageProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const initialUrlSearch = searchParams.get("search")?.trim() ?? "";
+
     const [releases, setReleases] = useState(initialGridReleases);
     const [totalPages, setTotalPages] = useState(initialTotalPages);
     const [listPage, setListPage] = useState(1);
     const [listLoading, setListLoading] = useState(false);
     const [activeCategory, setActiveCategory] = useState(NEWSROOM_ALL_CATEGORIES_LABEL);
-    const [activeIsland, setActiveIsland] = useState("All Islands");
-    const [dateRange, setDateRange] = useState("allTime");
-    const [sort, setSort] = useState("newest");
-    const [searchValue, setSearchValue] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [appliedSearch, setAppliedSearch] = useState(initialUrlSearch);
+    const [searchValue, setSearchValue] = useState(initialUrlSearch);
 
     const ssrPrimedDefaultGridRef = useRef(initialGridReleases.length > 0);
     const hydrationDoneRef = useRef(false);
     const userMutatedFiltersRef = useRef(false);
     const listRequestIdRef = useRef(0);
-    const searchDebounceTimerRef = useRef<number | null>(null);
+
+    function applyFilters() {
+        const trimmed = searchValue.trim();
+        setAppliedSearch(trimmed);
+        setListPage(1);
+
+        const params = new URLSearchParams(searchParams.toString());
+
+        if (trimmed) {
+            params.set("search", trimmed);
+        } else {
+            params.delete("search");
+        }
+
+        const qs = params.toString();
+        router.replace(qs ? `/newsroom?${qs}` : "/newsroom", { scroll: false });
+    }
 
     useEffect(() => {
-        if (searchDebounceTimerRef.current != null) {
-            window.clearTimeout(searchDebounceTimerRef.current);
-        }
-        searchDebounceTimerRef.current = window.setTimeout(() => {
-            searchDebounceTimerRef.current = null;
-            setDebouncedSearch(searchValue.trim());
-            setListPage(1);
-        }, 350);
-
-        return () => {
-            if (searchDebounceTimerRef.current != null) {
-                window.clearTimeout(searchDebounceTimerRef.current);
-                searchDebounceTimerRef.current = null;
-            }
-        };
-    }, [searchValue]);
-
-    function flushPendingSearchToDebounced() {
-        if (searchDebounceTimerRef.current != null) {
-            window.clearTimeout(searchDebounceTimerRef.current);
-            searchDebounceTimerRef.current = null;
-        }
-        setDebouncedSearch(searchValue.trim());
-    }
+        const q = searchParams.get("search")?.trim() ?? "";
+        setSearchValue(q);
+        setAppliedSearch(q);
+        setListPage(1);
+    }, [searchParams]);
 
     useEffect(() => {
         const qs = buildNewsroomGridQueryString({
             activeCategory,
-            activeIsland,
-            dateRange,
-            sort,
-            debouncedSearch,
+            activeIsland: "All Islands",
+            dateRange: "allTime",
+            sort: "newest",
+            debouncedSearch: appliedSearch,
             listPage,
         });
 
@@ -163,16 +162,16 @@ export default function NewsRoomCLientPage({
             cancelled = true;
             controller.abort();
         };
-    }, [activeCategory, activeIsland, dateRange, sort, debouncedSearch, listPage]);
+    }, [activeCategory, appliedSearch, listPage]);
 
     const releasesForFeaturedCarousel = useMemo(() => {
         const featuredFromGrid = releases.filter((r) => r.featured);
         const gridQs = buildNewsroomGridQueryString({
             activeCategory,
-            activeIsland,
-            dateRange,
-            sort,
-            debouncedSearch,
+            activeIsland: "All Islands",
+            dateRange: "allTime",
+            sort: "newest",
+            debouncedSearch: appliedSearch,
             listPage,
         });
 
@@ -184,15 +183,11 @@ export default function NewsRoomCLientPage({
         initialFeaturedReleases,
         releases,
         activeCategory,
-        activeIsland,
-        dateRange,
-        sort,
-        debouncedSearch,
+        appliedSearch,
         listPage,
     ]);
 
     function updateCategory(category: string) {
-        flushPendingSearchToDebounced();
         setActiveCategory(category);
         setListPage(1);
     }
@@ -208,27 +203,10 @@ export default function NewsRoomCLientPage({
         <>
             <NewsRoomHeroSection
                 activeCategory={activeCategory}
-                activeIsland={activeIsland}
-                dateRange={dateRange}
                 searchValue={searchValue}
-                sort={sort}
                 onCategoryChange={updateCategory}
-                onDateRangeChange={(value) => {
-                    flushPendingSearchToDebounced();
-                    setDateRange(value);
-                    setListPage(1);
-                }}
-                onIslandChange={(value) => {
-                    flushPendingSearchToDebounced();
-                    setActiveIsland(value);
-                    setListPage(1);
-                }}
                 onSearchChange={updateSearch}
-                onSortChange={(value) => {
-                    flushPendingSearchToDebounced();
-                    setSort(value);
-                    setListPage(1);
-                }}
+                onFilterApply={applyFilters}
             />
             <FeaturedPressReleases releases={releasesForFeaturedCarousel} />
             <RecentReleasesSection releases={releases} />
@@ -241,16 +219,16 @@ export default function NewsRoomCLientPage({
                                 <span className={styles.loadMoreLoadingLabel}>Loading more releases…</span>
                             </div>
                         ) : (
-                            <Button
+                            <button
                                 type="button"
-                                variant="outline-black"
-                                size="md"
+                                className={styles.loadMoreButton}
                                 disabled={listLoading}
                                 aria-busy={listLoading}
                                 onClick={() => setListPage((page) => Math.min(totalPages, page + 1))}
                             >
-                                Load more
-                            </Button>
+                                <SvgIcon icon="down-arrow" />
+                                Load More Releases
+                            </button>
                         )}
                     </div>
                 ) : null}

@@ -22,6 +22,9 @@ export type PressReleaseRecord = {
     featuredUpgrade: boolean;
     amountCents: number;
     featured: boolean;
+    /** Higher values appear first in the featured carousel. */
+    featuredPriority: number;
+    featuredUntil?: string | null;
     isActive?: boolean;
     rejectionReason: string | null;
     status: string;
@@ -32,4 +35,6 @@ export type PressReleaseRecord = {
     createdAt: string;
     updatedAt: string;
     publishedAt: string | null;
+    /** Estimated read time in minutes (from API when available). */
+    readingMinutes?: number;
 };

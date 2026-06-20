@@ -3,68 +3,109 @@
 @use '../../styles/breakpoints' as *;
 
 .heroSection {
-    background-image: $hero-section-gradient , url("/images/contact-us-hero-section.jpg");
-
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+    position: relative;
+    background-color: $navy-deep;
+    overflow-x: clip;
 
     .heroSectionInner {
-        padding-block: 90px;
+        position: relative;
+        z-index: 1;
+        padding-block: 48px 40px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        text-align: center;
 
-        .heroSectionBadge {
-            background-color: $white-100;
-            border: 1px solid $white-200;
-            color: $white;
-            height: 34px;
-            padding-inline: $space-base;
-            border-radius: $radius-full;
+        .badge {
             display: inline-flex;
-            justify-content: center;
             align-items: center;
-            font-size: $text-sm;
+            gap: $space-sm;
+            height: 32px;
+            padding-inline: 14px;
+            background-color: transparent;
+            border: 1px solid rgba($soft-blue-100, 0.45);
+            border-radius: $radius-full;
+            color: $soft-blue-100;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: $radius-full;
+                background-color: $soft-blue-100;
+            }
         }
 
         >h1 {
-            margin-top: $space-md;
+            margin-top: 20px;
+            font-family: $font-display;
             color: $white;
-            font-size: $text-section-lg;
-            line-height: 48px;
-            text-align: center;
+            font-size: 38px;
+            font-weight: $weight-bold;
+            line-height: 1.1;
+
+            >span {
+                font-style: italic;
+                color: #5899E2;
+            }
         }
 
         >p {
-            margin-top: $space-lg;
-            color: $grayish-blue-100;
-            font-size: $text-lg;
-            line-height: $line-height-md;
-            text-align: center;
+            margin-top: 14px;
+            max-width: 100%;
+            color: #FFFFFF80;
+            font-size: 15px;
+            line-height: 26px;
+        }
+
+        .divider {
+            margin-top: 20px;
+            width: 48px;
+            height: 3px;
+            border-radius: $radius-full;
+            background-color: $secondary;
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: map-get($breakpoints, 'sm')) {
+        .heroSectionInner>h1 {
+            font-size: 48px;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
         .heroSectionInner {
-            padding-block: 90px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding-block: 124px 100px;
+
+            .badge {
+                height: 34px;
+                padding-inline: $space-base;
+                background-color: $soft-blue-50;
+                border-color: $white-200;
+                font-size: 10px;
+                font-weight: $weight-md;
+                letter-spacing: 1.4px;
+            }
 
             >h1 {
-                margin-top: $space-md;
-                color: $white;
-                font-size: $text-5xl;
-                line-height: 48px;
-                text-align: center;
+                margin-top: 28px;
+                font-size: 76px;
+                line-height: 80.56px;
             }
 
             >p {
-                font-size: $text-xl;
-                line-height: $line-height-base;
-                width: 54%;
-                margin-inline: auto;
+                margin-top: 20px;
+                max-width: 440px;
+                font-size: 18px;
+                line-height: 30.96px;
+            }
+
+            .divider {
+                margin-top: $space-lg;
             }
         }
     }

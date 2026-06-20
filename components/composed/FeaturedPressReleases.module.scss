@@ -3,18 +3,33 @@
 @use "../../styles/breakpoints" as *;
 
 .featuredPressReleases {
-    background-color: $bg-section;
+    background-color: $white;
 
     .featuredPressReleasesInner {
-        padding-block: $space-2xl;
+        padding-block: $section-block-mobile;
 
         .featuredHeader {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 16px;
 
-            >h3 {
-                font-size: $text-lg;
+            .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 12px;
+                color: $secondary;
+                font-size: 10px;
+                font-weight: $weight-md;
+                letter-spacing: 1.4px;
+                text-transform: uppercase;
+
+                &::before {
+                    content: "";
+                    width: 20px;
+                    height: 1px;
+                    background-color: $secondary;
+                }
             }
 
             .featuredAction {
@@ -23,13 +38,13 @@
                 display: flex;
                 align-items: center;
                 gap: $space-sm;
+                flex-shrink: 0;
             }
         }
 
         .featuredReleases {
-            margin-top: $space-lg;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(1fr, 1216px));
+            grid-template-columns: minmax(0, 1fr);
         }
 
         .featuredReleaseHitArea {
@@ -75,6 +90,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+
             .featuredEnterFromRight,
             .featuredEnterFromLeft {
                 animation: none;
@@ -82,11 +98,16 @@
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: map-get($breakpoints, "md")) {
         .featuredPressReleasesInner {
+            padding-block: 70px;
+            padding-inline: 140px;
+
             .featuredHeader {
-                >h3 {
-                    font-size: $text-xl;
+                margin-bottom: 20px;
+
+                .eyebrow {
+                    font-size: 11px;
                 }
             }
         }

@@ -1,0 +1,278 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.contentSection {
+  background-color: $white;
+
+  // Wave carrying the navy hero down into the white content area.
+  .curve {
+    line-height: 0;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 60px;
+
+      path {
+        fill: $blue-900;
+      }
+    }
+  }
+
+  .inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $space-2xl;
+    padding-block: $section-block-mobile;
+  }
+
+  // ---- Sidebar ----
+  .sidebar {
+    .sidebarSticky {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: $space-md;
+      color: $teal-500;
+      font-size: 10px;
+      font-weight: $weight-md;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+
+      &::before {
+        content: "";
+        width: 24px;
+        height: 1px;
+        background-color: $teal-500;
+      }
+    }
+
+    .toc {
+      margin-top: $space-lg;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .tocLink {
+        display: flex;
+        align-items: center;
+        gap: $space-md;
+        padding: 10px $space-md;
+        border-radius: $radius-sm;
+        border-left: 2px solid transparent;
+        font-size: $text-sm;
+        color: $primary;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        .tocNumber {
+          font-size: $text-xs;
+          color: $accent-line;
+        }
+
+        &:hover {
+          background-color: $grayish-blue-350;
+        }
+      }
+
+      .tocActive {
+        background-color: $teal-100;
+        border-left-color: $teal-500;
+        color: $teal-500;
+
+        .tocNumber {
+          color: $teal-500;
+        }
+      }
+    }
+
+    .backToTop {
+      margin-top: $space-lg;
+      width: 100%;
+      padding-block: $space-md;
+      background: none;
+      border: 1px solid $card-border;
+      border-radius: $radius-sm;
+      color: $text-body;
+      font-size: $text-sm;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: $grayish-blue-350;
+      }
+    }
+  }
+
+  // ---- Content ----
+  .content {
+    min-width: 0;
+  }
+
+  .sectionBlock {
+    scroll-margin-top: 100px;
+
+    &:not(:first-child) {
+      margin-top: $space-3xl;
+      padding-top: $space-3xl;
+      border-top: 1px solid $card-border;
+    }
+
+    .sectionEyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: $space-md;
+      color: $teal-500;
+      font-size: 10px;
+      font-weight: $weight-md;
+      letter-spacing: 1.4px;
+
+      &::before {
+        content: "";
+        width: 24px;
+        height: 1px;
+        background-color: $teal-500;
+      }
+    }
+
+    .title {
+      margin-top: $space-md;
+      font-size: $text-2xl;
+      color: $primary;
+
+      em {
+        font-style: italic;
+        color: $soft-blue-100;
+      }
+    }
+
+    .lead {
+      margin-top: $space-lg;
+      font-size: $text-md;
+      color: $text-body;
+      line-height: $line-height-md;
+    }
+
+    .subheading {
+      display: flex;
+      align-items: center;
+      gap: $space-md;
+      margin-top: $space-lg;
+      font-size: $text-md;
+      font-weight: $weight-semi-bold;
+      color: $primary;
+
+      &::before {
+        content: "";
+        width: 16px;
+        height: 2px;
+      }
+
+      &.dashGold::before {
+        background-color: $secondary;
+      }
+
+      &.dashNavy::before {
+        background-color: $primary;
+      }
+    }
+
+    .bulletList {
+      margin-top: $space-base;
+      display: flex;
+      flex-direction: column;
+      gap: $space-md;
+
+      li {
+        position: relative;
+        padding-left: $space-lg;
+        font-size: $text-md;
+        color: $text-body;
+
+        &::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 9px;
+          width: 6px;
+          height: 6px;
+          border-radius: $radius-full;
+          background-color: $teal-500;
+        }
+      }
+    }
+
+    .callout {
+      display: flex;
+      align-items: flex-start;
+      gap: $space-md;
+      margin-top: $space-lg;
+      padding: $space-base $space-lg;
+      border-radius: $radius-md;
+
+      > p {
+        font-size: $text-sm;
+        line-height: $line-height-sm;
+        color: $text-body;
+
+        a {
+          color: $accent-line;
+        }
+      }
+
+      .calloutIcon {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: $radius-sm;
+        background-color: $teal-100;
+        color: $teal-500;
+      }
+    }
+
+    .calloutTeal {
+      background-color: $teal-100;
+      border: 1px solid $teal-500;
+      border-left-width: 3px;
+    }
+
+    .calloutCream {
+      background-color: $cream-band;
+      border: 1px solid $card-border;
+    }
+
+    .calloutGold {
+      background-color: $yellow-100;
+      border: 1px solid $yellow-500;
+      border-left-width: 3px;
+
+      .calloutLabel {
+        color: $accent-line;
+      }
+    }
+  }
+
+  @media (min-width: map-get($breakpoints, 'lg')) {
+    .inner {
+      grid-template-columns: 280px 1fr;
+      gap: $space-4xl;
+      padding-block: $space-5xl;
+    }
+
+    .sidebar .sidebarSticky {
+      position: sticky;
+      top: 100px;
+    }
+
+    .sectionBlock .title {
+      font-size: $text-3xl;
+    }
+  }
+}

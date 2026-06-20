@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 
 import {
     BecomeACaribNewaMediaPartner,
-    ForMediaNotificationNote,
-    ForMediaWhatIsCaribNews,
     ForMediaWhyJoinCaribNews,
     JoinTheMediaNetworkHeroSection,
     StartAccessingQualityCaribbeanNewsToday,
@@ -16,6 +14,7 @@ import {
     JOIN_MEDIA_NETWORK_FORM_ID,
     consumeJoinMediaNetworkFormIntent,
 } from "@/lib/join-media-network-form-intent";
+import { type NetworkStatsPayload } from "@/lib/network-stats";
 
 const FORM_HASH = `#${JOIN_MEDIA_NETWORK_FORM_ID}`;
 /** Avoid stripping the hash on React Strict Mode’s immediate double effect after a valid open. */
@@ -35,7 +34,11 @@ function scrollJoinFormIntoView() {
     });
 }
 
-export default function JoinTheMediaNetworkClientPage() {
+export default function JoinTheMediaNetworkClientPage({
+    initialNetworkStats = null,
+}: {
+    initialNetworkStats?: NetworkStatsPayload | null;
+}) {
     const pathname = usePathname();
 
     useEffect(() => {
@@ -83,11 +86,9 @@ export default function JoinTheMediaNetworkClientPage() {
 
     return (
         <>
-            <JoinTheMediaNetworkHeroSection />
-            <ForMediaWhatIsCaribNews />
+            <JoinTheMediaNetworkHeroSection initialNetworkStats={initialNetworkStats} />
             <ForMediaWhyJoinCaribNews />
             <WhoShouldJoin />
-            <ForMediaNotificationNote />
             <BecomeACaribNewaMediaPartner />
             <StartAccessingQualityCaribbeanNewsToday />
         </>

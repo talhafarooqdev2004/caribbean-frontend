@@ -4,72 +4,182 @@
 
 .whatMakesUsDifferent {
     background-color: $white;
+    overflow-x: clip;
 
     .whatMakesUsDifferentInner {
-        padding-block: $section-padding-sm;
+        padding-block: $section-block-mobile 0;
+    }
 
-        >h1 {
-            font-size: $text-section;
-            text-align: center;
+    .header {
+        max-width: 600px;
+        margin-bottom: 28px;
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #5899e2;
+            font-size: 10px;
+            font-weight: $weight-md;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 20px;
+                height: 1px;
+                background-color: #5899e2;
+            }
         }
 
-        >p {
-            margin-top: $space-lg;
-            font-size: $text-base;
-            text-align: center;
+        > h2 {
+            margin-top: 16px;
+            font-size: 34px;
+            line-height: 1.12;
+            color: #172840;
+            font-weight: $weight-bold;
+
+            em {
+                font-style: italic;
+                color: #345580;
+            }
         }
 
-        .cards {
-            margin-top: $space-2xl;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: $space-lg;
+        > p {
+            margin-top: 16px;
+            color: #3a526b;
+            font-size: 15px;
+            line-height: 26px;
+        }
+    }
 
-            .card {
-                border: 2px solid $card-border;
-                height: 115px;
-                padding: $space-xl;
-                border-radius: $radius-base;
-                display: flex;
+    .cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1px;
+        overflow: hidden;
+        border-radius: 16px;
+        background-color: #ffffff1f;
+
+        .card {
+            position: relative;
+            padding: 48px 20px 32px;
+            background-color: #172840;
+
+            .cardNumber {
+                position: absolute;
+                top: $space-base;
+                left: 16px;
+                font-family: $font-display;
+                font-size: 56px;
+                line-height: 1;
+                color: #ffffff0d;
+                pointer-events: none;
+                user-select: none;
+            }
+
+            .cardIcon {
+                position: relative;
+                z-index: 1;
+                display: inline-flex;
                 align-items: center;
-                gap: $space-base;
+                justify-content: center;
+                margin-top: 15px;
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background-color: #5899e21f;
+                border: 1px solid #5899e22e;
+                color: $secondary;
+            }
 
-                .iconWrapper {
-                    width: 56px;
-                    height: 56px;
-                    background: $linear-gradient-soft-blue-300;
-                    border-radius: $radius-base;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    flex-shrink: 0;
-                }
+            > h3 {
+                position: relative;
+                z-index: 1;
+                margin-top: 20px;
+                font-family: $font-display;
+                font-size: 18px;
+                font-weight: $weight-md;
+                line-height: 1.2;
+                color: $white;
+            }
 
-                >span {
-                    font-size: $text-lg;
-                    line-height: $line-height-md;
-                }
+            > p {
+                position: relative;
+                z-index: 1;
+                margin-top: 10px;
+                color: #ffffff80;
+                font-size: 14px;
+                line-height: 23px;
             }
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: map-get($breakpoints, "md")) {
         .whatMakesUsDifferentInner {
-            padding-top: 96px;
-            max-width: 1200px;
+            padding-block: 100px 0;
+            padding-inline: 192px;
+        }
 
-            >h1 {
-                font-size: $text-section-lg;
+        .header {
+            margin-bottom: 64px;
+
+            .eyebrow {
+                font-size: 11px;
+                gap: $space-md;
+
+                &::before {
+                    width: 24px;
+                }
             }
 
-            >p {
-                width: 55%;
-                margin-inline: auto;
+            > h2 {
+                margin-top: 18px;
+                font-size: 44px;
+                line-height: 49.72px;
             }
 
-            .cards {
-                grid-template-columns: repeat(auto-fit, minmax(468px, 1fr));
+            > p {
+                margin-top: 18px;
+                font-size: 17px;
+                line-height: 29.75px;
             }
+        }
+
+        .cards {
+            gap: 1.5px;
+            border-radius: 20px;
+
+            .card {
+                padding: 48px 44px;
+
+                .cardNumber {
+                    top: $space-base;
+                    left: $space-2xl;
+                    font-size: 64px;
+                    line-height: 64px;
+                }
+
+                .cardIcon {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 12px;
+                }
+
+                > h3 {
+                    margin-top: 32px;
+                    font-size: 20px;
+                }
+
+                > p {
+                    font-size: 14.5px;
+                    line-height: 24.94px;
+                }
+            }
+        }
+
+        .cards {
+            grid-template-columns: 1fr 1fr;
         }
     }
 }

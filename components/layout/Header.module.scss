@@ -6,97 +6,272 @@
   background-color: $white;
   position: relative;
   z-index: 1000;
+  border-bottom: 1px solid $grayish-blue-100;
 
+  &[data-announcement="visible"] {
+    --announcement-height: 52px;
+  }
+
+  &[data-announcement="hidden"] {
+    --announcement-height: 0px;
+  }
+
+  // ---- Top announcement bar ----
+  .announcementBar {
+    background: linear-gradient(90deg, #172840 0%, #345580 100%);
+    border-bottom: 1px solid rgba($white-900, 0.08);
+  }
+
+  .announcementInner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding-block: 10px;
+    padding-right: 40px;
+  }
+
+  .announcementContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: $space-sm $space-md;
+    text-align: center;
+  }
+
+  .announcementBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 20px;
+    padding-inline: 8px;
+    border-radius: $radius-full;
+    background-color: $soft-blue-100;
+    color: #172840;
+    font-size: 9px;
+    font-weight: $weight-bold;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+
+  .announcementText {
+    display: inline;
+    margin: 0;
+    color: $white;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .announcementLink {
+    color: $soft-blue-100;
+    font-weight: $weight-md;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.85;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  .announcementClose {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: rgba($white-900, 0.75);
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $white;
+    }
+  }
+
+  // ---- Main nav row ----
   .headerInner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 81px;
+    gap: $space-base;
+    height: 64px;
+  }
 
-    .logoLink {
-      display: flex;
+  .logoLink {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  .logoImg {
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: 28px;
+    max-width: 148px;
+  }
+
+  .headerRight {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $space-base;
+    min-width: 0;
+  }
+
+  .desktopNav {
+    .navList {
+      display: none;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: opacity 0.3s ease;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-
-    .logoImg {
-      height: auto;
-      margin-left: -5.55px;
-    }
-
-    .desktopNav {
-      .navList {
-        display: none;
-        gap: $space-xl;
-
-        > li > a {
-          font-size: $text-md;
-          color: $grayish-blue-800;
-          transition: color 0.3s ease;
-
-          &:hover {
-            color: $grayish-blue-900;
-          }
-        }
-      }
-    }
-
-    .headerActions {
-      display: none;
-    }
-
-    .submitReleasebtn {
-      display: none;
-    }
-
-    .loginBtn,
-    .logoutBtn {
-      display: none;
-    }
-
-    .userGreeting {
-      color: $primary;
-      font-size: $text-sm;
-      font-weight: $weight-semi-bold;
-      white-space: nowrap;
-    }
-
-    .applyNowBtn {
-      padding-inline: 20px;
-    }
-
-    .menuToggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      cursor: pointer;
+      gap: $space-2xl;
+      margin: 0;
       padding: 0;
-      color: $grayish-blue-800;
+      list-style: none;
 
-      svg {
-        width: 24px;
-        height: 24px;
+      >li>a {
+        font-size: $text-md;
+        font-weight: $weight-md;
+        color: $grayish-blue-800;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: $primary;
+        }
       }
     }
   }
 
-  /* Mobile Menu Styles */
+  .headerActions {
+    display: none;
+    align-items: center;
+    gap: $space-sm;
+  }
+
+  .submitReleasebtn,
+  .loginBtn,
+  .logoutBtn {
+    display: none;
+  }
+
+  .submitReleasebtn {
+    border-radius: $radius-sm;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    font-size: $text-sm;
+    font-weight: $weight-md;
+    height: 40px;
+    line-height: 40px;
+    padding-inline: 22px;
+  }
+
+  .loginBtn,
+  .logoutBtn {
+    border-radius: $radius-sm;
+    font-size: $text-sm;
+    font-weight: $weight-md;
+    height: 40px;
+    line-height: 40px;
+    padding-inline: 22px;
+  }
+
+  .userGreeting {
+    color: $primary;
+    font-size: $text-sm;
+    font-weight: $weight-semi-bold;
+    white-space: nowrap;
+  }
+
+  .menuToggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: 1px solid $grayish-blue-100;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    padding: 0;
+    color: $grayish-blue-800;
+    flex-shrink: 0;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  // ---- Mobile menu ----
   .mobileMenu {
-    position: absolute;
-    top: 81px;
+    position: fixed;
+    top: 0;
     left: 0;
     right: 0;
+    z-index: 1001;
+    width: 100%;
+    height: auto;
     background-color: $white;
     animation: slideDown 0.3s ease;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 32px rgba(23, 40, 64, 0.12);
+    border-bottom: 1px solid $grayish-blue-100;
+    border-radius: 0 0 $radius-base $radius-base;
+
+    .mobileMenuHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding-inline: $space-mobile;
+      border-bottom: 1px solid $grayish-blue-100;
+    }
+
+    .mobileMenuLogoLink {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .mobileMenuLogo {
+      display: block;
+      width: auto;
+      height: auto;
+      max-height: 28px;
+      max-width: 148px;
+    }
+
+    .mobileMenuClose {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 1px solid $grayish-blue-100;
+      border-radius: $radius-sm;
+      background: none;
+      color: $grayish-blue-800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
 
     .mobileNav {
       .mobileNavList {
@@ -106,11 +281,11 @@
         display: flex;
         flex-direction: column;
 
-        > li {
-          padding: $space-md $space-lg;
+        >li {
+          padding: $space-md $space-mobile;
           border-bottom: 1px solid $grayish-blue-100;
 
-          > a {
+          >a {
             font-size: $text-md;
             color: $grayish-blue-800;
             text-decoration: none;
@@ -126,7 +301,7 @@
     }
 
     .mobileButtonWrapper {
-      padding: $space-lg;
+      padding: $space-lg $space-mobile;
       display: flex;
       flex-direction: column;
       gap: $space-sm;
@@ -135,7 +310,7 @@
 
       .mobileSubmitBtn {
         width: 100%;
-        max-width: 300px;
+        max-width: none;
       }
     }
   }
@@ -153,38 +328,71 @@
   }
 
   @media (min-width: map-get($breakpoints, "md")) {
-    .headerInner {
-      .menuToggle {
-        display: none;
-      }
-
-      .logoImg {
-        width: 206px;
-      }
-
-      .desktopNav {
-        .navList {
-          display: flex;
-        }
-      }
-
-      .headerActions {
-        display: flex;
-        align-items: center;
-        gap: $space-sm;
-      }
-
-      .submitReleasebtn,
-      .loginBtn,
-      .logoutBtn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    &[data-announcement="visible"] {
+      --announcement-height: 42px;
     }
 
-    .mobileMenu {
+    .announcementInner {
+      min-height: 42px;
+      padding-right: 36px;
+    }
+
+    .announcementBadge {
+      height: 22px;
+      padding-inline: 10px;
+      font-size: 10px;
+    }
+
+    .announcementText {
+      display: flex;
+      align-items: center;
+      gap: $space-base;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .headerInner {
+      height: 81px;
+      gap: $space-lg;
+    }
+
+    .logoImg {
+      max-height: none;
+      max-width: 100%;
+    }
+
+    .headerRight {
+      gap: $space-2xl;
+    }
+
+    .menuToggle {
       display: none;
+    }
+
+    .desktopNav .navList {
+      display: flex;
+    }
+
+    .headerActions {
+      display: flex;
+    }
+
+    .submitReleasebtn,
+    .loginBtn,
+    .logoutBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  @media (min-width: map-get($breakpoints, "lg")) {
+    .headerRight {
+      gap: 48px;
+    }
+
+    .desktopNav .navList {
+      gap: 40px;
     }
   }
 }

@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import styles from "./AuthForm.module.scss";
 
-import { Container } from "@/components/layout";
+import AuthPageShell from "./AuthPageShell";
 import { Button, FormControl, FormLabel, Input } from "@/components/ui";
 
 export default function ForgotPasswordForm() {
@@ -48,45 +48,40 @@ export default function ForgotPasswordForm() {
         }
     }
 
-    const backHref = "/login";
-
     return (
-        <section className={styles.authSection}>
-            <Container className={styles.authInner}>
-                <div className={styles.copyBlock}>
-                    <h1>Reset your password</h1>
-                    <p>
-                        Enter the email you use for your Carib Newswire account. If we find a match,
-                        we will send a reset link.
-                    </p>
-                </div>
+        <AuthPageShell
+            badge="Account"
+            title={<>Reset Your <span>Password</span></>}
+            subtitle="Enter the email you use for your Carib Newswire account. If we find a match, we will send a reset link."
+        >
+            <div className={styles.card}>
+                <form className={styles.form} onSubmit={handleSubmit} noValidate>
+                    <FormControl>
+                        <FormLabel htmlFor="forgot-email">
+                            Email Address <span className={styles.required}>*</span>
+                        </FormLabel>
+                        <Input
+                            id="forgot-email"
+                            type="email"
+                            placeholder="your@email.com"
+                            autoComplete="email"
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
+                        />
+                    </FormControl>
 
-                <div className={styles.card}>
-                    <form className={styles.form} onSubmit={handleSubmit} noValidate>
-                        <FormControl>
-                            <FormLabel htmlFor="forgot-email">Email address *</FormLabel>
-                            <Input
-                                id="forgot-email"
-                                type="email"
-                                autoComplete="email"
-                                value={email}
-                                onChange={(event) => setEmail(event.target.value)}
-                            />
-                        </FormControl>
+                    {error ? <p className={styles.formError}>{error}</p> : null}
+                    {message ? <p className={styles.formSuccess}>{message}</p> : null}
 
-                        {error ? <p className={styles.formError}>{error}</p> : null}
-                        {message ? <p className={styles.formSuccess}>{message}</p> : null}
+                    <Button type="submit" variant="form" className={styles.submitButton} disabled={isSubmitting}>
+                        {isSubmitting ? "Sending..." : "Send reset link"}
+                    </Button>
 
-                        <Button type="submit" variant="form" className={styles.submitButton} disabled={isSubmitting}>
-                            {isSubmitting ? "Sending..." : "Send reset link"}
-                        </Button>
-
-                        <div className={styles.formFooter}>
-                            <Link href={backHref}>Back to sign in</Link>
-                        </div>
-                    </form>
-                </div>
-            </Container>
-        </section>
+                    <div className={styles.formFooter}>
+                        <Link href="/login">Back to sign in</Link>
+                    </div>
+                </form>
+            </div>
+        </AuthPageShell>
     );
 }

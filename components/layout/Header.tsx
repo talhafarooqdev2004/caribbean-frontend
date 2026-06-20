@@ -8,6 +8,7 @@ import { Button, SvgIcon } from "../ui";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
+import { X } from "lucide-react";
 import { prefetchSubmitPressReleaseLogin, pushSubmitPressRelease } from "@/lib/push-submit-press-release";
 
 const navLinks = [
@@ -17,13 +18,21 @@ const navLinks = [
     { label: "For Media", href: "/join-the-media-network" },
 ];
 
+const ANNOUNCEMENT_STORAGE_KEY = "carib_announcement_dismissed";
+
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [showAnnouncement, setShowAnnouncement] = React.useState(false);
     /** Match SSR first paint so hydration succeeds; sync from storage only after mount. */
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [submitter, setSubmitter] = React.useState<{ firstName: string } | null>(null);
     const router = useRouter();
     const pathname = usePathname();
+
+    React.useEffect(() => {
+        const dismissed = window.localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY);
+        setShowAnnouncement(dismissed !== "true");
+    }, []);
 
     React.useEffect(() => {
         let active = true;
@@ -73,6 +82,11 @@ export default function Header() {
         prefetchSubmitPressReleaseLogin(router);
     }, [router]);
 
+    function dismissAnnouncement() {
+        setShowAnnouncement(false);
+        window.localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, "true");
+    }
+
     async function handleLogout() {
         await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
         window.localStorage.removeItem("carib_token");
@@ -86,20 +100,48 @@ export default function Header() {
     }
 
     return (
-        <header className={styles.header}>
+        <header
+            className={styles.header}
+            data-announcement={showAnnouncement ? "visible" : "hidden"}
+        >
+            {showAnnouncement ? (
+                <div className={styles.announcementBar}>
+                    <Container className={styles.announcementInner}>
+                        <div className={styles.announcementContent}>
+                            <span className={styles.announcementBadge}>New</span>
+                            <p className={styles.announcementText}>
+                                Carib Newswire now covers 20+ Caribbean territories.{" "}
+                                <Link href="/newsroom" className={styles.announcementLink}>
+                                    Explore coverage →
+                                </Link>
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            className={styles.announcementClose}
+                            onClick={dismissAnnouncement}
+                            aria-label="Dismiss announcement"
+                        >
+                            <X color="#FFFFFF66" width={18} height={20} strokeWidth={2} />
+                        </button>
+                    </Container>
+                </div>
+            ) : null}
+
             <Container className={styles.headerInner}>
                 <Link href="/" className={styles.logoLink}>
                     <Image
                         src="/images/brand-logo.svg"
-                        alt="Brand Logo"
-                        width={145}
+                        alt="Carib Newswire"
+                        width={100}
                         height={100}
                         className={styles.logoImg}
+                        priority
                     />
                 </Link>
 
-                <>
-                    <nav className={styles.desktopNav}>
+                <div className={styles.headerRight}>
+                    <nav className={styles.desktopNav} aria-label="Main navigation">
                         <ul className={styles.navList}>
                             {navLinks.map((link) => (
                                 <li key={link.href}>
@@ -110,63 +152,91 @@ export default function Header() {
                     </nav>
 
                     <div className={styles.headerActions}>
-                            {submitter ? <span className={styles.userGreeting}>Hi, {submitter.firstName}</span> : null}
-                            {!isAuthenticated ? (
-                                <Button
-                                    className={styles.loginBtn}
-                                    size="md"
-                                    variant="secondary"
-                                    onClick={() => router.push("/login")}
-                                >
-                                    Login
-                                </Button>
-                            ) : null}
+                        {submitter ? <span className={styles.userGreeting}>Hi, {submitter.firstName}</span> : null}
+                        {!isAuthenticated ? (
                             <Button
-                                className={styles.submitReleasebtn}
+                                className={styles.loginBtn}
                                 size="md"
-                                onClick={() => {
-                                    pushSubmitPressRelease(router);
-                                }}
+                                variant="secondary"
+                                onClick={() => router.push("/login")}
                             >
-                                Submit Release
+                                Login
                             </Button>
-                            {submitter ? (
-                                <Button
-                                    className={styles.logoutBtn}
-                                    size="md"
-                                    variant="secondary"
-                                    onClick={() => router.push("/portal")}
-                                >
-                                    My Portal
-                                </Button>
-                            ) : null}
-                            {submitter ? (
-                                <Button
-                                    className={styles.logoutBtn}
-                                    size="md"
-                                    variant="secondary"
-                                    onClick={handleLogout}
-                                >
-                                    Logout
-                                </Button>
-                            ) : null}
-                        </div>
-
-                        <button
-                            className={styles.menuToggle}
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            type="button"
-                            aria-label="Toggle menu"
+                        ) : null}
+                        <Button
+                            className={styles.submitReleasebtn}
+                            size="md"
+                            onClick={() => {
+                                pushSubmitPressRelease(router);
+                            }}
                         >
+                            Submit Release
+                        </Button>
+                        {submitter ? (
+                            <Button
+                                className={styles.logoutBtn}
+                                size="md"
+                                variant="secondary"
+                                onClick={() => router.push("/portal")}
+                            >
+                                My Portal
+                            </Button>
+                        ) : null}
+                        {submitter ? (
+                            <Button
+                                className={styles.logoutBtn}
+                                size="md"
+                                variant="secondary"
+                                onClick={handleLogout}
+                            >
+                                Logout
+                            </Button>
+                        ) : null}
+                    </div>
+
+                    <button
+                        className={styles.menuToggle}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        type="button"
+                        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                        aria-expanded={isMenuOpen}
+                    >
+                        {isMenuOpen ? (
+                            <X size={22} strokeWidth={2} />
+                        ) : (
                             <SvgIcon icon="menu" />
-                        </button>
-                </>
+                        )}
+                    </button>
+                </div>
             </Container>
 
-            {/* Mobile Menu */}
-            {isMenuOpen && (
+            {isMenuOpen ? (
                 <div className={styles.mobileMenu}>
-                    <nav className={styles.mobileNav}>
+                    <div className={styles.mobileMenuHeader}>
+                        <Link
+                            href="/"
+                            className={styles.mobileMenuLogoLink}
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            <Image
+                                src="/images/brand-logo.svg"
+                                alt="Carib Newswire"
+                                width={100}
+                                height={100}
+                                className={styles.mobileMenuLogo}
+                            />
+                        </Link>
+                        <button
+                            type="button"
+                            className={styles.mobileMenuClose}
+                            onClick={() => setIsMenuOpen(false)}
+                            aria-label="Close menu"
+                        >
+                            <X size={22} strokeWidth={2} />
+                        </button>
+                    </div>
+
+                    <nav className={styles.mobileNav} aria-label="Mobile navigation">
                         <ul className={styles.mobileNavList}>
                             {navLinks.map((link) => (
                                 <li key={link.href}>
@@ -230,7 +300,7 @@ export default function Header() {
                         ) : null}
                     </div>
                 </div>
-            )}
+            ) : null}
         </header>
     );
 };

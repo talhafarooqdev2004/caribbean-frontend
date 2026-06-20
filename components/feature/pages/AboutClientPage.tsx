@@ -5,6 +5,7 @@ import {
     AboutWhatIsCaribNews,
     NotificationNote,
     OurMission,
+    ReadyToShareCaribbeanMedia,
     WhatMakesUsDifferent,
     WhyWeExist
 } from "@/components/composed";
@@ -18,6 +19,7 @@ export default function AboutClientPage() {
             <WhatMakesUsDifferent />
             <NotificationNote />
             <OurMission />
+            <ReadyToShareCaribbeanMedia />
         </>
     );
 };

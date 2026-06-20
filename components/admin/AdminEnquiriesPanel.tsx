@@ -29,6 +29,12 @@ const PRESS_RELEASE_QUEUE_TABS: { id: PressReleaseQueueTab; label: string }[] = 
 ];
 
 import { PRESS_RELEASE_CATEGORIES } from "@/lib/press-release-categories";
+import {
+    COVER_PHOTO_ACCEPT,
+    DOCUMENT_ACCEPT,
+    validateCoverPhotoFile,
+    validateDocumentFile,
+} from "@/lib/press-release-upload-limits";
 type PressReleaseEditModalState = {
     id: string;
     slug: string;
@@ -37,6 +43,7 @@ type PressReleaseEditModalState = {
     packageId: string;
     featuredUpgrade: boolean;
     featured: boolean;
+    featuredPriority: number;
     rejectionReason: string | null;
     summary: string;
     createdAt: string;
@@ -83,9 +90,8 @@ function uploadPathFilename(path: string | null): string | null {
     return segments[segments.length - 1] ?? null;
 }
 
-const EDIT_RELEASE_COVER_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
-const EDIT_RELEASE_DOCUMENT_ACCEPT =
-    ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const EDIT_RELEASE_COVER_ACCEPT = COVER_PHOTO_ACCEPT;
+const EDIT_RELEASE_DOCUMENT_ACCEPT = DOCUMENT_ACCEPT;
 
 function mapReleaseToEditModal(release: PressReleaseRecord): PressReleaseEditModalState {
     return {
@@ -96,6 +102,7 @@ function mapReleaseToEditModal(release: PressReleaseRecord): PressReleaseEditMod
         packageId: release.packageId,
         featuredUpgrade: Boolean(release.featuredUpgrade),
         featured: Boolean(release.featured),
+        featuredPriority: typeof release.featuredPriority === "number" ? release.featuredPriority : 0,
         rejectionReason: release.rejectionReason ?? null,
         summary: release.summary,
         createdAt: release.createdAt,
@@ -360,6 +367,8 @@ export default function AdminEnquiriesPanel({
     const [expandedId, setExpandedId] = useState<string | null>(initialEnquiries.find((enquiry) => enquiry.status === "pending")?.id ?? initialEnquiries[0]?.id ?? null);
     const [toast, setToast] = useState<ToastState | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [deletingPressReleaseId, setDeletingPressReleaseId] = useState<string | null>(null);
+    const [deletingPortalUserId, setDeletingPortalUserId] = useState<string | null>(null);
     const [statusAction, setStatusAction] = useState<{ id: string; status: EnquiryStatus } | null>(null);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -1383,6 +1392,58 @@ export default function AdminEnquiriesPanel({
         }
     }
 
+    async function handleDeletePressRelease(releaseId: string, title: string) {
+        if (!window.confirm(`Delete "${stripTagsToPlainText(title)}"? This action cannot be undone.`)) {
+            return;
+        }
+
+        setDeletingPressReleaseId(releaseId);
+
+        try {
+            const response = await fetch(`/api/admin/press-releases/${releaseId}`, {
+                method: "DELETE",
+            });
+
+            if (response.status === 401) {
+                router.replace("/admin/login");
+                return;
+            }
+
+            const payload = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                setToast({
+                    tone: "error",
+                    message: typeof payload?.error === "string" ? payload.error : "We could not delete that press release.",
+                });
+                return;
+            }
+
+            if (editModal?.id === releaseId) {
+                setEditModal(null);
+            }
+
+            setPressReleases((current) => current.filter((release) => release.id !== releaseId));
+            setPressReleaseTotalCount((current) => Math.max(0, current - 1));
+            setPressReleaseQueueCounts((current) => ({
+                ...current,
+                [pressReleaseStatusTab]: Math.max(0, current[pressReleaseStatusTab] - 1),
+            }));
+
+            setToast({
+                tone: "success",
+                message: "Press release deleted successfully.",
+            });
+        } catch {
+            setToast({
+                tone: "error",
+                message: "We could not delete that press release right now.",
+            });
+        } finally {
+            setDeletingPressReleaseId(null);
+        }
+    }
+
     async function syncPressReleaseStatus(releaseId: string, nextStatus: "pending" | "approved" | "rejected", reason = "") {
         setPressReleaseAction({ id: releaseId, status: nextStatus });
 
@@ -1440,6 +1501,38 @@ export default function AdminEnquiriesPanel({
         await syncPressReleaseStatus(rejectModal.id, "rejected", rejectionReason);
         setRejectModal(null);
         setRejectionReason("");
+    }
+
+    async function saveFeaturedPriority(release: PressReleaseRecord, rawValue: string) {
+        const parsed = Number(rawValue);
+
+        if (!Number.isFinite(parsed)) {
+            setToast({ tone: "error", message: "Enter a valid priority number." });
+            return;
+        }
+
+        const featuredPriority = Math.min(9999, Math.max(0, Math.trunc(parsed)));
+
+        if (featuredPriority === (release.featuredPriority ?? 0)) {
+            return;
+        }
+
+        const response = await fetch(`/api/admin/press-releases/${release.id}/featured-priority`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ featuredPriority }),
+        });
+        const payload = await response.json().catch(() => null);
+
+        if (response.ok && payload?.release) {
+            setPressReleases((current) => current.map((item) => item.id === release.id ? payload.release : item));
+            setToast({ tone: "success", message: "Featured carousel order updated." });
+        } else {
+            setToast({
+                tone: "error",
+                message: typeof payload?.error === "string" ? payload.error : "Could not update featured priority.",
+            });
+        }
     }
 
     async function toggleFeaturedPressRelease(release: PressReleaseRecord) {
@@ -1503,7 +1596,10 @@ export default function AdminEnquiriesPanel({
                     targetRegions: editModal.targetRegions,
                     specialInstructions: editModal.specialInstructions,
                     outboundLink: editModal.outboundLink,
+                    summary: editModal.summary,
                     content: editModal.content,
+                    featured: editModal.featured,
+                    featuredPriority: editModal.featuredPriority,
                 }),
             });
             const payload = await response.json().catch(() => null);
@@ -1525,6 +1621,24 @@ export default function AdminEnquiriesPanel({
             let mergedRelease = payload.release as PressReleaseRecord;
 
             if (editCoverFile || editDocumentFile) {
+                if (editCoverFile) {
+                    const coverError = validateCoverPhotoFile(editCoverFile);
+
+                    if (coverError) {
+                        setToast({ tone: "error", message: coverError });
+                        return;
+                    }
+                }
+
+                if (editDocumentFile) {
+                    const documentError = validateDocumentFile(editDocumentFile);
+
+                    if (documentError) {
+                        setToast({ tone: "error", message: documentError });
+                        return;
+                    }
+                }
+
                 const formData = new FormData();
 
                 if (editCoverFile) {
@@ -1549,7 +1663,7 @@ export default function AdminEnquiriesPanel({
                                 ? filePayload.error
                                 : typeof filePayload?.message === "string"
                                   ? filePayload.message
-                                  : "Text saved, but file upload failed. Try again.",
+                                  : "Text saved, but file upload failed. Try a smaller image (cover under 5MB, document under 10MB).",
                     });
                     setEditModal(mapReleaseToEditModal(mergedRelease));
                     setEditCoverFile(null);
@@ -1749,6 +1863,56 @@ export default function AdminEnquiriesPanel({
             });
         } finally {
             setStatusAction(null);
+        }
+    }
+
+    async function handleDeletePortalUser(user: AdminUser) {
+        const displayName = `${user.firstName} ${user.lastName}`.trim() || user.email;
+
+        if (!window.confirm(`Delete portal member "${displayName}"? This action cannot be undone.`)) {
+            return;
+        }
+
+        setDeletingPortalUserId(user.id);
+
+        try {
+            const response = await fetch(`/api/admin/users/${user.id}`, {
+                method: "DELETE",
+            });
+
+            if (response.status === 401) {
+                router.replace("/admin/login");
+                return;
+            }
+
+            const payload = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                setToast({
+                    tone: "error",
+                    message: typeof payload?.error === "string" ? payload.error : "We could not delete that user.",
+                });
+                return;
+            }
+
+            if (addCreditModalUser?.id === user.id) {
+                setAddCreditModalUser(null);
+            }
+
+            setAdminUsers((current) => current.filter((entry) => entry.id !== user.id));
+            setUsersTotalCount((current) => Math.max(0, current - 1));
+
+            setToast({
+                tone: "success",
+                message: "Portal member deleted successfully.",
+            });
+        } catch {
+            setToast({
+                tone: "error",
+                message: "We could not delete that user right now.",
+            });
+        } finally {
+            setDeletingPortalUserId(null);
         }
     }
 
@@ -2121,6 +2285,10 @@ export default function AdminEnquiriesPanel({
                                             <dd>{editModal.featured ? "On" : "Off"}</dd>
                                         </div>
                                         <div>
+                                            <dt>Carousel priority</dt>
+                                            <dd>{editModal.featuredPriority}</dd>
+                                        </div>
+                                        <div>
                                             <dt>Submitted</dt>
                                             <dd>{new Date(editModal.createdAt).toLocaleString()}</dd>
                                         </div>
@@ -2138,6 +2306,52 @@ export default function AdminEnquiriesPanel({
                                         </p>
                                     ) : null}
                                 </div>
+
+                                {editModal.status === "approved" ? (
+                                    <div className={styles.editReleaseSection}>
+                                        <h3 className={styles.editReleaseSectionTitle}>Featured carousel</h3>
+                                        <p className={styles.editReleaseHelpText}>
+                                            Higher priority numbers appear first in the newsroom featured carousel.
+                                            Use 100 to pin a release to the top regardless of publish date.
+                                        </p>
+                                        <div className={styles.editReleaseFeaturedControls}>
+                                            <FormControl>
+                                                <FormLabel htmlFor="edit-release-featured">Featured on newsroom</FormLabel>
+                                                <select
+                                                    id="edit-release-featured"
+                                                    className={styles.editReleaseSelect}
+                                                    value={editModal.featured ? "on" : "off"}
+                                                    onChange={(event) =>
+                                                        setEditModal({
+                                                            ...editModal,
+                                                            featured: event.target.value === "on",
+                                                        })
+                                                    }
+                                                >
+                                                    <option value="on">On</option>
+                                                    <option value="off">Off</option>
+                                                </select>
+                                            </FormControl>
+                                            <FormControl>
+                                                <FormLabel htmlFor="edit-release-featured-priority">Carousel priority</FormLabel>
+                                                <Input
+                                                    id="edit-release-featured-priority"
+                                                    type="number"
+                                                    min={0}
+                                                    max={9999}
+                                                    value={editModal.featuredPriority}
+                                                    onChange={(event) =>
+                                                        setEditModal({
+                                                            ...editModal,
+                                                            featuredPriority: Number(event.target.value) || 0,
+                                                        })
+                                                    }
+                                                    disabled={!editModal.featured}
+                                                />
+                                            </FormControl>
+                                        </div>
+                                    </div>
+                                ) : null}
 
                                 <div className={styles.editReleaseSection}>
                                     <h3 className={styles.editReleaseSectionTitle}>Submitter</h3>
@@ -2363,6 +2577,15 @@ export default function AdminEnquiriesPanel({
                                 </div>
 
                                 <div className={styles.editReleaseSection}>
+                                    <FormControl>
+                                        <FormLabel htmlFor="edit-release-summary">Summary</FormLabel>
+                                        <Textarea
+                                            id="edit-release-summary"
+                                            rows={4}
+                                            value={editModal.summary}
+                                            onChange={(event) => setEditModal({ ...editModal, summary: event.target.value })}
+                                        />
+                                    </FormControl>
                                     <FormControl>
                                         <FormLabel htmlFor="edit-release-content">Press release content</FormLabel>
                                         <AdminPressReleaseRichTextEditor
@@ -2593,6 +2816,7 @@ export default function AdminEnquiriesPanel({
                         <div className={styles.releaseList}>
                             {pressReleases.map((release) => {
                                 const actionBusy = pressReleaseAction?.id === release.id;
+                                const deleteBusy = deletingPressReleaseId === release.id;
                                 const isPendingReview = release.status === "pending";
 
                                 let combinedBadgeLabel = "Pending review";
@@ -2638,13 +2862,34 @@ export default function AdminEnquiriesPanel({
                                         <div className={styles.releaseBody}>
                                             <p className={styles.releaseSummaryText}>{releaseCardExcerpt(release, 360)}</p>
 
+                                            {release.status === "approved" && release.featured ? (
+                                                <div className={styles.featuredPriorityRow}>
+                                                    <FormLabel htmlFor={`featured-priority-${release.id}`}>
+                                                        Featured carousel priority
+                                                    </FormLabel>
+                                                    <div className={styles.featuredPriorityControls}>
+                                                        <Input
+                                                            id={`featured-priority-${release.id}`}
+                                                            type="number"
+                                                            min={0}
+                                                            max={9999}
+                                                            defaultValue={release.featuredPriority ?? 0}
+                                                            onBlur={(event) => void saveFeaturedPriority(release, event.target.value)}
+                                                        />
+                                                        <span className={styles.featuredPriorityHint}>
+                                                            Higher = shown first
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ) : null}
+
                                             <div className={`${styles.actionGroup} ${styles.pressReleaseActions}`}>
                                                 <Button
                                                     type="button"
                                                     variant="primary"
                                                     size="md"
                                                     onClick={() => syncPressReleaseStatus(release.id, "approved")}
-                                                    disabled={actionBusy || release.status === "approved" || !canApprove}
+                                                    disabled={actionBusy || deleteBusy || release.status === "approved" || !canApprove}
                                                 >
                                                     {actionBusy && pressReleaseAction?.status === "approved" ? "Approving..." : "Approve"}
                                                 </Button>
@@ -2656,7 +2901,7 @@ export default function AdminEnquiriesPanel({
                                                         setRejectModal({ id: release.id, title: release.title });
                                                         setRejectionReason("");
                                                     }}
-                                                    disabled={actionBusy || release.status === "rejected" || !canReject}
+                                                    disabled={actionBusy || deleteBusy || release.status === "rejected" || !canReject}
                                                 >
                                                     {actionBusy && pressReleaseAction?.status === "rejected" ? "Rejecting..." : "Reject"}
                                                 </Button>
@@ -2685,6 +2930,7 @@ export default function AdminEnquiriesPanel({
                                                     variant="secondary"
                                                     size="md"
                                                     onClick={() => setEditModal(mapReleaseToEditModal(release))}
+                                                    disabled={deleteBusy}
                                                 >
                                                     Edit
                                                 </Button>
@@ -2693,6 +2939,15 @@ export default function AdminEnquiriesPanel({
                                                         Open release
                                                     </Link>
                                                 ) : null}
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="md"
+                                                    onClick={() => handleDeletePressRelease(release.id, release.title)}
+                                                    disabled={actionBusy || deleteBusy}
+                                                >
+                                                    {deleteBusy ? "Deleting..." : "Delete"}
+                                                </Button>
                                             </div>
                                         </div>
                                     </article>
@@ -2781,7 +3036,10 @@ export default function AdminEnquiriesPanel({
                             ) : registeredUsersFiltered.length === 0 ? (
                                 <p className={styles.detailEmpty}>No users match that email filter.</p>
                             ) : (
-                                registeredUsersFiltered.map((user) => (
+                                registeredUsersFiltered.map((user) => {
+                                    const deleteBusy = deletingPortalUserId === user.id;
+
+                                    return (
                                     <article key={user.id} className={styles.enquiryCard}>
                                         <div className={`${styles.releaseSummary} ${styles.pressSubmitterUserSummary}`}>
                                             <div className={styles.pressSubmitterUserSummaryMain}>
@@ -2800,8 +3058,18 @@ export default function AdminEnquiriesPanel({
                                                         setAddCreditModalUser(user);
                                                         setAddCreditAmountInput("1");
                                                     }}
+                                                    disabled={deleteBusy}
                                                 >
                                                     Add credits
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="md"
+                                                    onClick={() => handleDeletePortalUser(user)}
+                                                    disabled={deleteBusy}
+                                                >
+                                                    {deleteBusy ? "Deleting..." : "Delete"}
                                                 </Button>
                                             </div>
                                         </div>
@@ -2828,7 +3096,8 @@ export default function AdminEnquiriesPanel({
                                             </div>
                                         </div>
                                     </article>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
                         <AdminListPagination

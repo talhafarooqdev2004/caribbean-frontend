@@ -3,22 +3,40 @@
 @use "../../styles/breakpoints" as *;
 
 .checkoutSection {
-    background-color: $bg-section;
+    position: relative;
+    margin-top: -1px;
+    background-color: $cream-band;
+
+    .curve {
+        position: relative;
+        z-index: 2;
+        line-height: 0;
+        overflow: hidden;
+        margin-top: -1px;
+
+        svg {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: 60px;
+
+            path {
+                fill: $navy-deep;
+                stroke: $navy-deep;
+                stroke-width: 2px;
+                stroke-linejoin: round;
+            }
+        }
+    }
 
     .checkoutInner {
-        padding-block: 30px;
-
-        >h1 {
-            color: $primary;
-            font-size: $text-3xl;
-            line-height: 1.12;
-            font-weight: $weight-md;
-        }
+        position: relative;
+        z-index: 1;
+        padding-block: 32px 56px;
 
         .toast {
-            margin-top: $space-base;
+            margin-bottom: $space-base;
             width: 100%;
-            max-width: min(760px, 100%);
             border-radius: 10px;
             padding: 12px 14px;
             font-size: $text-sm;
@@ -34,7 +52,6 @@
     }
 
     .checkoutGrid {
-        margin-top: $space-lg;
         display: grid;
         grid-template-columns: 1fr;
         gap: $space-lg;
@@ -45,170 +62,124 @@
     .checkoutMainColumn {
         display: flex;
         flex-direction: column;
-        gap: $space-lg;
         min-width: 0;
         width: 100%;
     }
 
-    .card,
-    .summaryCard {
-        border-radius: $radius-md;
+    // ---- Billing card ----
+    .billingCard {
+        border-radius: 12px;
         background-color: $white;
-    }
-
-    .card {
-        padding: $space-lg;
+        box-shadow: 0 4px 24px rgba($navy-deep, 0.06);
+        overflow: hidden;
         min-width: 0;
         width: 100%;
-        box-sizing: border-box;
     }
 
-    .summaryCard {
-        padding: $space-lg;
-    }
-
-    h2 {
-        font-size: $text-xl;
-        line-height: $line-height-base;
-    }
-
-    .orderItemRow {
-        margin-top: $space-lg;
+    .billingHeader {
         display: flex;
-        flex-direction: row;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-    }
-
-    .orderItemDetails {
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        strong,
-        span {
-            font-size: $text-base;
-            line-height: 28px;
-        }
-
-        strong {
-            font-weight: $weight-md;
-        }
-
-        span {
-            font-size: $text-md;
-            color: $grayish-blue-800;
-        }
-    }
-
-    .orderItemActions {
-        display: grid;
-        grid-auto-flow: column;
-        align-items: center;
-        gap: $space-lg;
-        color: $primary;
-        flex-shrink: 0;
-    }
-
-    .quantityButton,
-    .removeButton {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        color: inherit;
-    }
-
-    .quantityButton {
-        width: 18px;
-        height: 18px;
-
-        &:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-        }
-    }
-
-    .quantityValue,
-    .orderLineTotal {
-        font-size: $text-base;
-        line-height: 1;
-    }
-
-    .quantityValue {
-        min-width: 18px;
-        text-align: center;
-    }
-
-    .orderLineTotal {
-        margin-left: 6px;
-        font-weight: $weight-regular;
-    }
-
-    .removeButton {
-        margin-left: 4px;
-        color: #ef4444;
-    }
-
-    .emptyOrderState {
-        margin-top: 22px;
-        display: flex;
-        flex-direction: column;
         gap: 14px;
+        padding: 20px 24px;
+        background-color: $navy-deep;
+        border-bottom: 3px solid #0ABFBC;
+
+        .billingHeaderIcon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: rgba($secondary, 0.14);
+            color: $secondary;
+            flex-shrink: 0;
+        }
+
+        h2 {
+            color: $white;
+            font-size: 16px;
+            font-family: $font-sans;
+            font-weight: $weight-semi-bold;
+            line-height: 1.2;
+        }
 
         p {
-            font-size: $text-base;
+            margin-top: 4px;
+            color: rgba($white, 0.55);
+            font-size: 13px;
+            line-height: 1.4;
         }
     }
 
-    .orderLoading {
-        margin-top: $space-lg;
+    .billingBody {
+        padding: 24px;
+    }
+
+    .formSection {
         display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        &:not(:first-child) {
+            margin-top: 28px;
+            padding-top: 28px;
+            border-top: 1px solid $card-border;
+        }
+    }
+
+    .sectionEyebrow {
+        display: inline-flex;
         align-items: center;
         gap: 10px;
-        font-size: $text-base;
-        color: $grayish-blue-800;
+        color: $secondary;
+        font-size: 10px;
+        font-weight: $weight-semi-bold;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+
+        &::before {
+            content: "";
+            width: 18px;
+            height: 2px;
+            background-color: $secondary;
+        }
     }
 
-    .orderLoadingSpinner {
-        flex-shrink: 0;
-        animation: checkoutPaySpin 0.75s linear infinite;
-    }
-
-    .orderLoadError {
-        margin-top: $space-lg;
-        font-size: $text-base;
-        color: #b91c1c;
-    }
-
-    .restoreButton {
-        width: fit-content;
-        padding-inline: 20px;
-    }
-
-    /**
-     * Matches Square’s web-payments-quickstart `public/app.css` (#payment-form):
-     * keeps the card field width in the range their SDK expects for layout.
-     * @see https://github.com/square/web-payments-quickstart/blob/main/public/app.css
-     */
     .checkoutPaymentForm {
-        max-width: min(100%, 550px);
+        max-width: 100%;
         width: 100%;
     }
 
     .form {
-        margin-top: $space-lg;
         display: flex;
         flex-direction: column;
-        gap: $space-base;
+        gap: 0;
         min-width: 0;
         width: 100%;
         box-sizing: border-box;
+    }
+
+    .formRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .required {
+        color: $secondary;
+    }
+
+    .visuallyHidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
     }
 
     .squareCardWrap {
@@ -218,15 +189,9 @@
         max-width: 100%;
         box-sizing: border-box;
         overflow: visible;
-        /* Small floor so the loading overlay has a tap target; height grows with Square’s content */
         min-height: 72px;
     }
 
-    /**
-     * Square mounts here — do not set a large min-height or the box stays tall while the
-     * iframe content stays short (empty band under the fields). Let height follow the widget;
-     * use recalculateSize() when layout changes.
-     */
     .squareCardContainer {
         display: block;
         width: 100%;
@@ -235,7 +200,7 @@
         box-sizing: border-box;
         border: 1px solid #d0d5dd;
         border-radius: 8px;
-        background-color: $white;
+        background-color: #f7f8fa;
         overflow: visible;
         height: fit-content;
     }
@@ -250,12 +215,6 @@
         background: rgba(255, 255, 255, 0.96);
         border-radius: 8px;
         pointer-events: none;
-    }
-
-    .formRow {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
     }
 
     .fieldError {
@@ -276,8 +235,151 @@
         margin-top: 10px;
     }
 
+    .mobilePaymentNotice {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 12px;
+        background-color: #FFF9E8;
+        border: 1px solid rgba($secondary, 0.45);
+        border-left-width: 3px;
+
+        strong {
+            display: block;
+            color: $navy-deep;
+            font-size: 15px;
+            font-weight: $weight-semi-bold;
+            line-height: 1.35;
+        }
+
+        p {
+            margin-top: 8px;
+            color: #6B849A;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    }
+
+    .mobilePaymentNoticeIcon {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background-color: rgba($secondary, 0.16);
+        color: $navy-deep;
+    }
+
+    // ---- Summary card ----
+    .summaryCard {
+        border-radius: 12px;
+        background-color: $white;
+        box-shadow: 0 4px 24px rgba($navy-deep, 0.06);
+        overflow: hidden;
+        min-width: 0;
+    }
+
+    .summaryHeader {
+        padding: 22px 24px;
+        background: linear-gradient(135deg, $navy-deep 0%, #1e3550 100%);
+
+        .summaryEyebrow {
+            display: block;
+            color: #FFFFFF73;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            margin-top: 8px;
+            font-family: $font-display;
+            color: $white;
+            font-size: 28px;
+            font-weight: $weight-bold;
+            line-height: 1.15;
+        }
+    }
+
+    .summaryBody {
+        padding: 24px;
+    }
+
+    .packageRow {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid $card-border;
+    }
+
+    .packageInfo {
+        min-width: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        strong {
+            color: $navy-deep;
+            font-size: 16px;
+            font-weight: $weight-semi-bold;
+            line-height: 1.3;
+        }
+
+        span {
+            color: #6B849A;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+    }
+
+    .packagePrice {
+        flex-shrink: 0;
+        font-family: $font-display;
+        color: #274060;
+        font-size: 22px;
+        font-weight: $weight-bold;
+        line-height: 1;
+    }
+
+    .emptyOrderState {
+        padding-bottom: 20px;
+        border-bottom: 1px solid $card-border;
+        color: $text-body;
+        font-size: $text-sm;
+        line-height: 1.5;
+    }
+
+    .orderLoading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid $card-border;
+        font-size: $text-base;
+        color: $text-body;
+    }
+
+    .orderLoadingSpinner {
+        flex-shrink: 0;
+        animation: checkoutPaySpin 0.75s linear infinite;
+    }
+
+    .orderLoadError {
+        padding-bottom: 20px;
+        border-bottom: 1px solid $card-border;
+        font-size: $text-base;
+        color: #b91c1c;
+    }
+
     .summaryRow {
-        margin-top: $space-lg;
+        margin-top: 16px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -285,38 +387,95 @@
 
         span,
         strong {
-            color: $grayish-blue-800;
-            font-size: 17px;
-            line-height: 1.35;
+            color: #6B849A;
+            font-size: 13.5px;
+            line-height: 20.25px;
+            font-weight: $weight-regular;
         }
     }
 
-    .summaryRow:nth-of-type(2) {
-        margin-top: 20px;
-    }
-
     .summaryDivider {
-        margin-top: $space-lg;
+        margin-top: 16px;
         border: 0;
-        border-top: 1px solid $grayish-blue-100;
+        border-top: 1px solid $card-border;
     }
 
     .summaryTotalRow {
+        margin-top: 16px;
+        align-items: center;
+
         strong {
-            color: #2f4d77;
-            font-size: 22px;
-            font-weight: $weight-regular;
+            color: #172840;
+            font-size: 16px;
+            font-weight: $weight-bold;
+            position: relative;
+            top: 5px;
+
+            &:last-child {
+                font-family: $font-display;
+                color: #C4922A;
+                font-size: 24px;
+                font-weight: $weight-bold;
+                top: unset;
+            }
+        }
+    }
+
+    .includedSection {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid $card-border;
+    }
+
+    .includedEyebrow {
+        display: block;
+        color: #6B849A;
+        font-size: 10px;
+        font-weight: $weight-semi-bold;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
+
+    .includedList {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: $text-body;
+            font-size: 14px;
+            line-height: 1.45;
+
+            svg {
+                flex-shrink: 0;
+                margin-top: 2px;
+                color: #0ABFBC;
+            }
         }
     }
 
     .payButton {
         width: 100%;
-        margin-top: $space-lg;
-        border-radius: 8px;
-        background: #5b95db;
+        margin-top: 24px;
+        border-radius: 10px;
+        background: $secondary;
         box-shadow: none;
-        font-size: $text-base;
-        font-weight: $weight-md;
+        color: $navy-deep;
+        font-size: 16px;
+        font-weight: $weight-semi-bold;
+        min-height: 52px;
+
+        &:hover:not(:disabled) {
+            background: darken($secondary, 4%);
+        }
+
+        &:disabled {
+            opacity: 0.65;
+        }
     }
 
     .payButtonBusy {
@@ -352,51 +511,66 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        color: #8a8f9f;
+        color: #6B849A;
         font-size: 12px;
         line-height: 1.35;
         text-align: center;
 
         svg {
             flex-shrink: 0;
+            color: #0ABFBC;
         }
     }
 
     .submissionMessage {
         margin-top: 12px;
-        color: $grayish-blue-800;
+        color: $text-body;
         font-size: $text-sm;
         line-height: 1.45;
         text-align: center;
     }
 
     @media (min-width: map-get($breakpoints, "md")) {
-        .checkoutInner {
-            padding-block: $space-2xl;
+        .curve svg {
+            height: 90px;
+        }
 
-            >h1 {
-                font-size: $text-section;
-            }
+        .checkoutInner {
+            padding-block: 40px 72px;
         }
 
         .checkoutGrid {
-            margin-top: 32px;
-            grid-template-columns: minmax(0, 1.15fr) minmax(260px, 380px);
-            gap: $space-xl;
+            gap: 28px;
+            grid-template-columns: minmax(0, 1.35fr) minmax(300px, 400px);
         }
 
-        .orderItemDetails {
-            strong {
-                max-width: none;
-            }
+        .formRow {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .billingBody,
+        .summaryBody {
+            padding: 28px 32px;
+        }
+
+        .billingHeader,
+        .summaryHeader {
+            padding: 22px 32px;
+        }
+
+        .summaryHeader h2 {
+            font-size: 18px;
         }
     }
 
-    @media (max-width: 767px) {
-        .orderItemDetails {
-            strong {
-                max-width: 82px;
-            }
+    @media (min-width: map-get($breakpoints, "lg")) {
+        .checkoutInner {
+            padding-inline: 140px;
+        }
+
+        .checkoutGrid {
+            gap: 32px;
+            grid-template-columns: minmax(0, 1.5fr) minmax(320px, 420px);
         }
     }
 }

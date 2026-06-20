@@ -140,7 +140,9 @@ export default function LoginForm({ redirectTo: redirectToProp, bookmarkReleaseI
         <div className={styles.card}>
             <form className={styles.form} onSubmit={handleSubmit} noValidate>
                         <FormControl>
-                            <FormLabel htmlFor="login-email">Email Address *</FormLabel>
+                            <FormLabel htmlFor="login-email">
+                                Email Address <span className={styles.required}>*</span>
+                            </FormLabel>
                             <Input
                                 id="login-email"
                                 name="email"
@@ -157,7 +159,9 @@ export default function LoginForm({ redirectTo: redirectToProp, bookmarkReleaseI
                         </FormControl>
 
                         <FormControl>
-                            <FormLabel htmlFor="login-password">Password *</FormLabel>
+                            <FormLabel htmlFor="login-password">
+                                Password <span className={styles.required}>*</span>
+                            </FormLabel>
                             <Input
                                 id="login-password"
                                 name="password"

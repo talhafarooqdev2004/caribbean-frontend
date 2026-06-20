@@ -3,144 +3,56 @@
 @use "../../styles/breakpoints" as *;
 
 .submitPage {
-  background-color: $bg-section;
+  position: relative;
+  margin-top: -1px;
+  background-color: $cream-band;
 }
 
-.submitInner {
-  padding-block: 48px 16px;
-}
+.curve {
+  position: relative;
+  z-index: 2;
+  line-height: 0;
+  overflow: hidden;
+  margin-top: -1px;
 
-.contentGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
-  align-items: start;
-}
+  svg {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 60px;
 
-.summaryColumn {
-  order: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.formPanel {
-  order: 2;
-}
-
-.formPanel,
-.summaryCard,
-.helpCard {
-  border: 1px solid #0000001a;
-  border-radius: $radius-base;
-  background-color: $white;
-}
-
-.summaryCard,
-.helpCard {
-  padding: 24px;
-}
-
-.formPanel {
-  padding: 24px;
-}
-
-.panelEyebrow {
-  font-size: 16px;
-  line-height: 16px;
-  font-weight: $weight-md;
-}
-
-.form {
-  margin-top: 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-.sectionBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.sectionHeader,
-.sectionHeaderPlain {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  h2 {
-    color: #101828;
-    font-size: 18px;
-    line-height: 28px;
-    font-weight: $weight-semi-bold;
+    path {
+      fill: $navy-deep;
+      stroke: $navy-deep;
+      stroke-width: 2px;
+      stroke-linejoin: round;
+    }
   }
 }
 
-.sectionHeaderPlain {
-  margin-top: 2px;
+.submitInner {
+  position: relative;
+  z-index: 1;
+  padding-block: 20px 40px;
 }
 
-.formGrid,
-.detailsStack {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-}
-
-.detailsStack {
-  gap: 16px;
-}
-
-.sectionDivider {
-  margin-block: 24px;
-  border-top: 1px solid #eef2f7;
-}
-
-.fieldError {
-  color: #b91c1c;
-  font-size: $text-sm;
-  margin-top: -2px;
-}
-
-.selectField {
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
-  background-color: $white;
-  /* Extra right padding so the native dropdown chevron sits inset from the border */
-  padding: 10px 44px 10px 12px;
-  color: #101828;
-  font: inherit;
-}
-
-.wordCounter {
-  margin-top: 6px;
-  color: #667085;
-  font-size: $text-sm;
-  text-align: right;
-}
-
-.wordCounterError {
-  color: #b91c1c;
-  font-weight: $weight-semi-bold;
-}
-
-.contentTextarea {
-  line-height: 1.4;
+@media (min-width: map-get($breakpoints, "md")) {
+  .submitInner {
+    padding-block: 40px 72px;
+  }
 }
 
 .toast {
   position: sticky;
   top: 12px;
   z-index: 10;
-  margin: 0 auto;
+  margin: 0 auto 16px;
   width: min(760px, calc(100% - 24px));
   border-radius: 10px;
   padding: 12px 14px;
   font-size: $text-sm;
   font-weight: $weight-md;
+  line-height: 1.45;
 }
 
 .toastSuccess {
@@ -155,31 +67,321 @@
   color: #b42318;
 }
 
-.uploadField {
-  min-height: 144px;
-  border: 2px dashed #d1d5dc;
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+  min-width: 0;
+}
+
+.formColumn {
+  min-width: 0;
+  order: 2;
+}
+
+.summaryColumn {
+  min-width: 0;
+  order: 1;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.accordionStep {
+  border: 2px solid transparent;
   border-radius: 12px;
-  background-color: #f9fafb;
+  background-color: $white;
+  box-shadow: 0 4px 24px rgba($navy-deep, 0.06);
+  overflow: hidden;
+  scroll-margin-top: 88px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.accordionStepError {
+  border-color: #b91c1c;
+  box-shadow: 0 4px 24px rgba(185, 28, 28, 0.14);
+}
+
+.accordionStepExpanded {
+  .accordionChevron {
+    transform: rotate(180deg);
+  }
+}
+
+.accordionHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stepBadge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-display;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #F4F1EC;
+  color: #6b849a;
+  font-size: 14px;
+  font-weight: $weight-bold;
+  line-height: 1;
+}
+
+.stepBadgeActive {
+  background-color: #C4922A;
+  color: $navy-deep;
+}
+
+.accordionHeaderText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: $navy-deep;
+    font-size: 15px;
+    font-weight: $weight-semi-bold;
+    line-height: 1.3;
+  }
+
+  span {
+    color: #6b849a;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+.accordionChevron {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b849a;
+  transition: transform 0.32s ease;
+}
+
+.accordionBodyWrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s ease;
+}
+
+.accordionBodyWrapOpen {
+  grid-template-rows: 1fr;
+}
+
+.accordionBodyInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.accordionBody {
+  padding: 0 16px 16px;
+  border-top: 1px solid transparent;
+}
+
+.accordionBodyWrapOpen .accordionBody {
+  border-top-color: $card-border;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding-top: 20px;
+}
+
+.detailsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+}
+
+.detailsRowTwo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.uploadStack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 20px;
+}
+
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.uploadSectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: $secondary;
+  font-size: 11px;
+  font-weight: $weight-semi-bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.featuredBenefitList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.featuredBenefitItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #6b849a;
+  font-size: 13px;
+  line-height: 1.45;
+
+  &::before {
+    content: "";
+    flex-shrink: 0;
+    width: 28px;
+    height: 2px;
+    border-radius: 999px;
+    background-color: $secondary;
+  }
+}
+
+.uploadFieldIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-color: rgba($secondary, 0.16);
+  color: $navy-deep;
+}
+
+.uploadGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding-top: 20px;
+}
+
+.fieldError {
+  color: #b91c1c;
+  font-size: $text-sm;
+  margin-top: 4px;
+}
+
+.selectField {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background-color: $white;
+  padding: 10px 44px 10px 12px;
+  color: $navy-deep;
+  font: inherit;
+}
+
+.labelWithCounter {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+
+  .wordCounter,
+  .charCounter {
+    margin-left: auto;
+    text-align: right;
+  }
+}
+
+.charCounter {
+  color: #6b849a;
+  font-size: $text-sm;
+  line-height: 1;
+}
+
+.charCounterError {
+  color: #b91c1c;
+  font-weight: $weight-semi-bold;
+}
+
+.required {
+  color: $secondary;
+}
+
+.wordCounter {
+  color: #667085;
+  font-size: 12px;
+  flex-shrink: 0;
+  line-height: 1.35;
+}
+
+.wordCounterError {
+  color: #b91c1c;
+  font-weight: $weight-semi-bold;
+}
+
+.wordCounterHint {
+  margin-top: 6px;
+  color: #6b849a;
+  font-size: $text-sm;
+  line-height: 1.4;
+}
+
+.uploadField {
+  position: relative;
+  min-height: 140px;
+  border: 2px dashed rgba($secondary, 0.65);
+  border-radius: 12px;
+  background-color: rgba($secondary, 0.04);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 18px 16px;
+  padding: 20px 16px;
   text-align: center;
   cursor: pointer;
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease;
-  color: #5b95db;
+  color: $navy-deep;
 
   &:hover {
-    border-color: #b7c9dc;
-    background-color: #f8fbff;
+    border-color: $secondary;
+    background-color: rgba($secondary, 0.08);
   }
 
   strong {
-    color: #364153;
+    color: $navy-deep;
     font-size: 14px;
     line-height: 20px;
     font-weight: $weight-md;
@@ -187,90 +389,300 @@
 
   span,
   small {
-    color: #6a7282;
+    color: #6b849a;
     font-size: 12px;
     line-height: 16px;
   }
 
   small {
-    color: #6d7889;
-    max-width: 400px;
-  }
-}
-
-.coverUploadField {
-  min-height: 242px;
-}
-
-.documentUploadField {
-  min-height: 148px;
-  color: #98a3b6;
-
-  strong {
-    color: #556277;
+    max-width: 360px;
   }
 }
 
 .uploadFieldActive {
-  border-color: #5b95db;
-  background-color: #f3f8ff;
+  border-color: $secondary;
+  background-color: rgba($secondary, 0.1);
 }
 
 .hiddenFileInput {
   position: absolute;
   width: 1px;
   height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.submissionMessage {
-  margin-top: 16px;
-  color: #4c5b75;
-  font-size: $text-sm;
-  line-height: 1.45;
+.addOnSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.summaryCard>h2 {
-  color: #2f4d77;
-  font-size: 18px;
-  line-height: 20px;
-  font-weight: $weight-md;
+.addOnCard {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid $card-border;
+  background-color: #f8fafc;
+  flex-wrap: wrap;
 }
 
-.helpCard>h2 {
-  color: #101828;
+.addOnCardActive {
+  border-color: rgba($secondary, 0.65);
+  background-color: rgba($secondary, 0.08);
+}
+
+.addOnCardCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  strong {
+    color: $navy-deep;
+    font-size: $text-sm;
+    font-weight: $weight-semi-bold;
+    line-height: 1.3;
+  }
+
+  span {
+    color: #6b849a;
+    font-size: $text-xs;
+    line-height: 1.45;
+  }
+}
+
+.addOnCardActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.addOnPrice {
+  color: $secondary;
   font-size: 14px;
-  line-height: 20px;
-  font-weight: $weight-md;
+  font-weight: $weight-semi-bold;
+  line-height: 1;
 }
 
-.summaryBlock {
-  margin-top: 25px;
+.addOnSwitch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  border: 0;
+  border-radius: 999px;
+  background-color: #d0d5dd;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.summaryLabel {
-  display: inline-block;
-  color: #364153;
-  font-size: $text-sm;
-  line-height: 20px;
-  font-weight: $weight-md;
+.addOnSwitchOn {
+  background-color: $navy-deep;
+}
+
+.addOnSwitchThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: $white;
+  transition: transform 0.2s ease;
+}
+
+.addOnSwitchOn .addOnSwitchThumb {
+  transform: translateX(20px);
+}
+
+.addOnToggle {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid $card-border;
+  background-color: $white;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.addOnToggleActive {
+  border-color: rgba($secondary, 0.65);
+  background-color: rgba($secondary, 0.08);
+}
+
+.addOnToggleCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  strong {
+    color: $navy-deep;
+    font-size: $text-sm;
+    font-weight: $weight-semi-bold;
+    line-height: 1.3;
+  }
+
+  span {
+    color: #6b849a;
+    font-size: $text-xs;
+    line-height: 1.45;
+  }
+}
+
+.addOnBadge {
+  flex-shrink: 0;
+  min-height: 26px;
+  padding-inline: 10px;
+  border-radius: 4px;
+  background-color: rgba($secondary, 0.2);
+  color: $navy-deep;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: $weight-semi-bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editorialNote {
+  padding: 16px;
+  border-radius: 12px;
+  background-color: $teal-100;
+  border: 1px solid $teal-500;
+  border-left-width: 3px;
+
+  strong {
+    display: block;
+    color: $teal-500;
+    font-size: 11px;
+    font-weight: $weight-semi-bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.35;
+  }
+
+  p {
+    margin-top: 8px;
+    color: #4c6578;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+.stepFooter {
+  display: flex;
+  justify-content: stretch;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid $card-border;
+}
+
+.nextStepButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  border-radius: 10px;
+  background-color: $navy-deep !important;
+  color: $white !important;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: $weight-semi-bold;
+  min-height: 48px;
+  padding-inline: 20px;
+
+  &:hover:not(:disabled) {
+    background-color: darken($navy-deep, 4%) !important;
+  }
+}
+
+.nextStepButtonIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg path {
+    stroke: currentColor;
+  }
+}
+
+.summaryCard {
+  border-radius: 12px;
+  background-color: $white;
+  box-shadow: 0 4px 24px rgba($navy-deep, 0.06);
+  overflow: hidden;
+}
+
+.summaryHeader {
+  padding: 18px 20px;
+  background: linear-gradient(135deg, $navy-deep 0%, #1e3550 100%);
+
+  .summaryEyebrow {
+    display: block;
+    color: #ffffff73;
+    font-size: 10px;
+    font-weight: $weight-semi-bold;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin-top: 6px;
+    font-family: $font-display;
+    color: $white;
+    font-size: 22px;
+    font-weight: $weight-bold;
+    line-height: 1.15;
+  }
+}
+
+.summaryBody {
+  padding: 20px;
+}
+
+.packagePicker {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid $card-border;
+}
+
+.packagePickerLabel {
+  display: block;
+  color: #6b849a;
+  font-size: 10px;
+  font-weight: $weight-semi-bold;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 }
 
 .packageList {
   margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .packageOption {
   width: 100%;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid $card-border;
   background-color: $white;
-  padding: 12px 36px;
+  padding: 10px 14px;
   text-align: left;
   cursor: pointer;
   transition:
@@ -283,265 +695,192 @@
   }
 
   strong {
-    color: #101828;
+    color: $navy-deep;
     font-size: $text-sm;
-    line-height: 20px;
-    font-weight: $weight-md;
+    line-height: 1.3;
+    font-weight: $weight-semi-bold;
   }
 
   span {
-    color: #4a5565;
+    margin-top: 2px;
+    color: #6b849a;
     font-size: $text-xs;
-    line-height: 16px;
+    line-height: 1.3;
   }
 }
 
 .packageOptionActive {
-  border: 1px solid #5899e2;
-  background-color: #5899e20d;
-}
-
-.summaryDivider {
-  margin-block: 22px 18px;
-  border-top: 1px solid #edf1f5;
-}
-
-.addOnCard {
-  position: relative;
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background-color: $white;
-  padding: 14px 16px 16px;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
-
-  strong {
-    color: #101828;
-    font-size: $text-sm;
-    line-height: 20px;
-    font-weight: $weight-md;
-  }
-
-  p {
-    margin-top: 6px;
-    color: #556277;
-    font-size: $text-xs;
-    line-height: 16px;
-  }
-}
-
-.addOnCardActive {
-  border-color: #5b95db;
-  background-color: #f6faff;
-}
-
-.labelWithBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.addOnBadge {
-  top: 14px;
-  right: 14px;
-  min-height: 26px;
-  padding-inline: 10px;
-  border-radius: 4px;
-  background-color: #ffc40033;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: $weight-md;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.totalsBlock {
-  margin-top: 0;
-  padding-top: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-.summaryDividerPackage {
-  margin-block: 22px 20px;
-  border-top: 1px solid #edf1f5;
-}
-
-.summaryDividerTotal {
-  margin-block: 8px;
-  border-top: 1px solid #edf1f5;
-}
-
-.summaryRow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-
-  span,
-  strong {
-    color: #4a5565;
-    font-size: $text-sm;
-    line-height: 20px;
-  }
-
-  strong {
-    color: #101828;
-    font-size: 16px;
-    font-weight: $weight-semi-bold;
-  }
-}
-
-.summaryTotalRow {
-  margin-top: 2px;
-
-  span {
-    color: $dark-blue-800;
-    font-size: 19px;
-    font-weight: $weight-semi-bold;
-  }
-
-  strong {
-    color: #5899e2;
-    font-size: 20px;
-    line-height: 28px;
-    font-weight: $weight-bold;
-  }
-}
-
-.includedCard {
-  margin-top: 16px;
-  border-radius: 10px;
-  background-color: #f9fafb;
-  padding: 16px;
-
-  >strong {
-    display: block;
-    color: #101828;
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: $weight-semi-bold;
-  }
-
-  ul {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
-    list-style: none;
-    padding: 0;
-  }
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #364153;
-    font-size: 12px;
-    line-height: 16px;
-
-    svg {
-      flex-shrink: 0;
-      color: #5b95db;
-    }
-  }
-}
-
-.continueButton {
-  width: 100%;
-  margin-top: 16px;
-  border-radius: 10px;
-  box-shadow: none;
-  font-size: 14px;
-  font-weight: $weight-md;
-  /* Match Button `md` height so "Saving…" does not shrink the control vs longer labels. */
-  min-height: 40px;
-  height: 40px;
-  box-sizing: border-box;
-  white-space: nowrap;
-}
-
-.secureNote {
-  margin-top: 16px;
-  color: #6a7282;
-  font-size: 12px;
-  line-height: 16px;
-  text-align: center;
-}
-
-.creditWarning {
-  margin-top: 12px;
-  border-radius: 10px;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  strong {
-    color: #991b1b;
-    font-size: $text-sm;
-  }
-
-  span {
-    color: #7f1d1d;
-    font-size: $text-sm;
-  }
-}
-
-.helpCard {
-  p {
-    margin-top: 8px;
-    color: #556277;
-    font-size: 12px;
-    line-height: 16px;
-  }
-
-  a {
-    display: inline-block;
-    margin-top: 18px;
-    color: #5b95db;
-    font-size: 12px;
-    line-height: 1.45;
-    text-decoration: none;
-    word-break: break-word;
-  }
+  border-color: rgba($secondary, 0.75);
+  background-color: rgba($secondary, 0.08);
 }
 
 .walletCreditCard {
-  margin-top: 12px;
-  border: 1px solid #e8edf3;
-  border-radius: $radius-sm;
-  padding: 16px 16px 18px;
-  background: #f8fafc;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid $card-border;
+  border-radius: 10px;
+  background-color: #f8fafc;
   font-size: $text-sm;
   line-height: 1.45;
   color: #274060;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 
   p {
     margin: 0;
   }
 }
 
-.walletExpiry {
-  color: #667085;
-  font-size: $text-xs;
+.packageRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 20px;
+}
+
+.packageRowDivider {
+  border-bottom: 1px solid $card-border;
+}
+
+.walletCreditCardDivider {
+  border-bottom: 1px solid $card-border;
+  margin-bottom: 0;
+  padding-bottom: 20px;
+}
+
+.packageInfo {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  strong {
+    color: $navy-deep;
+    font-size: 16px;
+    font-weight: $weight-semi-bold;
+    line-height: 1.3;
+  }
+
+  span {
+    color: #6b849a;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+}
+
+.packagePrice {
+  flex-shrink: 0;
+  font-family: $font-display;
+  color: #274060;
+  font-size: 22px;
+  font-weight: $weight-bold;
+  line-height: 1;
+}
+
+.summaryRow {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  span {
+    color: #6b849a;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+}
+
+.summaryTotalRow {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid $card-border;
+
+  strong {
+    color: #172840;
+    font-size: 16px;
+    font-weight: $weight-bold;
+
+    &:last-child {
+      font-family: $font-display;
+      color: #c4922a;
+      font-size: 24px;
+      font-weight: $weight-bold;
+    }
+  }
+}
+
+.submitButton {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 10px;
+  background: #C4922A !important;
+  box-shadow: none;
+  color: #172840 !important;
+  font-size: 15px;
+  font-weight: $weight-semi-bold;
+  min-height: 48px;
+
+  &:hover:not(:disabled) {
+    background: darken(#C4922A, 4%) !important;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+  }
+}
+
+.submitButtonContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.paymentNote {
+  margin-top: 12px;
+  color: #6b849a;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.highlightList {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid $card-border;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: $text-body;
+    font-size: 14px;
+    line-height: 1.45;
+
+    svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: $teal-500;
+    }
+  }
 }
 
 .previewButton {
   width: 100%;
-  margin-top: $space-sm;
+  margin-top: 20px;
   font-size: 14px;
   font-weight: $weight-md;
+  height: 51px;
+  line-height: 51px;
 }
 
 .previewOverlay {
@@ -552,7 +891,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: $space-lg;
+  padding: 16px;
 }
 
 .previewDialog {
@@ -569,13 +908,6 @@
   margin: 0 0 $space-xs;
   font-size: $text-xl;
   color: $primary;
-}
-
-.previewSubtitle {
-  margin: 0 0 $space-md;
-  font-size: $text-sm;
-  color: #667085;
-  line-height: 1.45;
 }
 
 .previewNewsSlot {
@@ -595,30 +927,159 @@
 .previewActions {
   margin-top: $space-lg;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: $space-sm;
-  justify-content: flex-end;
+
+  button {
+    width: 100%;
+  }
 }
 
-@media (min-width: map-get($breakpoints, "lg")) {
-  .submitInner {
-    padding-block: 48px;
-    max-width: 1280px;
+@media (min-width: map-get($breakpoints, "sm")) {
+  .previewActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+
+    button {
+      width: auto;
+    }
+  }
+}
+
+@media (min-width: map-get($breakpoints, "md")) {
+  .curve svg {
+    height: 90px;
+  }
+
+  .accordionStep {
+    scroll-margin-top: 120px;
+  }
+
+  .accordionHeader {
+    gap: 14px;
+    padding: 18px 20px;
+  }
+
+  .stepBadge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 16px;
+  }
+
+  .accordionHeaderText {
+    strong {
+      font-size: 16px;
+    }
+
+    span {
+      font-size: 13px;
+    }
+  }
+
+  .accordionBody {
+    padding: 0 20px 20px;
   }
 
   .contentGrid {
-    grid-template-columns: minmax(0, 1.18fr) minmax(290px, 332px);
-    gap: 36px;
+    gap: 28px;
+    grid-template-columns: minmax(0, 1.35fr) minmax(300px, 400px);
+  }
+
+  .formColumn {
+    order: 1;
   }
 
   .summaryColumn {
     order: 2;
-    position: sticky;
-    top: 26px;
   }
 
-  .formPanel {
-    order: 1;
-    padding: 24px 26px 26px;
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detailsRowTwo {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .uploadGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .uploadField {
+    min-height: 180px;
+  }
+
+  .addOnCard {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding: 16px 18px;
+  }
+
+  .stepFooter {
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 20px;
+  }
+
+  .nextStepButton {
+    width: auto;
+    min-height: 44px;
+  }
+
+  .summaryBody {
+    padding: 28px 32px;
+  }
+
+  .summaryHeader {
+    padding: 22px 32px;
+
+    h2 {
+      margin-top: 8px;
+      font-size: 24px;
+    }
+  }
+
+  .submitButton {
+    margin-top: 24px;
+    font-size: 16px;
+    min-height: 52px;
+  }
+
+  .highlightList {
+    margin-top: 24px;
+    padding-top: 24px;
+  }
+
+  .previewOverlay {
+    padding: $space-lg;
+  }
+
+  .labelWithCounter {
+    align-items: center;
+    flex-wrap: nowrap;
+
+    .wordCounter {
+      font-size: $text-sm;
+    }
+  }
+}
+
+@media (min-width: map-get($breakpoints, "lg")) {
+  .submitInner {
+    max-width: 1280px;
+    padding-inline: 24px;
+  }
+
+  .contentGrid {
+    gap: 32px;
+    grid-template-columns: minmax(0, 1.5fr) minmax(320px, 420px);
+  }
+
+  .summaryColumn {
+    position: sticky;
+    top: 26px;
   }
 }

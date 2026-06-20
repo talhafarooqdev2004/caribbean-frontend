@@ -1,16 +1,26 @@
-@use './primitive' as *;
+@use "./primitive" as *;
 
 $primary: $blue-900;
 $secondary: $yellow-500;
 $white: $white-900;
 $black: $black-900;
-$bg-section: $grayish-blue-50;
+$bg-section: $cream-200;
 $bg-form-input: $grayish-blue-300;
 $bg-tag: $soft-blue-50;
 $card-border: $grayish-blue-100;
 $hero-section-gradient: $blue-gradient;
 
-$font-inter: var(--font-inter);
+// Homepage-aligned brand palette
+$navy-deep: #172840;
+$navy-section: #274060;
+$text-body: #3a526b;
+$text-muted: #6b849a;
+$accent-line: #5899e2;
+$cream-band: #f7f5f2;
+$section-block-mobile: 40px;
+
+$font-sans: var(--font-dm-sans);
+$font-display: var(--font-display);
 
 $text-xs: 12px;
 $text-sm: 14px;
@@ -43,12 +53,11 @@ $space-3xl: 64px;
 $space-4xl: 80px;
 $space-5xl: 100px;
 
-$space-mobile: $space-base;
+$space-mobile: 20px;
 $space-tablet: $space-xl;
 $space-desktop: $space-3xl;
-$space-desktop-lg: 110px;
+$space-desktop-lg: 90px;
 
-/** Max width for centered page content (header, footer, sections). Viewports wider than this keep side margins. */
 $container-lg: 1500px;
 
 $section-padding-sm: $space-lg;

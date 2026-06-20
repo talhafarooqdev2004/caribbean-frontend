@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import CookieConsent from "../composed/CookieConsent";
 import Footer from "./Footer";
 import Header from "./Header";
 
@@ -22,6 +23,7 @@ export default function MainLayout({
             <Header />
             {children}
             <Footer />
+            <CookieConsent />
         </>
     );
 };

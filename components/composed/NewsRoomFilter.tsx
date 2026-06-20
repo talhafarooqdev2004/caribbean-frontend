@@ -1,21 +1,19 @@
+"use client";
+
 import styles from "./NewsRoomFilter.module.scss";
 
 import clsx from "clsx";
-import { Button, Input, SvgIcon } from "../ui";
+import { type KeyboardEvent } from "react";
+import { Input, SvgIcon } from "../ui";
 
 type NewsRoomFilterProps = {
     activeCategory?: string;
     categories?: string[];
     className?: string;
     searchValue?: string;
-    activeIsland?: string;
-    dateRange?: string;
-    sort?: string;
     onCategoryChange?: (category: string) => void;
-    onIslandChange?: (island: string) => void;
-    onDateRangeChange?: (dateRange: string) => void;
-    onSortChange?: (sort: string) => void;
     onSearchChange?: (value: string) => void;
+    onFilterApply?: () => void;
 };
 
 const defaultCategories = [
@@ -30,35 +28,22 @@ const defaultCategories = [
     "Tourism",
 ];
 
-const islands = ["All Islands", "USVI", "Jamaica", "Trinidad", "Barbados", "Grenada", "Antigua", "All Caribbean"];
-const dateRanges = [
-    ["allTime", "All Time"],
-    ["today", "Today"],
-    ["thisWeek", "This Week"],
-    ["thisMonth", "This Month"],
-    ["last3Months", "Last 3 Months"],
-] as const;
-const sortOptions = [
-    ["newest", "Newest First"],
-    ["oldest", "Oldest First"],
-    ["mostViewed", "Most Viewed"],
-    ["featuredFirst", "Featured First"],
-] as const;
-
 export default function NewsRoomFilter({
     activeCategory = "All Categories",
     categories = defaultCategories,
     className,
     searchValue = "",
-    activeIsland = "All Islands",
-    dateRange = "allTime",
-    sort = "newest",
     onCategoryChange,
-    onIslandChange,
-    onDateRangeChange,
-    onSortChange,
     onSearchChange,
+    onFilterApply,
 }: NewsRoomFilterProps) {
+    function handleSearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            onFilterApply?.();
+        }
+    }
+
     return (
         <div className={clsx(styles.filter, className)}>
             <div className={styles.filterActionWrapper}>
@@ -71,61 +56,38 @@ export default function NewsRoomFilter({
                         placeholder="Search press releases..."
                         value={searchValue}
                         onChange={(event) => onSearchChange?.(event.target.value)}
+                        onKeyDown={handleSearchKeyDown}
                         autoComplete="off"
                     />
                 </div>
-                <select className={styles.filterSelect} value={dateRange} onChange={(event) => onDateRangeChange?.(event.target.value)} aria-label="Date filter">
-                    {dateRanges.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                </select>
-                <select className={styles.filterSelect} value={sort} onChange={(event) => onSortChange?.(event.target.value)} aria-label="Sort releases">
-                    {sortOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                </select>
+
+                <button
+                    type="button"
+                    className={styles.filterToggle}
+                    onClick={() => onFilterApply?.()}
+                >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.66797 3.99976H13.3338" stroke="#FFC400" strokeWidth="1.33323" strokeLinecap="round" />
+                        <path d="M5.33203 7.99951H10.665" stroke="#FFC400" strokeWidth="1.33323" strokeLinecap="round" />
+                        <path d="M7.33203 11.999H8.66526" stroke="#FFC400" strokeWidth="1.33323" strokeLinecap="round" />
+                    </svg>
+
+                    Filter
+                </button>
             </div>
 
-            <Categories>
+            <div className={styles.tabs}>
                 {categories.map((category) => (
-                    <Category
+                    <button
                         key={category}
-                        active={category === activeCategory}
+                        type="button"
+                        className={clsx(styles.tab, category === activeCategory && styles.tabActive)}
                         onClick={() => onCategoryChange?.(category)}
                     >
                         {category}
-                    </Category>
+                    </button>
                 ))}
-            </Categories>
-
-            <Categories>
-                {islands.map((island) => (
-                    <Category
-                        key={island}
-                        active={island === activeIsland}
-                        onClick={() => onIslandChange?.(island)}
-                    >
-                        {island}
-                    </Category>
-                ))}
-            </Categories>
+            </div>
         </div>
     );
-};
-
-function Categories({ children }: React.PropsWithChildren) {
-    return <div className={styles.categories}>{children}</div>;
-};
-
-function Category({
-    active = false,
-    children,
-    onClick,
-}: React.PropsWithChildren<{ active?: boolean; onClick?: () => void }>) {
-    return (
-        <Button
-            className={clsx(styles.category, active && styles.categoryActive)}
-            variant="newsroom-category"
-            onClick={onClick}
-            type="button"
-        >
-            {children}
-        </Button>
-    );
-};
+}

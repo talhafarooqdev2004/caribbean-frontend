@@ -1,0 +1,129 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+@use "../../styles/breakpoints" as *;
+
+.shell {
+    overflow-x: clip;
+}
+
+.hero {
+    background-color: $navy-deep;
+    background-image: radial-gradient(ellipse 90% 55% at 50% 18%, rgba(88, 153, 226, 0.14) 0%, transparent 72%);
+
+    .heroInner {
+        padding-block: 48px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: $space-sm;
+            height: 32px;
+            padding-inline: 14px;
+            background-color: transparent;
+            border: 1px solid rgba($soft-blue-100, 0.45);
+            border-radius: $radius-full;
+            color: $soft-blue-100;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: $radius-full;
+                background-color: $soft-blue-100;
+            }
+        }
+
+        > h1 {
+            margin-top: 20px;
+            font-family: $font-display;
+            color: $white;
+            font-size: 38px;
+            font-weight: $weight-bold;
+            line-height: 1.1;
+
+            > span {
+                font-style: italic;
+                color: #5899E2;
+            }
+        }
+
+        > p {
+            margin-top: 14px;
+            max-width: 520px;
+            color: rgba($white, 0.55);
+            font-size: 15px;
+            line-height: 26px;
+        }
+
+        .divider {
+            margin-top: 20px;
+            width: 48px;
+            height: 3px;
+            border-radius: $radius-full;
+            background-color: $secondary;
+        }
+    }
+}
+
+.curve {
+    position: relative;
+    z-index: 2;
+    line-height: 0;
+    overflow: hidden;
+    margin-top: -1px;
+
+    svg {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: 60px;
+
+        path {
+            fill: $navy-deep;
+            stroke: $navy-deep;
+            stroke-width: 2px;
+            stroke-linejoin: round;
+        }
+    }
+}
+
+.content {
+    margin-top: -1px;
+    background-color: $cream-band;
+
+    .contentInner {
+        padding-block: 32px 56px;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+@media (min-width: map-get($breakpoints, "md")) {
+    .hero .heroInner {
+        padding-block: 72px 64px;
+
+        > h1 {
+            font-size: 52px;
+        }
+
+        > p {
+            font-size: 17px;
+        }
+    }
+
+    .curve svg {
+        height: 90px;
+    }
+
+    .content .contentInner {
+        padding-block: 48px 80px;
+    }
+}

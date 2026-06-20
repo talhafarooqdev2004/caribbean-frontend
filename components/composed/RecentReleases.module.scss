@@ -3,37 +3,69 @@
 @use "../../styles/breakpoints" as *;
 
 .recentReleases {
-    .recentReleasesInner {
-        padding-block: $space-2xl;
+    background-color: $white;
 
-        >h2 {
-            font-size: $text-xl;
+    .recentReleasesInner {
+        padding-block: $section-block-mobile 40px;
+
+        .recentReleasesHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: $space-base;
+
+            >h2 {
+                font-family: $font-display;
+                font-size: 28px;
+                line-height: 1.1;
+                color: #172840;
+                font-weight: $weight-bold;
+            }
+
+            .count {
+                flex-shrink: 0;
+                padding: 6px 12px;
+                border-radius: $radius-full;
+                background-color: #f4f1ec;
+                color: #6b849a;
+                font-size: 12px;
+            }
         }
 
         .recentReleasesList {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, 1fr);
-            gap: $space-lg;
+            margin-top: 28px;
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
         }
 
         .releaseCardHitArea {
             cursor: pointer;
             position: relative;
             min-width: 0;
-            content-visibility: auto;
-            contain-intrinsic-size: auto 380px;
+        }
+
+        .metaDot {
+            color: #6b849a;
+            font-size: 11px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .releaseFooter {
+            margin-top: 0;
         }
 
         .emptyState {
             margin-top: $space-xl;
             padding: $space-xl;
-            border: 1px solid $grayish-blue-200;
+            border: 1px solid $card-border;
             border-radius: $radius-md;
             background-color: $white;
 
             >h3 {
                 font-size: $text-lg;
+                color: $primary;
             }
 
             >p {
@@ -43,13 +75,33 @@
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: map-get($breakpoints, "md")) {
         .recentReleasesInner {
+            padding-block: 134px 30px;
+            padding-inline: 140px;
+
+            .recentReleasesHeader {
+                >h2 {
+                    font-size: 32px;
+                }
+
+                .count {
+                    padding: 6px 14px;
+                    font-size: 13px;
+                }
+            }
+
             .recentReleasesList {
-                margin-top: $space-xl;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, 1fr);
-                gap: $space-lg;
+                margin-top: 64px;
+                gap: $space-xl;
+            }
+
+            .metaDot {
+                font-size: 13px;
+            }
+
+            .releaseFooter {
+                margin-top: 0;
             }
         }
     }

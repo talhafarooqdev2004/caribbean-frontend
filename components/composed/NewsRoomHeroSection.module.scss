@@ -3,35 +3,97 @@
 @use "../../styles/breakpoints" as *;
 
 .heroSection {
-    background-image: $hero-section-gradient , url("/images/hero-section-image-desktop.jpeg");
+    position: relative;
+    background-color: $navy-deep;
+    overflow-x: clip;
 
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(ellipse 72% 58% at 100% 100%, rgba(88, 153, 226, 0.14) 0%, transparent 68%);
+    }
 
     .heroSectionInner {
-        padding-block: $section-padding-base;
+        position: relative;
+        z-index: 1;
+        padding-block: $section-block-mobile 32px;
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: $space-sm;
+            height: 32px;
+            padding-inline: 14px;
+            background-color: transparent;
+            border: 1px solid rgba($soft-blue-100, 0.45);
+            border-radius: $radius-full;
+            color: $soft-blue-100;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 6px;
+                height: 6px;
+                border-radius: $radius-full;
+                background-color: $soft-blue-100;
+            }
+        }
 
         >h1 {
-            font-size: $text-section;
+            margin-top: 20px;
+            font-size: 40px;
+            line-height: 1.05;
             color: $white;
         }
 
         >p {
-            margin-top: $space-base;
-            font-size: $text-base;
-            color: $grayish-blue-100;
+            margin-top: 14px;
+            max-width: 100%;
+            font-size: 15px;
+            color: #ffffff8c;
+            line-height: 26px;
         }
 
         .heroSectionFilter {
-            margin-top: $space-lg;
+            margin-top: 28px;
+            min-width: 0;
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: map-get($breakpoints, "md")) {
         .heroSectionInner {
+            padding-block: 116px 44px;
+            padding-inline: 140px;
+
+            .badge {
+                height: 34px;
+                padding-inline: $space-base;
+                background-color: $soft-blue-50;
+                border-color: $white-200;
+                font-weight: $weight-md;
+                letter-spacing: 1.4px;
+            }
+
             >h1 {
-                font-size: $text-section-lg;
+                margin-top: $space-lg;
+                font-size: $text-6xl;
+            }
+
+            >p {
+                margin-top: 19px;
+                max-width: 500px;
+                font-size: 17px;
+                color: #ffffff85;
+                line-height: 29.24px;
+            }
+
+            .heroSectionFilter {
+                margin-top: 40px;
             }
         }
     }

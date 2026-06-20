@@ -6,11 +6,13 @@ export default function ContactUsHeroSection() {
     return (
         <section className={styles.heroSection}>
             <Container className={styles.heroSectionInner}>
-                <div className={styles.heroSectionBadge}>💬 Contact</div>
+                <span className={styles.badge}>Contact</span>
 
-                <h1>Get in Touch</h1>
+                <h1>Get in <span>Touch</span></h1>
 
                 <p>Have a question, media inquiry, or custom request? We&apos;d love to hear from you.</p>
+
+                <span className={styles.divider} aria-hidden="true" />
             </Container>
         </section>
     );

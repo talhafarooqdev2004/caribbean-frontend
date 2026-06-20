@@ -1,6 +1,7 @@
 import { type NextRequest } from "next/server";
 
 import { caribApiFetch, caribApiFetchPublicPressReleaseList, parseCaribApiJson } from "@/lib/backend-api";
+import { formatApiValidationErrors } from "@/lib/format-api-validation-errors";
 import { getSubmitterAuthorizationHeader } from "@/lib/submitter-auth";
 
 export const runtime = "nodejs";
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
         if (!response.ok) {
             return Response.json(
                 {
-                    error: typeof payload?.message === "string" ? payload.message : "We could not create your press release.",
+                    error: formatApiValidationErrors(payload, "We could not create your press release."),
                     errors: payload?.errors,
                 },
                 { status: response.status }

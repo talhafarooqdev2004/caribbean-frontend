@@ -1,0 +1,15 @@
+@use "../../styles/primitive" as *;
+@use "../../styles/semantic" as *;
+
+.message {
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+    border-radius: 12px;
+    background-color: $white;
+    border: 1px solid rgba($navy-deep, 0.08);
+    box-shadow: 0 4px 24px rgba($navy-deep, 0.08);
+    color: $text-body;
+    font-size: 15px;
+    text-align: center;
+}

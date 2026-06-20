@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 import styles from "./AuthForm.module.scss";
 
-import { Container } from "@/components/layout";
+import AuthPageShell from "./AuthPageShell";
 import { Button, FormControl, FormLabel, Input } from "@/components/ui";
 
 export default function ResetPasswordForm() {
@@ -66,64 +66,65 @@ export default function ResetPasswordForm() {
     }
 
     return (
-        <section className={styles.authSection}>
-            <Container className={styles.authInner}>
-                <div className={styles.copyBlock}>
-                    <h1>Choose a new password</h1>
-                    <p>Use a strong password you have not used elsewhere.</p>
-                </div>
+        <AuthPageShell
+            badge="Account"
+            title={<>Choose a New <span>Password</span></>}
+            subtitle="Use a strong password you have not used elsewhere."
+        >
+            <div className={styles.card}>
+                <form className={styles.form} onSubmit={handleSubmit} noValidate>
+                    {!token ? (
+                        <p className={styles.formError}>
+                            This reset link is missing or invalid.{" "}
+                            <Link href="/forgot-password">Request a new link</Link>.
+                        </p>
+                    ) : null}
 
-                <div className={styles.card}>
-                    <form className={styles.form} onSubmit={handleSubmit} noValidate>
-                        {!token ? (
-                            <p className={styles.formError}>
-                                This reset link is missing or invalid.{" "}
-                                <Link href="/forgot-password">Request a new link</Link>.
-                            </p>
-                        ) : null}
+                    <FormControl>
+                        <FormLabel htmlFor="reset-password">
+                            New Password <span className={styles.required}>*</span>
+                        </FormLabel>
+                        <Input
+                            id="reset-password"
+                            type="password"
+                            autoComplete="new-password"
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                            disabled={!token}
+                        />
+                    </FormControl>
 
-                        <FormControl>
-                            <FormLabel htmlFor="reset-password">New password *</FormLabel>
-                            <Input
-                                id="reset-password"
-                                type="password"
-                                autoComplete="new-password"
-                                value={password}
-                                onChange={(event) => setPassword(event.target.value)}
-                                disabled={!token}
-                            />
-                        </FormControl>
+                    <FormControl>
+                        <FormLabel htmlFor="reset-confirm">
+                            Confirm Password <span className={styles.required}>*</span>
+                        </FormLabel>
+                        <Input
+                            id="reset-confirm"
+                            type="password"
+                            autoComplete="new-password"
+                            value={confirmPassword}
+                            onChange={(event) => setConfirmPassword(event.target.value)}
+                            disabled={!token}
+                        />
+                    </FormControl>
 
-                        <FormControl>
-                            <FormLabel htmlFor="reset-confirm">Confirm password *</FormLabel>
-                            <Input
-                                id="reset-confirm"
-                                type="password"
-                                autoComplete="new-password"
-                                value={confirmPassword}
-                                onChange={(event) => setConfirmPassword(event.target.value)}
-                                disabled={!token}
-                            />
-                        </FormControl>
+                    {error ? <p className={styles.formError}>{error}</p> : null}
+                    {message ? <p className={styles.formSuccess}>{message}</p> : null}
 
-                        {error ? <p className={styles.formError}>{error}</p> : null}
-                        {message ? <p className={styles.formSuccess}>{message}</p> : null}
+                    <Button
+                        type="submit"
+                        variant="form"
+                        className={styles.submitButton}
+                        disabled={isSubmitting || !token}
+                    >
+                        {isSubmitting ? "Updating..." : "Update password"}
+                    </Button>
 
-                        <Button
-                            type="submit"
-                            variant="form"
-                            className={styles.submitButton}
-                            disabled={isSubmitting || !token}
-                        >
-                            {isSubmitting ? "Updating..." : "Update password"}
-                        </Button>
-
-                        <div className={styles.formFooter}>
-                            <Link href="/login">Back to sign in</Link>
-                        </div>
-                    </form>
-                </div>
-            </Container>
-        </section>
+                    <div className={styles.formFooter}>
+                        <Link href="/login">Back to sign in</Link>
+                    </div>
+                </form>
+            </div>
+        </AuthPageShell>
     );
 }

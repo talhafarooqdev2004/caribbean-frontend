@@ -3,26 +3,26 @@
 @use "../../styles/breakpoints" as *;
 
 .footer {
-    background-color: $primary;
+    background-color: #172840;
+    overflow-x: clip;
 
     .footerInner {
-        padding-top: 43px;
-        padding-bottom: 26px;
+        padding-block: 40px;
 
-        .footerList {
+        .footerTop {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            justify-content: space-between;
-            gap: $space-xl;
+            gap: 28px 20px;
 
-            :first-child {
-                grid-column: span 2;
+            .brandCol {
+                grid-column: 1 / -1;
                 display: flex;
                 flex-direction: column;
-                gap: $space-xl;
+                gap: 20px;
 
                 .footerBrandLogoLink {
                     display: inline-flex;
+                    width: fit-content;
                     cursor: pointer;
                     transition: opacity 0.3s ease;
 
@@ -32,64 +32,188 @@
                 }
 
                 .footerBrandLogo {
+                    width: 148px;
                     height: auto;
-                    object-fit: cover;
+                    object-fit: contain;
                 }
 
                 >p {
-                    font-size: $text-md;
-                    color: $grayish-blue-200;
-                    line-height: 24px;
+                    max-width: 100%;
+                    font-size: 13px;
+                    color: #FFFFFF66;
+                    line-height: 22px;
+                }
+
+                .socials {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+
+                    a {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 34px;
+                        height: 34px;
+                        border-radius: $radius-sm;
+                        background-color: #FFFFFF0F;
+                        border: 1px solid #FFFFFF1A;
+                        color: $grayish-blue-200;
+                        transition: color 0.2s ease, background-color 0.2s ease;
+
+                        &:hover {
+                            color: $white;
+                            background-color: $white-200;
+                        }
+                    }
                 }
             }
 
-            .footerItem {
-                >span {
-                    color: $white;
-                    font-size: $text-base;
+            .footerCol {
+                min-width: 0;
+
+                .colTitle {
+                    display: block;
+                    margin-bottom: 16px;
+                    color: #FFFFFF59;
+                    font-size: 10px;
                     font-weight: $weight-semi-bold;
-                    margin-bottom: $space-base;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
                 }
 
                 >ul {
                     display: flex;
                     flex-direction: column;
-                    gap: 9px;
+                    gap: 12px;
 
-                    >li,
                     a {
-                        color: $grayish-blue-200;
-                        font-size: $text-md;
+                        color: #FFFFFF80;
+                        font-size: 13.5px;
+                        line-height: 1.4;
+                        transition: color 0.2s ease;
+
+                        &:hover {
+                            color: $white;
+                        }
                     }
                 }
             }
         }
 
         .footerSeprator {
-            border: 1px solid $grayish-blue-800;
-            margin-block: $space-xl;
+            border: none;
+            border-top: 1px solid #FFFFFF14;
+            margin-block: 32px 24px;
         }
 
-        .copyRightReserved {
-            color: $grayish-blue-200;
-            font-size: $text-md;
+        .footerBottom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
             text-align: center;
+
+            .copyRightReserved {
+                color: #FFFFFF47;
+                font-size: 12px;
+            }
+
+            .legalLinks {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+
+                a,
+                .legalButton {
+                    color: #FFFFFF47;
+                    font-size: 12px;
+                    transition: color 0.2s ease;
+                }
+
+                a:hover,
+                .legalButton:hover {
+                    color: $white;
+                }
+
+                .legalButton {
+                    border: 0;
+                    padding: 0;
+                    background: transparent;
+                    cursor: pointer;
+                    font: inherit;
+                }
+            }
         }
+    }
 
-        @media (min-width: map-get($breakpoints, 'md')) {
-            padding-block: $space-2xl;
+    @media (min-width: map-get($breakpoints, "md")) {
+        .footerInner {
+            padding-block: 72px 40px;
+            padding-inline: 120px;
 
-            .footerList {
-                grid-template-columns: repeat(3, 1fr);
+            .footerTop {
+                grid-template-columns: 2fr 1fr 1fr;
+                gap: $space-4xl;
 
-                :first-child {
-                    grid-column: span 1;
-                    gap: $space-base;
+                .brandCol {
+                    grid-column: auto;
+
+                    .footerBrandLogo {
+                        width: 180px;
+                    }
+
+                    >p {
+                        max-width: 300px;
+                        font-size: $text-sm;
+                        line-height: 23.8px;
+                    }
+
+                    .socials {
+                        gap: $space-md;
+                    }
+                }
+
+                .footerCol {
+                    .colTitle {
+                        margin-bottom: 20px;
+                        font-size: 11px;
+                    }
+
+                    >ul {
+                        gap: $space-md;
+
+                        a {
+                            font-size: 14.5px;
+                        }
+                    }
                 }
             }
 
-            .footerBrandLogo {
-                width: 214px;
+            .footerSeprator {
+                margin-block: 70px 40px;
+            }
+
+            .footerBottom {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                text-align: left;
+
+                .legalLinks {
+                    justify-content: flex-end;
+                    gap: $space-lg;
+
+                    a,
+                    .legalButton {
+                        font-size: 13px;
+                    }
+                }
+
+                .copyRightReserved {
+                    font-size: 13px;
+                }
             }
         }
     }

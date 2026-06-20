@@ -18,6 +18,8 @@ const FIELD_LABELS: Record<string, string> = {
     outboundLink: "Outbound link",
     pressReleaseContent: "Press release content",
     content: "Press release content",
+    coverPhoto: "Cover image",
+    document: "Document",
 };
 
 export function formatApiValidationErrors(payload: unknown, fallback = "Please fix the highlighted fields."): string {
@@ -25,13 +27,22 @@ export function formatApiValidationErrors(payload: unknown, fallback = "Please f
         return fallback;
     }
 
-    const record = payload as { message?: unknown; errors?: unknown };
+    const record = payload as { message?: unknown; error?: unknown; errors?: unknown };
     const errors = record.errors;
 
     if (!Array.isArray(errors) || errors.length === 0) {
-        return typeof record.message === "string" && record.message.trim() && record.message !== "body failed"
-            ? record.message
-            : fallback;
+        const message = typeof record.message === "string" ? record.message.trim() : "";
+        const error = typeof record.error === "string" ? record.error.trim() : "";
+
+        if (message && message !== "body failed") {
+            return message;
+        }
+
+        if (error) {
+            return error;
+        }
+
+        return fallback;
     }
 
     const lines = errors
@@ -83,4 +94,6 @@ export const ADMIN_CREATE_FIELD_FROM_API: Record<string, string> = {
     specialInstructions: "specialInstructions",
     outboundLink: "outboundLink",
     pressReleaseContent: "content",
+    coverPhoto: "coverPhoto",
+    document: "document",
 };

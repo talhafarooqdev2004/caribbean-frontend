@@ -5,8 +5,8 @@
     border: none;
     outline: none;
     height: $space-2xl;
-    background-color: $bg-form-input;
-    border-radius: $radius-sm;
+    background-color: #F4F1EC;
+    border-radius: 11px;
     color: $grayish-blue-600;
     font-size: $text-md;
     padding: 15px $space-md;
@@ -21,7 +21,7 @@
     background-position: right $space-md center;
     background-size: 20px;
     padding-right: $space-xl;
-    border: 1px solid transparent;
+    border: 1px solid #2740601C;
 
     &:focus {
         border-color: $dark-blue-900;

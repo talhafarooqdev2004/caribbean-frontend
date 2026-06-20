@@ -5,15 +5,15 @@
     border: none;
     outline: none;
     min-height: 120px;
-    background-color: $bg-form-input;
-    border-radius: $radius-sm;
-    color: $grayish-blue-600;
+    background-color: #F4F1EC;
+    border-radius: 10px;
+    color: #131E2B80;
     font-size: $text-md;
-    padding: 15px $space-md;
+    padding: 15px 16px;
     font-family: inherit;
     resize: none;
     width: 100%;
-    border: 1px solid transparent;
+    border: 1px solid #2740601C;
 
     &:focus {
         border-color: $dark-blue-900;

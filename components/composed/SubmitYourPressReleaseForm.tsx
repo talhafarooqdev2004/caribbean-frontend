@@ -2,13 +2,14 @@
 
 import styles from "./SubmitYourPressReleaseForm.module.scss";
 
-import { Check, ImageUp, Upload } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Check, FileText, ImageUp, Send } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { formatReleaseDate, formatReleaseTime } from "@/lib/press-release-display";
 import { stripTagsToPlainText, truncatePlainExcerpt } from "@/lib/press-release-list-excerpt";
 import { PRESS_RELEASE_CATEGORIES } from "@/lib/press-release-categories";
+import { territoryOptions } from "@/lib/enquiry-options";
 
 import { Container } from "../layout";
 import {
@@ -17,6 +18,7 @@ import {
   FormLabel,
   Input,
   News,
+  Select,
   SvgIcon,
   Textarea,
 } from "../ui";
@@ -29,6 +31,7 @@ type SubmitYourPressReleaseValues = {
   phoneNumber: string;
   organization: string;
   releaseTitle: string;
+  summary: string;
   category: string;
   preferredDistributionDate: string;
   pressReleaseContent: string;
@@ -43,7 +46,10 @@ type SubmitYourPressReleaseErrors = Partial<
     | "email"
     | "organization"
     | "releaseTitle"
+    | "summary"
     | "category"
+    | "targetRegions"
+    | "preferredDistributionDate"
     | "pressReleaseContent"
     | "outboundLink"
     | "coverPhoto"
@@ -109,10 +115,45 @@ const packageOptions: PackageOption[] = [
 
 const categories = [...PRESS_RELEASE_CATEGORIES];
 
+const categoryOptions = [
+  { value: "", label: "Select category" },
+  ...categories.map((category) => ({ value: category, label: category })),
+];
+
+const regionOptions = [
+  { value: "", label: "Select region" },
+  ...territoryOptions.map((option) => ({ value: option.label, label: option.label })),
+];
+
+const FORM_STEPS = [
+  { id: 1, title: "Contact Information", subtitle: "Your organization and contact details", nextLabel: "Release Details" },
+  { id: 2, title: "Press Release Details", subtitle: "Title, category, region and date", nextLabel: "Content" },
+  { id: 3, title: "Press Release Content", subtitle: "Summary and full body text", nextLabel: "Upload Assets" },
+  { id: 4, title: "Upload Assets", subtitle: "Images and supporting documents", nextLabel: "Review & Submit" },
+  { id: 5, title: "Review & Submit", subtitle: "Confirm details and choose add-ons", nextLabel: null },
+] as const;
+
+const STEP_ERROR_FIELDS: Record<number, (keyof SubmitYourPressReleaseErrors)[]> = {
+  1: ["organization", "fullName", "email"],
+  2: ["releaseTitle", "category", "targetRegions", "preferredDistributionDate"],
+  3: ["summary", "pressReleaseContent"],
+  4: ["coverPhoto", "document", "outboundLink"],
+  5: [],
+};
+
+const sidebarHighlightItems = [
+  "Editorial review within 48h",
+  "Caribbean-wide distribution",
+  "Newsroom publication",
+  "Analytics report included",
+];
+
 /** Same destination as pricing "Professional Campaigns" -> Request a Proposal. */
 const professionalCampaignContactHref = "/contact-us?for=proposal";
 
 const maxPressReleaseWords = 700;
+const maxReleaseTitleLength = 100;
+const maxSummaryLength = 300;
 const coverPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
 const documentTypes = [
   "application/pdf",
@@ -126,6 +167,7 @@ const initialValues: SubmitYourPressReleaseValues = {
   phoneNumber: "",
   organization: "",
   releaseTitle: "",
+  summary: "",
   category: "",
   preferredDistributionDate: "",
   pressReleaseContent: "",
@@ -155,6 +197,7 @@ function validateValues(values: SubmitYourPressReleaseValues) {
     phoneNumber: values.phoneNumber.trim(),
     organization: values.organization.trim(),
     releaseTitle: values.releaseTitle.trim(),
+    summary: values.summary.trim(),
     category: values.category.trim(),
     preferredDistributionDate: values.preferredDistributionDate.trim(),
     pressReleaseContent: values.pressReleaseContent.trim(),
@@ -189,15 +232,31 @@ function validateValues(values: SubmitYourPressReleaseValues) {
 
   if (!normalizedValues.releaseTitle) {
     errors.releaseTitle = "Release title is required.";
+  } else if (normalizedValues.releaseTitle.length > maxReleaseTitleLength) {
+    errors.releaseTitle = "Release title must be 100 characters or less.";
+  }
+
+  if (!normalizedValues.summary) {
+    errors.summary = "Summary is required.";
+  } else if (normalizedValues.summary.length > maxSummaryLength) {
+    errors.summary = "Summary must be 300 characters or less.";
   }
 
   if (!normalizedValues.category) {
     errors.category = "Category is required.";
   }
 
-  if (!normalizedValues.pressReleaseContent) {
+  if (!normalizedValues.targetRegions) {
+    errors.targetRegions = "Target region is required.";
+  }
+
+  if (!normalizedValues.preferredDistributionDate) {
+    errors.preferredDistributionDate = "Publication date is required.";
+  }
+
+  if (!normalizedValues.pressReleaseContent.trim()) {
     errors.pressReleaseContent = "Press release content is required.";
-  } else if (countWords(normalizedValues.pressReleaseContent) > maxPressReleaseWords) {
+  } else if (countPlainWords(normalizedValues.pressReleaseContent) > maxPressReleaseWords) {
     errors.pressReleaseContent = "Press release content must be 700 words or less.";
   }
 
@@ -211,8 +270,15 @@ function validateValues(values: SubmitYourPressReleaseValues) {
   };
 }
 
-function countWords(value: string) {
-  return value.trim().split(/\s+/).filter(Boolean).length;
+/** Whitespace-separated tokens — matches backend submit validation. */
+function countPlainWords(value: string) {
+  const text = value.trim();
+
+  if (!text) {
+    return 0;
+  }
+
+  return text.split(/\s+/).filter(Boolean).length;
 }
 
 function toLocalDateInputValue(date: Date): string {
@@ -292,12 +358,6 @@ function previewMetaTime(): string {
   return formatReleaseTime(new Date().toISOString());
 }
 
-function walletCreditPackageTitle(packageType: string | null) {
-  if (packageType === "bundle") return "3-Release Package";
-  if (packageType === "single") return "Single Release";
-  return "Credit package";
-}
-
 type SubmitYourPressReleaseFormProps = {
   submitter: {
     firstName: string;
@@ -313,10 +373,22 @@ type SubmitYourPressReleaseFormProps = {
     packageType: string | null;
   };
   initialPackage: PackageId | null;
+  activeStep: number;
+  expandedStep: number | null;
+  onStepChange: (step: number) => void;
+  onExpandedStepChange: (step: number | null) => void;
 };
 
-export default function SubmitYourPressReleaseForm({ submitter, initialPackage }: SubmitYourPressReleaseFormProps) {
+export default function SubmitYourPressReleaseForm({
+  submitter,
+  initialPackage,
+  activeStep,
+  expandedStep,
+  onStepChange,
+  onExpandedStepChange,
+}: SubmitYourPressReleaseFormProps) {
   const router = useRouter();
+  const stepRefs = useRef<Partial<Record<number, HTMLElement | null>>>({});
   const [selectedPackage, setSelectedPackage] = useState<PackageId>(initialPackage ?? "single");
   const [isFeaturedPlacementEnabled, setIsFeaturedPlacementEnabled] =
     useState(false);
@@ -336,18 +408,11 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
   const [coverPhotoFile, setCoverPhotoFile] = useState<File | null>(null);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionMessage, setSubmissionMessage] = useState<string | null>(
-    null,
-  );
   const [toast, setToast] = useState<{ tone: "success" | "error"; message: string } | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewSnapshot, setPreviewSnapshot] = useState<SubmitYourPressReleaseValues | null>(null);
   const [previewImageObjectUrl, setPreviewImageObjectUrl] = useState<string | null>(null);
   const hasUsableCredits = submitter.credits > 0;
-  const walletExpiryNote =
-    hasUsableCredits &&
-    submitter.creditsExpiresAt &&
-    new Date(submitter.creditsExpiresAt) > new Date();
 
   useEffect(() => {
     if (!previewOpen) {
@@ -382,9 +447,34 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
     purchasingCredits && selectedPackageData.price !== null
       ? selectedPackageData.price + featuredPlacementPrice
       : null;
-  const wordCount = countWords(formValues.pressReleaseContent);
+  const pressReleaseContentLength = formValues.pressReleaseContent.length;
+  const wordCount = countPlainWords(formValues.pressReleaseContent);
   const isOverWordLimit = wordCount > maxPressReleaseWords;
+  const releaseTitleLength = formValues.releaseTitle.length;
+  const isOverTitleLimit = releaseTitleLength > maxReleaseTitleLength;
+  const summaryLength = formValues.summary.length;
+  const isOverSummaryLimit = summaryLength > maxSummaryLength;
   const preferredDistributionDateMin = useMemo(() => toLocalDateInputValue(new Date()), []);
+
+  const stepsWithErrors = useMemo(() => {
+    const steps = new Set<number>();
+
+    for (const [stepId, fields] of Object.entries(STEP_ERROR_FIELDS)) {
+      if (fields.some((field) => Boolean(fieldErrors[field]))) {
+        steps.add(Number(stepId));
+      }
+    }
+
+    if (isOverTitleLimit) {
+      steps.add(2);
+    }
+
+    if (isOverSummaryLimit || isOverWordLimit) {
+      steps.add(3);
+    }
+
+    return steps;
+  }, [fieldErrors, isOverTitleLimit, isOverSummaryLimit, isOverWordLimit]);
 
   function updateField<K extends keyof SubmitYourPressReleaseValues>(
     field: K,
@@ -483,26 +573,40 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
 
     if (!validation.values) {
       setFieldErrors(validation.errors);
-      setSubmissionMessage("Complete the required fields before continuing.");
       setToast({ tone: "error", message: "Complete the required fields before continuing." });
       return;
     }
 
     if (isOverWordLimit) {
       setFieldErrors((current) => ({ ...current, pressReleaseContent: "Press release content must be 700 words or less." }));
-      setSubmissionMessage("Reduce the press release content to 700 words or less before continuing.");
       setToast({ tone: "error", message: "Reduce the press release content to 700 words or less before continuing." });
       return;
     }
 
+    if (isOverTitleLimit) {
+      setFieldErrors((current) => ({ ...current, releaseTitle: "Release title must be 100 characters or less." }));
+      setToast({ tone: "error", message: "Reduce the release title to 100 characters or less before continuing." });
+      return;
+    }
+
+    if (isOverSummaryLimit) {
+      setFieldErrors((current) => ({ ...current, summary: "Summary must be 300 characters or less." }));
+      setToast({ tone: "error", message: "Reduce the summary to 300 characters or less before continuing." });
+      return;
+    }
+
+    if (!coverPhotoFile) {
+      setFieldErrors((current) => ({ ...current, coverPhoto: "Cover image is required." }));
+      setToast({ tone: "error", message: "Upload a cover image before continuing." });
+      return;
+    }
+
     if (fieldErrors.coverPhoto || fieldErrors.document) {
-      setSubmissionMessage("Please fix the highlighted file upload before continuing.");
       setToast({ tone: "error", message: "Please fix the highlighted file upload before continuing." });
       return;
     }
 
     setFieldErrors({});
-    setSubmissionMessage(null);
 
     if (purchasingCredits) {
       const orderSnapshot = {
@@ -533,6 +637,7 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
         formData.append("phoneNumber", validation.values.phoneNumber);
         formData.append("organization", validation.values.organization);
         formData.append("releaseTitle", validation.values.releaseTitle);
+        formData.append("summary", validation.values.summary);
         formData.append("category", validation.values.category);
         formData.append("preferredDistributionDate", validation.values.preferredDistributionDate);
         formData.append("pressReleaseContent", validation.values.pressReleaseContent);
@@ -559,7 +664,6 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
         const payload = await response.json().catch(() => null);
 
         if (!response.ok) {
-          setSubmissionMessage(typeof payload?.error === "string" ? payload.error : "We could not save your submission before checkout.");
           setToast({
             tone: "error",
             message: typeof payload?.error === "string" ? payload.error : "We could not save your submission before checkout.",
@@ -572,7 +676,6 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
           : undefined;
 
         if (!checkoutSessionId) {
-          setSubmissionMessage("We could not save your submission before checkout. Please try again.");
           setToast({ tone: "error", message: "We could not save your submission before checkout. Please try again." });
           return;
         }
@@ -580,7 +683,6 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
         window.sessionStorage.setItem("carib_checkout_session_id", checkoutSessionId);
         router.push(`/checkout?package=${selectedPackage}&checkoutSessionId=${encodeURIComponent(checkoutSessionId)}`);
       } catch {
-        setSubmissionMessage("We could not save your submission before checkout. Please try again.");
         setToast({ tone: "error", message: "We could not save your submission before checkout. Please try again." });
       } finally {
         setIsSubmitting(false);
@@ -614,6 +716,7 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
       formData.append("phoneNumber", validation.values.phoneNumber);
       formData.append("organization", validation.values.organization);
       formData.append("releaseTitle", validation.values.releaseTitle);
+      formData.append("summary", validation.values.summary);
       formData.append("category", validation.values.category);
       formData.append("preferredDistributionDate", validation.values.preferredDistributionDate);
       formData.append("pressReleaseContent", validation.values.pressReleaseContent);
@@ -641,7 +744,6 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
       const payload = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setSubmissionMessage(typeof payload?.error === "string" ? payload.error : "We could not save your press release.");
         setToast({ tone: "error", message: typeof payload?.error === "string" ? payload.error : "We could not save your press release." });
         return;
       }
@@ -655,12 +757,10 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
       }
 
       if (!releaseId) {
-        setSubmissionMessage("Your release was saved successfully.");
         setToast({ tone: "success", message: "Your release was saved successfully." });
         return;
       }
 
-      setSubmissionMessage("Your release was submitted for admin review. One credit was deducted.");
       setToast({ tone: "success", message: "Your release was submitted for admin review. One credit was deducted." });
       window.setTimeout(() => {
         const credits = typeof payload?.creditsRemaining === "number" ? String(payload.creditsRemaining) : "";
@@ -668,7 +768,6 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
         router.push(`/submission-successful${query}`);
       }, 900);
     } catch {
-      setSubmissionMessage("We could not save your press release right now. Please try again.");
       setToast({ tone: "error", message: "We could not save your press release right now. Please try again." });
     } finally {
       setIsSubmitting(false);
@@ -684,7 +783,6 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
     const validation = validateValues(formValues);
     if (!validation.values) {
       setFieldErrors(validation.errors);
-      setSubmissionMessage("Complete the required fields before preview.");
       setToast({ tone: "error", message: "Complete the required fields before preview." });
       return;
     }
@@ -694,12 +792,167 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
       return;
     }
 
+    if (isOverTitleLimit) {
+      setToast({ tone: "error", message: "Reduce the release title to 100 characters or less." });
+      return;
+    }
+
+    if (isOverSummaryLimit) {
+      setToast({ tone: "error", message: "Reduce the summary to 300 characters or less." });
+      return;
+    }
+
+    if (!coverPhotoFile) {
+      setFieldErrors((current) => ({ ...current, coverPhoto: "Cover image is required." }));
+      setToast({ tone: "error", message: "Upload a cover image before previewing." });
+      return;
+    }
+
     setPreviewSnapshot(validation.values);
     setPreviewOpen(true);
   }
 
+  function validateStep(step: number): boolean {
+    const errors: SubmitYourPressReleaseErrors = {};
+
+    if (step === 1) {
+      if (!formValues.organization.trim()) errors.organization = "Organization is required.";
+      if (!formValues.fullName.trim()) errors.fullName = "Contact name is required.";
+      if (!formValues.email.trim()) errors.email = "Email address is required.";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.email.trim())) errors.email = "Enter a valid email address.";
+    }
+
+    if (step === 2) {
+      if (!formValues.releaseTitle.trim()) {
+        errors.releaseTitle = "Release title is required.";
+      } else if (formValues.releaseTitle.trim().length > maxReleaseTitleLength) {
+        errors.releaseTitle = "Release title must be 100 characters or less.";
+      }
+      if (!formValues.category.trim()) errors.category = "Category is required.";
+      if (!formValues.targetRegions.trim()) errors.targetRegions = "Target region is required.";
+      if (!formValues.preferredDistributionDate.trim()) {
+        errors.preferredDistributionDate = "Publication date is required.";
+      }
+    }
+
+    if (step === 3) {
+      if (!formValues.summary.trim()) {
+        errors.summary = "Summary is required.";
+      } else if (formValues.summary.trim().length > maxSummaryLength) {
+        errors.summary = "Summary must be 300 characters or less.";
+      }
+
+      if (!formValues.pressReleaseContent.trim()) {
+        errors.pressReleaseContent = "Press release content is required.";
+      } else if (isOverWordLimit) {
+        errors.pressReleaseContent = "Press release content must be 700 words or less.";
+      }
+    }
+
+    if (step === 4) {
+      if (!coverPhotoFile) {
+        errors.coverPhoto = "Cover image is required.";
+      } else if (fieldErrors.coverPhoto) {
+        errors.coverPhoto = fieldErrors.coverPhoto;
+      }
+
+      if (fieldErrors.document) errors.document = fieldErrors.document;
+
+      if (formValues.outboundLink.trim() && !isValidOptionalHttpUrl(
+        /^www\./i.test(formValues.outboundLink.trim()) ? `https://${formValues.outboundLink.trim()}` : formValues.outboundLink.trim(),
+      )) {
+        errors.outboundLink = "Enter a valid http or https URL, or leave this blank.";
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors((current) => ({ ...current, ...errors }));
+      setToast({ tone: "error", message: "Complete the required fields before continuing." });
+      return false;
+    }
+
+    return true;
+  }
+
+  function scrollToStep(step: number) {
+    window.setTimeout(() => {
+      stepRefs.current[step]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 320);
+  }
+
+  function goToNextStep() {
+    if (!validateStep(activeStep)) {
+      return;
+    }
+
+    setFieldErrors({});
+    const nextStep = Math.min(5, activeStep + 1);
+    onStepChange(nextStep);
+    onExpandedStepChange(nextStep);
+    scrollToStep(nextStep);
+  }
+
+  function toggleStep(step: number) {
+    if (expandedStep === step) {
+      onExpandedStepChange(null);
+      return;
+    }
+
+    onStepChange(step);
+    onExpandedStepChange(step);
+    scrollToStep(step);
+  }
+
+  const displayTotal =
+    paidPackageDollarTotal !== null
+      ? paidPackageDollarTotal
+      : hasUsableCredits && isFeaturedPlacementEnabled
+        ? featuredPlacementPrice
+        : hasUsableCredits
+          ? 0
+          : selectedPackage === "custom"
+            ? null
+            : selectedPackageData.price ?? 0;
+
+  const submitButtonLabel = isSubmitting
+    ? "Saving..."
+    : hasUsableCredits || purchasingCredits
+      ? "Submit & Continue"
+      : selectedPackage === "custom"
+        ? "Request a Proposal"
+        : "Submit & Continue";
+
+  const showPaymentNote =
+    purchasingCredits
+    || (hasUsableCredits && isFeaturedPlacementEnabled)
+    || (!hasUsableCredits && selectedPackage !== "custom");
+
+  const formattedDisplayTotal =
+    displayTotal === null
+      ? "—"
+      : formatCurrency(displayTotal);
+
+  const summaryHeading = hasUsableCredits ? "Available Credits" : "Your Package";
+
+  const summaryTotalLabel = hasUsableCredits && !isFeaturedPlacementEnabled
+    ? "Available credits"
+    : "Total";
+
+  const summaryTotalValue = hasUsableCredits && !isFeaturedPlacementEnabled
+    ? `${submitter.credits} credit${submitter.credits === 1 ? "" : "s"}`
+    : formattedDisplayTotal;
+
   return (
     <section className={styles.submitPage}>
+      <div className={styles.curve} aria-hidden="true">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+          <path d="M0,0 L1440,0 L1440,48 C1300,52 1180,66 1040,66 C900,66 820,44 680,40 C540,36 460,64 320,64 C200,64 120,54 0,42 Z" />
+        </svg>
+      </div>
+
       {toast ? (
         <div className={`${styles.toast} ${toast.tone === "success" ? styles.toastSuccess : styles.toastError}`} role="status" aria-live="polite">
           {toast.message}
@@ -719,13 +972,23 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
                 <News.Body>
                   <News.Meta>
                     <News.Territory>{previewSnapshot.targetRegions?.trim() || "Regional"}</News.Territory>
-                    <News.Seprator type="line-seprator" />
-                    <News.Date>{previewMetaDate(previewSnapshot)}</News.Date>
-                    <News.Seprator />
-                    <News.Time>{previewMetaTime()}</News.Time>
+                    {isFeaturedPlacementEnabled ? (
+                      <>
+                        <News.Seprator type="line-seprator" />
+                        <News.Date>{previewMetaDate(previewSnapshot)}</News.Date>
+                        <News.Seprator />
+                        <News.Time>{previewMetaTime()}</News.Time>
+                      </>
+                    ) : (
+                      <News.Date>{previewMetaDate(previewSnapshot)}</News.Date>
+                    )}
                   </News.Meta>
                   <News.Title>{stripTagsToPlainText(previewSnapshot.releaseTitle)}</News.Title>
-                  <News.Description>{previewDescriptionFromContent(previewSnapshot.pressReleaseContent)}</News.Description>
+                  <News.Description>
+                    {previewSnapshot.summary?.trim()
+                      ? truncatePlainExcerpt(previewSnapshot.summary.trim(), 280)
+                      : previewDescriptionFromContent(previewSnapshot.pressReleaseContent)}
+                  </News.Description>
                   <News.TagsList>
                     <News.Tag>{previewSnapshot.category}</News.Tag>
                     {isFeaturedPlacementEnabled ? <News.Tag>Featured</News.Tag> : null}
@@ -757,513 +1020,551 @@ export default function SubmitYourPressReleaseForm({ submitter, initialPackage }
           </div>
         </div>
       ) : null}
+
       <Container className={styles.submitInner}>
         <div className={styles.contentGrid}>
-          <aside className={styles.summaryColumn}>
-            <section className={styles.summaryCard}>
-              <h2>{hasUsableCredits ? "Credit & submission" : "Order summary"}</h2>
-
-              <div className={styles.summaryBlock}>
-                <span className={styles.summaryLabel}>{hasUsableCredits ? "Your wallet" : "Select package"}</span>
-
-                {hasUsableCredits ? (
-                  <div className={styles.walletCreditCard}>
-                    <p>
-                      <strong>{walletCreditPackageTitle(submitter.packageType)}</strong>
-                    </p>
-                    <p>
-                      <strong>{submitter.credits}</strong> credit{submitter.credits === 1 ? "" : "s"} available
-                    </p>
-                    <p>This submission will use <strong>1 credit</strong>.</p>
-                    {walletExpiryNote ? (
-                      <p className={styles.walletExpiry}>
-                        Wallet credits expire six months after each purchase or grant. Next expiry on your account:{" "}
-                        {new Date(submitter.creditsExpiresAt!).toLocaleDateString()}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className={styles.packageList}>
-                    {packageOptions.map((option) => (
-                      <button
-                        key={option.id}
-                        type="button"
-                        className={`${styles.packageOption} ${selectedPackage === option.id ? styles.packageOptionActive : ""}`}
-                        onClick={() => setSelectedPackage(option.id)}
-                      >
-                        <strong>{option.title}</strong>
-                        <span>{option.subtitle}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.summaryDivider} />
-
-              <button
-                type="button"
-                className={`${styles.addOnCard} ${isFeaturedPlacementEnabled ? styles.addOnCardActive : ""}`}
-                onClick={() =>
-                  setIsFeaturedPlacementEnabled((current) => !current)
-                }
-              >
-                <div className={styles.labelWithBadge}>
-                  <strong>Featured placement</strong>
-                  <div className={styles.addOnBadge}>+$99</div>
-                </div>
-                <p>Homepage spotlight, priority review, and top positioning</p>
-              </button>
-
-              <div className={styles.summaryDividerPackage} />
-
-              <div className={styles.totalsBlock}>
-                <div className={styles.summaryRow}>
-                  <span>Available credits</span>
-                  <strong>{submitter.credits}</strong>
-                </div>
-                <div className={styles.summaryDividerTotal} />
-                <div className={styles.summaryRow}>
-                  <span>Package</span>
-                  <strong>
-                    {hasUsableCredits
-                      ? walletCreditPackageTitle(submitter.packageType)
-                      : selectedPackageData.price === null
-                        ? "Contact us"
-                        : formatCurrency(selectedPackageData.price)}
-                  </strong>
-                </div>
-
-                <div className={styles.summaryDividerTotal} />
-
-                {isFeaturedPlacementEnabled ? (
-                  <div className={styles.summaryRow}>
-                    <span>Featured placement</span>
-                    <strong>{formatCurrency(featuredPlacementPrice)}</strong>
-                  </div>
-                ) : null}
-
-                {isFeaturedPlacementEnabled ? (
-                  <div className={styles.summaryDividerTotal} />
-                ) : null}
-
-                <div
-                  className={`${styles.summaryRow} ${styles.summaryTotalRow}`}
-                >
-                  <span>Total</span>
-                  <strong>
-                    {paidPackageDollarTotal !== null
-                      ? formatCurrency(paidPackageDollarTotal)
-                      : hasUsableCredits && isFeaturedPlacementEnabled
-                        ? formatCurrency(featuredPlacementPrice)
-                        : hasUsableCredits
-                          ? "$0"
-                          : selectedPackage === "custom"
-                            ? "—"
-                            : "$0"}
-                  </strong>
-                </div>
-              </div>
-
-              <div className={styles.includedCard}>
-                <strong>What&apos;s Included:</strong>
-
-                <ul>
-                  {selectedPackageData.includedItems.map((item) => (
-                    <li key={item}>
-                      <Check size={16} strokeWidth={2.2} />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <Button
-                type="submit"
-                form="submit-your-press-release-form"
-                size="md"
-                className={styles.continueButton}
-                disabled={
-                  isSubmitting
-                  || (selectedPackage !== "custom"
-                    && (isOverWordLimit
-                      || Boolean(fieldErrors.coverPhoto || fieldErrors.document || fieldErrors.outboundLink)))
-                }
-              >
-                {isSubmitting
-                  ? "Saving..."
-                  : purchasingCredits
-                    ? "Continue to checkout"
-                    : hasUsableCredits && isFeaturedPlacementEnabled
-                      ? "Continue to checkout"
-                      : selectedPackage === "custom"
-                        ? "Request a Proposal"
-                        : "Submit release"}
-              </Button>
-
-              {hasUsableCredits || purchasingCredits ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="md"
-                  className={styles.previewButton}
-                  disabled={isSubmitting}
-                  onClick={() => openPreview()}
-                >
-                  Preview submission
-                </Button>
-              ) : null}
-
-              <p className={styles.secureNote}>
-                Secure payment processing. You&apos;ll review everything before final submission.
-              </p>
-            </section>
-
-            <section className={styles.helpCard}>
-              <h2>Need Help?</h2>
-              <p>Our team is ready to assist you with your submission.</p>
-              <a href="mailto:info@caribnewswire.com">info@caribnewswire.com</a>
-            </section>
-          </aside>
-
-          <section className={styles.formPanel}>
-            <p className={styles.panelEyebrow}>Release Information</p>
-
+          <div className={styles.formColumn}>
             <form
               id="submit-your-press-release-form"
               className={styles.form}
               onSubmit={handleSubmit}
               noValidate
             >
-              <div className={styles.sectionBlock}>
-                <div className={styles.sectionHeader}>
-                  <SvgIcon icon="contact-information" />
-                  <h2>Contact Information</h2>
-                </div>
+              {FORM_STEPS.map((step) => {
+                const isExpanded = expandedStep === step.id;
+                const isCurrentStep = activeStep === step.id;
+                const hasStepError = stepsWithErrors.has(step.id);
 
-                <div className={styles.formGrid}>
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-full-name">
-                      Full Name *
-                    </FormLabel>
-                    <Input
-                      id="submit-press-release-full-name"
-                      name="fullName"
-                      type="text"
-                      autoComplete="name"
-                      placeholder="John Doe"
-                      value={formValues.fullName}
-                      onChange={(event) =>
-                        updateField("fullName", event.target.value)
-                      }
-                      aria-invalid={Boolean(fieldErrors.fullName)}
-                    />
-                    {fieldErrors.fullName ? (
-                      <p className={styles.fieldError}>
-                        {fieldErrors.fullName}
-                      </p>
-                    ) : null}
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-email">
-                      Email Address *
-                    </FormLabel>
-                    <Input
-                      id="submit-press-release-email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      placeholder="john@company.com"
-                      value={formValues.email}
-                      onChange={(event) =>
-                        updateField("email", event.target.value)
-                      }
-                      aria-invalid={Boolean(fieldErrors.email)}
-                    />
-                    {fieldErrors.email ? (
-                      <p className={styles.fieldError}>{fieldErrors.email}</p>
-                    ) : null}
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-phone-number">
-                      Phone Number
-                    </FormLabel>
-                    <Input
-                      id="submit-press-release-phone-number"
-                      name="phoneNumber"
-                      type="tel"
-                      autoComplete="tel"
-                      placeholder="+1 (340) 555-0123"
-                      value={formValues.phoneNumber}
-                      onChange={(event) =>
-                        updateField("phoneNumber", event.target.value)
-                      }
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-organization">
-                      Organization *
-                    </FormLabel>
-                    <Input
-                      id="submit-press-release-organization"
-                      name="organization"
-                      type="text"
-                      autoComplete="organization"
-                      placeholder="Company Name"
-                      value={formValues.organization}
-                      onChange={(event) =>
-                        updateField("organization", event.target.value)
-                      }
-                      aria-invalid={Boolean(fieldErrors.organization)}
-                    />
-                    {fieldErrors.organization ? (
-                      <p className={styles.fieldError}>
-                        {fieldErrors.organization}
-                      </p>
-                    ) : null}
-                  </FormControl>
-                </div>
-              </div>
-
-              <div className={styles.sectionDivider} />
-
-              <div className={styles.sectionBlock}>
-                <div className={styles.sectionHeader}>
-                  <SvgIcon icon="press-release-details" />
-                  <h2>Press Release Details</h2>
-                </div>
-
-                <div className={styles.detailsStack}>
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-title">
-                      Release Title *
-                    </FormLabel>
-                    <Input
-                      id="submit-press-release-title"
-                      name="releaseTitle"
-                      type="text"
-                      placeholder="Your Press Release Headline"
-                      value={formValues.releaseTitle}
-                      onChange={(event) =>
-                        updateField("releaseTitle", event.target.value)
-                      }
-                      aria-invalid={Boolean(fieldErrors.releaseTitle)}
-                    />
-                    {fieldErrors.releaseTitle ? (
-                      <p className={styles.fieldError}>
-                        {fieldErrors.releaseTitle}
-                      </p>
-                    ) : null}
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-category">
-                      Category *
-                    </FormLabel>
-                    <select
-                      id="submit-press-release-category"
-                      name="category"
-                      className={styles.selectField}
-                      value={formValues.category}
-                      onChange={(event) =>
-                        updateField("category", event.target.value)
-                      }
-                      aria-invalid={Boolean(fieldErrors.category)}
+                return (
+                  <article
+                    key={step.id}
+                    id={`submit-step-${step.id}`}
+                    ref={(node) => {
+                      stepRefs.current[step.id] = node;
+                    }}
+                    className={`${styles.accordionStep} ${isExpanded ? styles.accordionStepExpanded : ""} ${hasStepError ? styles.accordionStepError : ""}`}
+                  >
+                    <button
+                      type="button"
+                      className={styles.accordionHeader}
+                      onClick={() => toggleStep(step.id)}
+                      aria-expanded={isExpanded}
+                      aria-controls={`submit-step-panel-${step.id}`}
                     >
-                      <option value="">Select category</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>{category}</option>
-                      ))}
-                    </select>
-                    {fieldErrors.category ? (
-                      <p className={styles.fieldError}>
-                        {fieldErrors.category}
-                      </p>
-                    ) : null}
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-preferred-date">
-                      Preferred Distribution Date
-                    </FormLabel>
-                    <Input
-                      id="submit-press-release-preferred-date"
-                      name="preferredDistributionDate"
-                      type="date"
-                      min={preferredDistributionDateMin}
-                      autoComplete="off"
-                      value={formValues.preferredDistributionDate}
-                      onChange={(event) =>
-                        updateField(
-                          "preferredDistributionDate",
-                          event.target.value,
-                        )
-                      }
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <label
-                      htmlFor="submit-press-release-cover-photo"
-                      className={`${styles.uploadField} ${styles.coverUploadField} ${coverPhotoName ? styles.uploadFieldActive : ""}`}
-                    >
-                      <input
-                        id="submit-press-release-cover-photo"
-                        name="coverPhoto"
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.webp"
-                        className={styles.hiddenFileInput}
-                        onChange={(event) =>
-                          handleFileSelection(event, "coverPhoto")
-                        }
-                      />
-
-                      <ImageUp size={48} strokeWidth={1.8} />
-                      <strong>{coverPhotoName || "Upload cover photo"}</strong>
-                      <span>
-                        This image will appear with your press release
+                      <span
+                        className={`${styles.stepBadge} ${isCurrentStep ? styles.stepBadgeActive : ""}`}
+                        aria-hidden
+                      >
+                        {step.id}
                       </span>
-                      <small>
-                        JPG, PNG, or WebP (Max 5MB, recommended 1200×630px)
-                      </small>
-                    </label>
-                    {fieldErrors.coverPhoto ? (
-                      <p className={styles.fieldError}>{fieldErrors.coverPhoto}</p>
-                    ) : null}
-                  </FormControl>
+                      <span className={styles.accordionHeaderText}>
+                        <strong>{step.title}</strong>
+                        <span>{step.subtitle}</span>
+                      </span>
+                      <span className={styles.accordionChevron} aria-hidden>
+                        <SvgIcon icon="down-arrow" />
+                      </span>
+                    </button>
 
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-content">
-                      Press Release Content *
-                    </FormLabel>
-                    <Textarea
-                      className={styles.contentTextarea}
-                      id="submit-press-release-content"
-                      name="pressReleaseContent"
-                      rows={7}
-                      placeholder="Paste your press release content here or upload a file below..."
-                      value={formValues.pressReleaseContent}
-                      onChange={(event) =>
-                        updateField("pressReleaseContent", event.target.value)
-                      }
-                      aria-invalid={Boolean(fieldErrors.pressReleaseContent)}
-                    />
-                    <div className={`${styles.wordCounter} ${isOverWordLimit ? styles.wordCounterError : ""}`}>
-                      {wordCount} / {maxPressReleaseWords} words
-                    </div>
-                    {isOverWordLimit ? (
-                      <p className={styles.fieldError}>Press release content exceeds the 700 word limit.</p>
-                    ) : null}
-                    {fieldErrors.pressReleaseContent ? (
-                      <p className={styles.fieldError}>
-                        {fieldErrors.pressReleaseContent}
-                      </p>
-                    ) : null}
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-document">
-                      Upload Document (Optional)
-                    </FormLabel>
-                    <label
-                      htmlFor="submit-press-release-document"
-                      className={`${styles.uploadField} ${styles.documentUploadField} ${documentName ? styles.uploadFieldActive : ""}`}
+                    <div
+                      className={`${styles.accordionBodyWrap} ${isExpanded ? styles.accordionBodyWrapOpen : ""}`}
                     >
-                      <input
-                        id="submit-press-release-document"
-                        name="document"
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        className={styles.hiddenFileInput}
-                        onChange={(event) =>
-                          handleFileSelection(event, "document")
-                        }
-                      />
+                      <div
+                        className={styles.accordionBodyInner}
+                        id={`submit-step-panel-${step.id}`}
+                        aria-hidden={!isExpanded}
+                      >
+                        {isExpanded ? (
+                        <div className={styles.accordionBody}>
+                        {step.id === 1 ? (
+                          <div className={styles.formGrid}>
+                            <FormControl>
+                              <FormLabel htmlFor="submit-press-release-organization">
+                                Organization Name <span className={styles.required}>*</span>
+                              </FormLabel>
+                              <Input
+                                id="submit-press-release-organization"
+                                name="organization"
+                                type="text"
+                                autoComplete="organization"
+                                placeholder="Company Name"
+                                value={formValues.organization}
+                                onChange={(event) => updateField("organization", event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.organization)}
+                              />
+                              {fieldErrors.organization ? (
+                                <p className={styles.fieldError}>{fieldErrors.organization}</p>
+                              ) : null}
+                            </FormControl>
 
-                      <Upload size={32} strokeWidth={1.8} />
-                      <strong>
-                        {documentName ||
-                          "Drop your file here or click to browse"}
-                      </strong>
-                      <small>
-                        Supported formats: PDF, DOC, DOCX (Max 10MB)
-                      </small>
-                    </label>
-                    {fieldErrors.document ? (
-                      <p className={styles.fieldError}>{fieldErrors.document}</p>
-                    ) : null}
-                  </FormControl>
-                </div>
-              </div>
+                            <FormControl>
+                              <FormLabel htmlFor="submit-press-release-full-name">
+                                Contact Name <span className={styles.required}>*</span>
+                              </FormLabel>
+                              <Input
+                                id="submit-press-release-full-name"
+                                name="fullName"
+                                type="text"
+                                autoComplete="name"
+                                placeholder="John Doe"
+                                value={formValues.fullName}
+                                onChange={(event) => updateField("fullName", event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.fullName)}
+                              />
+                              {fieldErrors.fullName ? (
+                                <p className={styles.fieldError}>{fieldErrors.fullName}</p>
+                              ) : null}
+                            </FormControl>
 
-              <div className={styles.sectionDivider} />
+                            <FormControl>
+                              <FormLabel htmlFor="submit-press-release-email">
+                                Email <span className={styles.required}>*</span>
+                              </FormLabel>
+                              <Input
+                                id="submit-press-release-email"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                placeholder="john@company.com"
+                                value={formValues.email}
+                                onChange={(event) => updateField("email", event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.email)}
+                              />
+                              {fieldErrors.email ? (
+                                <p className={styles.fieldError}>{fieldErrors.email}</p>
+                              ) : null}
+                            </FormControl>
 
-              <div className={styles.sectionBlock}>
-                <div className={styles.sectionHeaderPlain}>
-                  <h2>Additional Information</h2>
-                </div>
+                            <FormControl>
+                              <FormLabel htmlFor="submit-press-release-phone-number">
+                                Phone
+                              </FormLabel>
+                              <Input
+                                id="submit-press-release-phone-number"
+                                name="phoneNumber"
+                                type="tel"
+                                autoComplete="tel"
+                                placeholder="+1 (340) 555-0123"
+                                value={formValues.phoneNumber}
+                                onChange={(event) => updateField("phoneNumber", event.target.value)}
+                              />
+                            </FormControl>
+                          </div>
+                        ) : null}
 
-                <div className={styles.detailsStack}>
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-target-regions">
-                      Target Islands/Regions
-                    </FormLabel>
-                    <Input
-                      id="submit-press-release-target-regions"
-                      name="targetRegions"
-                      type="text"
-                      placeholder="e.g., USVI, Jamaica, All Caribbean"
-                      value={formValues.targetRegions}
-                      onChange={(event) =>
-                        updateField("targetRegions", event.target.value)
-                      }
-                    />
-                  </FormControl>
+                        {step.id === 2 ? (
+                          <div className={styles.detailsStack}>
+                            <FormControl>
+                              <div className={styles.labelWithCounter}>
+                                <FormLabel htmlFor="submit-press-release-title">
+                                  Release Title <span className={styles.required}>*</span>
+                                </FormLabel>
+                                <span
+                                  className={`${styles.charCounter} ${isOverTitleLimit ? styles.charCounterError : ""}`}
+                                >
+                                  {releaseTitleLength}/{maxReleaseTitleLength}
+                                </span>
+                              </div>
+                              <Input
+                                id="submit-press-release-title"
+                                name="releaseTitle"
+                                type="text"
+                                placeholder="Your press release headline"
+                                value={formValues.releaseTitle}
+                                onChange={(event) => updateField("releaseTitle", event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.releaseTitle) || isOverTitleLimit}
+                              />
+                              {isOverTitleLimit ? (
+                                <p className={styles.fieldError}>Release title must be 100 characters or less.</p>
+                              ) : fieldErrors.releaseTitle ? (
+                                <p className={styles.fieldError}>{fieldErrors.releaseTitle}</p>
+                              ) : null}
+                            </FormControl>
 
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-special-instructions">
-                      Special Instructions
-                    </FormLabel>
-                    <Textarea
-                      id="submit-press-release-special-instructions"
-                      name="specialInstructions"
-                      rows={4}
-                      placeholder="Any specific requirements or instructions for distribution..."
-                      value={formValues.specialInstructions}
-                      onChange={(event) =>
-                        updateField("specialInstructions", event.target.value)
-                      }
-                    />
-                  </FormControl>
+                            <div className={styles.detailsRowTwo}>
+                              <FormControl>
+                                <FormLabel htmlFor="submit-press-release-category">
+                                  Category <span className={styles.required}>*</span>
+                                </FormLabel>
+                                <Select
+                                  id="submit-press-release-category"
+                                  name="category"
+                                  options={categoryOptions}
+                                  value={formValues.category}
+                                  onChange={(event) => updateField("category", event.target.value)}
+                                  aria-invalid={Boolean(fieldErrors.category)}
+                                />
+                                {fieldErrors.category ? (
+                                  <p className={styles.fieldError}>{fieldErrors.category}</p>
+                                ) : null}
+                              </FormControl>
 
-                  <FormControl>
-                    <FormLabel htmlFor="submit-press-release-outbound-link">Outbound Link (optional)</FormLabel>
-                    <Input
-                      id="submit-press-release-outbound-link"
-                      name="outboundLink"
-                      type="url"
-                      inputMode="url"
-                      autoComplete="url"
-                      placeholder="https://yourwebsite.com"
-                      value={formValues.outboundLink}
-                      onChange={(event) => updateField("outboundLink", event.target.value)}
-                      aria-invalid={Boolean(fieldErrors.outboundLink)}
-                    />
-                    {fieldErrors.outboundLink ? (
-                      <p className={styles.fieldError}>{fieldErrors.outboundLink}</p>
-                    ) : null}
-                  </FormControl>
-                </div>
-              </div>
+                              <FormControl>
+                                <FormLabel htmlFor="submit-press-release-target-regions">
+                                  Target Region <span className={styles.required}>*</span>
+                                </FormLabel>
+                                <Select
+                                  id="submit-press-release-target-regions"
+                                  name="targetRegions"
+                                  options={regionOptions}
+                                  value={formValues.targetRegions}
+                                  onChange={(event) => updateField("targetRegions", event.target.value)}
+                                  aria-invalid={Boolean(fieldErrors.targetRegions)}
+                                />
+                                {fieldErrors.targetRegions ? (
+                                  <p className={styles.fieldError}>{fieldErrors.targetRegions}</p>
+                                ) : null}
+                              </FormControl>
+                            </div>
 
-              {submissionMessage ? (
-                <p className={styles.submissionMessage}>{submissionMessage}</p>
-              ) : null}
+                            <FormControl>
+                              <FormLabel htmlFor="submit-press-release-preferred-date">
+                                Publication Date <span className={styles.required}>*</span>
+                              </FormLabel>
+                              <Input
+                                id="submit-press-release-preferred-date"
+                                name="preferredDistributionDate"
+                                type="date"
+                                min={preferredDistributionDateMin}
+                                autoComplete="off"
+                                value={formValues.preferredDistributionDate}
+                                onChange={(event) =>
+                                  updateField("preferredDistributionDate", event.target.value)
+                                }
+                                aria-invalid={Boolean(fieldErrors.preferredDistributionDate)}
+                              />
+                              {fieldErrors.preferredDistributionDate ? (
+                                <p className={styles.fieldError}>{fieldErrors.preferredDistributionDate}</p>
+                              ) : null}
+                            </FormControl>
+                          </div>
+                        ) : null}
+
+                        {step.id === 3 ? (
+                          <div className={styles.detailsStack}>
+                            <FormControl>
+                              <div className={styles.labelWithCounter}>
+                                <FormLabel htmlFor="submit-press-release-summary">
+                                  Summary <span className={styles.required}>*</span>
+                                </FormLabel>
+                                <span
+                                  className={`${styles.charCounter} ${isOverSummaryLimit ? styles.charCounterError : ""}`}
+                                >
+                                  {summaryLength}/{maxSummaryLength}
+                                </span>
+                              </div>
+                              <Textarea
+                                id="submit-press-release-summary"
+                                name="summary"
+                                rows={4}
+                                placeholder="A 2–3 sentence summary of your press release..."
+                                value={formValues.summary}
+                                onChange={(event) => updateField("summary", event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.summary) || isOverSummaryLimit}
+                              />
+                              {isOverSummaryLimit ? (
+                                <p className={styles.fieldError}>Summary must be 300 characters or less.</p>
+                              ) : fieldErrors.summary ? (
+                                <p className={styles.fieldError}>{fieldErrors.summary}</p>
+                              ) : null}
+                            </FormControl>
+
+                            <FormControl>
+                              <div className={styles.labelWithCounter}>
+                                <FormLabel htmlFor="submit-press-release-content">
+                                  Full Press Release Content <span className={styles.required}>*</span>
+                                </FormLabel>
+                                <span
+                                  className={`${styles.wordCounter} ${isOverWordLimit ? styles.wordCounterError : ""}`}
+                                >
+                                  {wordCount}/{maxPressReleaseWords} words · {pressReleaseContentLength} characters
+                                </span>
+                              </div>
+                              <Textarea
+                                id="submit-press-release-content"
+                                name="pressReleaseContent"
+                                rows={10}
+                                placeholder="Write or paste your full press release content here. Include all relevant details, quotes, and context..."
+                                value={formValues.pressReleaseContent}
+                                onChange={(event) => updateField("pressReleaseContent", event.target.value)}
+                                onInput={(event) => updateField("pressReleaseContent", event.currentTarget.value)}
+                                aria-invalid={Boolean(fieldErrors.pressReleaseContent) || isOverWordLimit}
+                              />
+                              <p className={styles.wordCounterHint}>
+                                Words are counted when separated by spaces. The limit is 700 words.
+                              </p>
+                              {isOverWordLimit ? (
+                                <p className={styles.fieldError}>Press release content exceeds the 700 word limit.</p>
+                              ) : fieldErrors.pressReleaseContent ? (
+                                <p className={styles.fieldError}>{fieldErrors.pressReleaseContent}</p>
+                              ) : null}
+                            </FormControl>
+                          </div>
+                        ) : null}
+
+                        {step.id === 4 ? (
+                          <div className={styles.uploadStack}>
+                            <div className={styles.uploadSection}>
+                              <p className={styles.uploadSectionLabel}>
+                                Image <span className={styles.required}>*</span>
+                              </p>
+                              <label
+                                htmlFor="submit-press-release-cover-photo"
+                                className={`${styles.uploadField} ${coverPhotoName ? styles.uploadFieldActive : ""}`}
+                              >
+                                <input
+                                  id="submit-press-release-cover-photo"
+                                  name="coverPhoto"
+                                  type="file"
+                                  accept=".jpg,.jpeg,.png,.webp"
+                                  className={styles.hiddenFileInput}
+                                  onChange={(event) => handleFileSelection(event, "coverPhoto")}
+                                />
+                                <span className={styles.uploadFieldIcon} aria-hidden>
+                                  <ImageUp size={28} strokeWidth={1.8} />
+                                </span>
+                                <strong>{coverPhotoName || "Upload Image"}</strong>
+                                <span>PNG, JPG or WebP • Max 5MB</span>
+                              </label>
+                              {fieldErrors.coverPhoto ? (
+                                <p className={styles.fieldError}>{fieldErrors.coverPhoto}</p>
+                              ) : null}
+                            </div>
+
+                            <div className={styles.uploadSection}>
+                              <p className={styles.uploadSectionLabel}>Documents</p>
+                              <label
+                                htmlFor="submit-press-release-document"
+                                className={`${styles.uploadField} ${documentName ? styles.uploadFieldActive : ""}`}
+                              >
+                                <input
+                                  id="submit-press-release-document"
+                                  name="document"
+                                  type="file"
+                                  accept=".pdf,.doc,.docx"
+                                  className={styles.hiddenFileInput}
+                                  onChange={(event) => handleFileSelection(event, "document")}
+                                />
+                                <span className={styles.uploadFieldIcon} aria-hidden>
+                                  <FileText size={28} strokeWidth={1.8} />
+                                </span>
+                                <strong>{documentName || "Upload Documents"}</strong>
+                                <span>PDF or Word • Max 10MB</span>
+                              </label>
+                              {fieldErrors.document ? (
+                                <p className={styles.fieldError}>{fieldErrors.document}</p>
+                              ) : null}
+                            </div>
+
+                            <FormControl>
+                              <FormLabel htmlFor="submit-press-release-outbound-link">
+                                Outbound Link (optional)
+                              </FormLabel>
+                              <Input
+                                id="submit-press-release-outbound-link"
+                                name="outboundLink"
+                                type="url"
+                                inputMode="url"
+                                autoComplete="url"
+                                placeholder="https://yourwebsite.com"
+                                value={formValues.outboundLink}
+                                onChange={(event) => updateField("outboundLink", event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.outboundLink)}
+                              />
+                              {fieldErrors.outboundLink ? (
+                                <p className={styles.fieldError}>{fieldErrors.outboundLink}</p>
+                              ) : null}
+                            </FormControl>
+
+                            <FormControl>
+                              <FormLabel htmlFor="submit-press-release-special-instructions">
+                                Special Instructions (optional)
+                              </FormLabel>
+                              <Textarea
+                                id="submit-press-release-special-instructions"
+                                name="specialInstructions"
+                                rows={4}
+                                placeholder="Any specific requirements or instructions for distribution..."
+                                value={formValues.specialInstructions}
+                                onChange={(event) => updateField("specialInstructions", event.target.value)}
+                              />
+                            </FormControl>
+                          </div>
+                        ) : null}
+
+                        {step.id === 5 ? (
+                          <div className={styles.detailsStack}>
+                            <div className={styles.addOnSection}>
+                              <p className={styles.uploadSectionLabel}>Distribution Add-ons</p>
+                              <div className={`${styles.addOnCard} ${isFeaturedPlacementEnabled ? styles.addOnCardActive : ""}`}>
+                                <div className={styles.addOnCardCopy}>
+                                  <strong>Featured Placement</strong>
+                                  <span>Appear at the top of the newsroom for 7 days</span>
+                                </div>
+                                <div className={styles.addOnCardActions}>
+                                  <span className={styles.addOnPrice}>+$99</span>
+                                  <button
+                                    type="button"
+                                    role="switch"
+                                    aria-checked={isFeaturedPlacementEnabled}
+                                    className={`${styles.addOnSwitch} ${isFeaturedPlacementEnabled ? styles.addOnSwitchOn : ""}`}
+                                    onClick={() => setIsFeaturedPlacementEnabled((current) => !current)}
+                                  >
+                                    <span className={styles.addOnSwitchThumb} aria-hidden />
+                                  </button>
+                                </div>
+                              </div>
+                              {isFeaturedPlacementEnabled ? (
+                                <ul className={styles.featuredBenefitList}>
+                                  <li className={styles.featuredBenefitItem}>Homepage spotlight for 7 days</li>
+                                  <li className={styles.featuredBenefitItem}>Top positioning in the newsroom</li>
+                                </ul>
+                              ) : null}
+                            </div>
+
+                            <div className={styles.editorialNote}>
+                              <strong>Editorial Note</strong>
+                              <p>
+                                Your release will be reviewed by our editorial team within 48 hours. You will receive
+                                an email with feedback or confirmation before distribution begins.
+                              </p>
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {step.nextLabel ? (
+                          <div className={styles.stepFooter}>
+                            <Button
+                              type="button"
+                              size="md"
+                              className={styles.nextStepButton}
+                              onClick={goToNextStep}
+                            >
+                              <span>Next: {step.nextLabel}</span>
+                              <span className={styles.nextStepButtonIcon} aria-hidden>
+                                <SvgIcon icon="right-arrow-large" />
+                              </span>
+                            </Button>
+                          </div>
+                        ) : null}
+                        </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+
             </form>
-          </section>
+          </div>
+
+          <aside className={styles.summaryColumn}>
+            <section className={styles.summaryCard}>
+              <header className={styles.summaryHeader}>
+                <span className={styles.summaryEyebrow}>Order Summary</span>
+                <h2>{summaryHeading}</h2>
+              </header>
+
+              <div className={styles.summaryBody}>
+                {!hasUsableCredits ? (
+                  <div className={styles.packagePicker}>
+                    <span className={styles.packagePickerLabel}>Select package</span>
+                    <div className={styles.packageList}>
+                      {packageOptions.map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          className={`${styles.packageOption} ${selectedPackage === option.id ? styles.packageOptionActive : ""}`}
+                          onClick={() => setSelectedPackage(option.id)}
+                        >
+                          <strong>{option.title}</strong>
+                          <span>{option.subtitle}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className={`${styles.walletCreditCard} ${isFeaturedPlacementEnabled ? styles.walletCreditCardDivider : ""}`}>
+                    <p>This submission will use <strong>1 credit</strong>.</p>
+                  </div>
+                )}
+
+                {!hasUsableCredits ? (
+                  <div className={`${styles.packageRow} ${isFeaturedPlacementEnabled ? styles.packageRowDivider : ""}`}>
+                    <div className={styles.packageInfo}>
+                      <strong>{selectedPackageData.title}</strong>
+                      <span>{selectedPackageData.subtitle}</span>
+                    </div>
+                    <strong className={styles.packagePrice}>
+                      {selectedPackageData.price === null
+                        ? "Contact us"
+                        : formatCurrency(selectedPackageData.price)}
+                    </strong>
+                  </div>
+                ) : null}
+
+                {isFeaturedPlacementEnabled ? (
+                  <div className={styles.summaryRow}>
+                    <span>Featured placement</span>
+                    <span>{formatCurrency(featuredPlacementPrice)}</span>
+                  </div>
+                ) : null}
+
+                <div className={`${styles.summaryRow} ${styles.summaryTotalRow}`}>
+                  <strong>{summaryTotalLabel}</strong>
+                  <strong>{summaryTotalValue}</strong>
+                </div>
+
+                <Button
+                  type="submit"
+                  form="submit-your-press-release-form"
+                  size="md"
+                  className={styles.submitButton}
+                  disabled={
+                    isSubmitting
+                    || (selectedPackage !== "custom"
+                      && (isOverWordLimit
+                        || isOverTitleLimit
+                        || isOverSummaryLimit
+                        || Boolean(fieldErrors.coverPhoto || fieldErrors.document || fieldErrors.outboundLink)))
+                  }
+                >
+                  <span className={styles.submitButtonContent}>
+                    <Send size={18} strokeWidth={2} aria-hidden />
+                    {submitButtonLabel}
+                  </span>
+                </Button>
+
+                {showPaymentNote ? (
+                  <p className={styles.paymentNote}>
+                    You will be taken to payment after submitting
+                  </p>
+                ) : null}
+
+                <ul className={styles.highlightList}>
+                  {sidebarHighlightItems.map((item) => (
+                    <li key={item}>
+                      <Check size={16} strokeWidth={2.2} aria-hidden />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {hasUsableCredits || purchasingCredits ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="md"
+                    className={styles.previewButton}
+                    disabled={isSubmitting}
+                    onClick={() => openPreview()}
+                  >
+                    Preview submission
+                  </Button>
+                ) : null}
+              </div>
+            </section>
+          </aside>
         </div>
       </Container>
     </section>

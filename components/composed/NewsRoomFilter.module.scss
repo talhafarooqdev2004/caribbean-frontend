@@ -2,74 +2,159 @@
 @use "../../styles/semantic" as *;
 @use "../../styles/breakpoints" as *;
 
+@mixin tab-scroll-row-mobile {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    width: calc(100% + (2 * #{$space-mobile}));
+    max-width: none;
+    margin-inline: calc(-1 * #{$space-mobile});
+    padding-inline: $space-mobile;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    border-bottom: 1px solid $white-200;
+
+    &::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+}
+
 .filter {
+    width: 100%;
+    min-width: 0;
+
     .filterActionWrapper {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         align-items: stretch;
-        gap: $space-sm;
-        min-height: 48px;
+        gap: 12px;
+        width: 100%;
 
         .searchInputWrapper {
-            flex: 1 1 220px;
+            width: 100%;
             min-width: 0;
             position: relative;
 
             .searchIconWrapper {
                 position: absolute;
-                top: 12.5px;
-                left: 17px;
+                top: 50%;
+                left: 16px;
+                transform: translateY(-50%);
+                line-height: 0;
+
+                svg path {
+                    stroke: #ffffff80;
+                }
             }
 
             >input {
+                width: 100%;
+                height: 51px;
                 padding-left: $space-2xl;
+                background-color: #ffffff12;
+                border: 1px solid #ffffff24;
+                border-radius: 12px;
+                color: $white;
+                font-size: 14.5px;
+
+                &::placeholder {
+                    color: #ffffff80;
+                }
             }
         }
 
-        .filterSelect {
-            flex: 1 1 150px;
-            min-width: 150px;
-            appearance: none;
-            border: 1px solid $grayish-blue-100;
-            border-radius: $radius-md;
-            background-color: $white;
-            padding-block: 10px;
-            padding-inline: $space-base 40px;
-            color: $primary;
-            font: inherit;
+        .filterToggle {
+            display: inline-flex;
+            align-self: flex-start;
+            align-items: center;
+            gap: $space-sm;
+            height: 44px;
+            padding-inline: $space-lg;
+            border-radius: 12px;
+            background-color: #ffc40026;
+            border: 1px solid #ffc40059;
+            color: $secondary;
+            font-size: $text-sm;
+            font-weight: $weight-semi-bold;
             cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23274060' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            background-size: 14px;
+
+            svg path {
+                stroke: $secondary;
+            }
         }
     }
 
-    .categories {
-        margin-top: $space-base;
-        display: flex;
-        flex-wrap: wrap;
-        gap: $space-sm;
+    .tabs {
+        @include tab-scroll-row-mobile;
+        margin-top: 28px;
 
-        .categoryActive {
-            background-color: $primary;
-            color: $white;
+        .tab {
+            position: relative;
+            flex-shrink: 0;
+            padding-bottom: 14px;
+            padding-inline: 0;
+            background: none;
+            border: none;
+            color: #ffffff73;
+            font-size: 13.5px;
+            cursor: pointer;
+            white-space: nowrap;
+
+            &:hover {
+                color: $white;
+            }
+        }
+
+        .tabActive {
+            color: #5899e2;
+
+            &::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: -1px;
+                height: 2px;
+                background-color: #5899e2;
+            }
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
-        width: 70%;
-
+    @media (min-width: map-get($breakpoints, "md")) {
         .filterActionWrapper {
+            flex-direction: row;
             flex-wrap: nowrap;
+            align-items: stretch;
+            gap: $space-md;
+            max-width: 720px;
+            margin-inline: auto;
 
             .searchInputWrapper {
-                flex: 1 1 auto;
+                flex: 1 1 220px;
+                width: auto;
             }
 
-            .filterSelect {
-                flex: 0 1 auto;
+            .filterToggle {
+                align-self: stretch;
+                height: auto;
             }
+        }
+
+        .tabs {
+            width: 100%;
+            max-width: 100%;
+            margin-inline: 0;
+            padding-inline: 0;
+            margin-top: 50px;
+            flex-wrap: wrap;
+            overflow-x: visible;
+            overflow-y: visible;
+            gap: $space-xl;
         }
     }
 }

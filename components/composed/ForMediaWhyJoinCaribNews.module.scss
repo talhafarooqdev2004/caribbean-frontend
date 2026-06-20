@@ -3,78 +3,198 @@
 @use '../../styles/breakpoints' as *;
 
 .whyJoin {
-    background-color: $bg-section;
+    background-color: $white;
 
     .whyJoinInner {
-        padding-block: 25px;
+        padding-block: 20px 56px;
+    }
 
-        >h1 {
-            font-size: $text-section;
-            text-align: center;
+    .header {
+        max-width: 100%;
+        margin-bottom: 32px;
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: #FFC400;
+            font-size: 10px;
+            font-weight: $weight-semi-bold;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+
+            &::before {
+                content: "";
+                width: 24px;
+                height: 1px;
+                background-color: #FFC400;
+            }
+        }
+
+        >h2 {
+            margin-top: 16px;
+            font-family: $font-display;
+            font-size: 32px;
+            font-weight: $weight-bold;
+            line-height: 1.12;
+            color: #172940;
+            width: 100%;
+
+            em {
+                font-style: italic;
+            }
         }
 
         >p {
-            margin-top: $space-lg;
-            font-size: $text-base;
-            line-height: $line-height-md;
-            text-align: center;
-        }
-
-        .whyJoinCards {
-            margin-top: 64px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: $space-xl;
-
-            .whyJoinCard {
-                background-color: $white;
-                border-radius: $radius-base;
-                padding: $space-xl;
-                box-shadow: 0px 20px 25px -5px #0000001A;
-                display: flex;
-                gap: $space-base;
-
-                .iconWrapper {
-                    flex-shrink: 0;
-                    width: 64px;
-                    height: 64px;
-                    border-radius: $radius-lg;
-                    background: $linear-gradient-blue-400;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                .cardTitle {
-                    font-weight: $weight-md;
-                    font-size: $text-lg;
-                    line-height: $line-height-md;
-                }
-
-                .cardDescription {
-                    margin-top: 7px;
-                    font-size: $text-md;
-                    line-height: 26px;
-                }
-            }
+            margin-top: 14px;
+            color: $text-body;
+            font-size: 15px;
+            line-height: 26px;
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
-        .whyJoinInner {
-            padding-block: $space-5xl;
+    .cards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
 
-            >h1 {
-                font-size: $text-section-lg;
+        .card {
+            position: relative;
+            overflow: hidden;
+            padding: 24px 20px;
+            border: 1px solid #2740601C;
+            border-radius: 16px;
+            background-color: $white;
+
+            .cardNumber {
+                position: absolute;
+                top: 12px;
+                right: 16px;
+                font-family: $font-display;
+                font-size: 48px;
+                line-height: 1;
+                color: #2740600F;
+                font-weight: $weight-bold;
+            }
+
+            .iconBox {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+            }
+
+            >h3 {
+                margin-top: 18px;
+                font-family: $font-display;
+                font-size: 17px;
+                font-weight: $weight-bold;
+                line-height: 1.25;
+                color: #172940;
             }
 
             >p {
-                width: 60%;
-                margin-inline: auto;
+                margin-top: 10px;
+                color: $text-body;
+                font-size: 14px;
+                line-height: 24px;
+                font-weight: $weight-regular;
+            }
+        }
+
+        .toneYellow {
+            background-color: #FFC40026;
+            border: 1px solid #FFC40040;
+        }
+
+        .toneBlue {
+            background-color: #DFEEFF;
+            border: 1px solid #5899E238;
+        }
+
+        .toneGray {
+            background-color: #2740601A;
+            border: 1px solid #27406026;
+        }
+
+        .toneRed {
+            background-color: #E8532A1A;
+            border: 1px solid #E8532A26;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'sm')) {
+        .header>h2 {
+            font-size: 36px;
+        }
+    }
+
+    @media (min-width: map-get($breakpoints, 'md')) {
+        .whyJoinInner {
+            padding-block: $space-5xl;
+            padding-inline: 140px;
+        }
+
+        .header {
+            max-width: 640px;
+            margin-bottom: 56px;
+
+            .eyebrow {
+                font-size: 11px;
+
+                &::before {
+                    width: 20px;
+                }
             }
 
-            .whyJoinCards {
-                grid-template-columns: repeat(auto-fit, minmax(590px, 1fr));
+            >h2 {
+                margin-top: 18px;
+                font-size: 44px;
+                line-height: 49.28px;
+                width: 80%;
+            }
+
+            >p {
+                margin-top: 16px;
+                color: #172940;
+                font-size: 17px;
+                line-height: 29.24px;
+            }
+        }
+
+        .cards {
+            grid-template-columns: 1fr 1fr;
+            gap: $space-xl;
+
+            .card {
+                padding: 36px 32px;
+                border-radius: 18px;
+
+                .cardNumber {
+                    top: 14px;
+                    right: 18px;
+                    font-size: 56px;
+                    line-height: 56px;
+                }
+
+                .iconBox {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 13px;
+                }
+
+                >h3 {
+                    margin-top: 20px;
+                    font-size: 18px;
+                }
+
+                >p {
+                    font-size: 14.5px;
+                    line-height: 24.65px;
+                    font-weight: 300;
+                }
             }
         }
     }

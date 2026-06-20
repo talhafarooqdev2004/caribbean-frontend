@@ -3,19 +3,43 @@
 @use "../../../styles/breakpoints" as *;
 
 .releasePage {
-    background-color: $white;
+    background-color: $cream-band;
+    overflow-x: clip;
 }
 
-/* Match NewsRoom / site heroes: gradient layered over photo */
+/* Match site heroes: gradient layered over navy */
 .releaseHero {
-    background-image: $hero-section-gradient, url("/images/hero-section-image-desktop.jpeg");
+    background-color: $navy-deep;
+    background-image: radial-gradient(ellipse 90% 55% at 50% 18%, rgba(88, 153, 226, 0.14) 0%, transparent 72%);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
     color: $white;
 
     .releaseHeroInner {
-        padding-block: $section-padding-base;
+        padding-block: 40px 36px;
+    }
+}
+
+.releaseCurve {
+    position: relative;
+    z-index: 2;
+    line-height: 0;
+    overflow: hidden;
+    margin-top: -1px;
+
+    svg {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: 60px;
+
+        path {
+            fill: $navy-deep;
+            stroke: $navy-deep;
+            stroke-width: 2px;
+            stroke-linejoin: round;
+        }
     }
 }
 
@@ -54,23 +78,26 @@
 .releaseMeta {
     display: flex;
     flex-wrap: wrap;
-    gap: $space-sm;
-    margin-top: $space-lg;
+    gap: 8px;
+    margin-top: 20px;
 
     span {
-        border: 1px solid $white-200;
+        border: 1px solid rgba($white, 0.14);
         border-radius: $radius-full;
-        padding: $space-xs $space-md;
-        background-color: $white-100;
-        font-size: $text-sm;
-        color: $white;
+        padding: 6px 14px;
+        background-color: rgba($white, 0.06);
+        font-size: 12px;
+        font-weight: $weight-semi-bold;
+        letter-spacing: 0.3px;
+        color: rgba($white, 0.85);
     }
 }
 
 .releaseTitle {
-    margin-top: $space-lg;
+    margin-top: 20px;
     max-width: 980px;
-    font-size: $text-3xl;
+    font-family: $font-display;
+    font-size: 32px;
     line-height: 1.12;
     font-weight: $weight-bold;
     overflow-wrap: anywhere;
@@ -78,20 +105,21 @@
 }
 
 .releaseLead {
-    margin-top: $space-lg;
+    margin-top: 16px;
     max-width: 820px;
-    font-size: $text-md;
-    line-height: $line-height-md;
-    color: $grayish-blue-100;
+    font-size: 16px;
+    line-height: 1.65;
+    color: rgba($white, 0.55);
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
 .releaseContentSection {
-    background-color: $bg-section;
+    margin-top: -1px;
+    background-color: $cream-band;
 
     .releaseContentInner {
-        padding-block: $space-2xl;
+        padding-block: 32px 56px;
     }
 }
 
@@ -133,52 +161,57 @@
 }
 
 .releaseSidebar {
-    border: 1px solid $card-border;
-    border-radius: $radius-base;
+    border-radius: 12px;
     background: $white;
-    padding: $space-lg;
-    box-shadow: 0 4px 20px rgba(39, 64, 96, 0.05);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba($navy-deep, 0.06);
     min-width: 0;
     overflow-wrap: anywhere;
     word-break: break-word;
 
     h2 {
         margin: 0;
-        font-size: $text-lg;
-        color: $dark-grey-900;
+        padding: 18px 20px;
+        background-color: $navy-deep;
+        border-bottom: 3px solid $secondary;
+        font-size: 15px;
+        font-weight: $weight-semi-bold;
+        color: $white;
     }
 
     ul {
-        margin-top: $space-base;
+        margin: 0;
         display: grid;
-        gap: $space-sm;
-        padding-left: 0;
+        gap: 12px;
+        padding: 20px;
         list-style: none;
     }
 
     li {
-        color: $grayish-blue-800;
+        color: $text-body;
+        font-size: 14px;
         line-height: 1.45;
     }
 
     strong {
-        color: $dark-grey-900;
+        color: $navy-deep;
+        font-weight: $weight-semi-bold;
     }
 }
 
 .releaseArticle {
     width: 100%;
     min-width: 0;
-    border: 1px solid $card-border;
-    border-radius: $radius-base;
-    padding: $space-lg;
+    border: 1px solid rgba($navy-deep, 0.08);
+    border-radius: 12px;
+    padding: 24px;
     background-color: $white;
-    box-shadow: 0 4px 24px rgba(39, 64, 96, 0.06);
+    box-shadow: 0 4px 24px rgba($navy-deep, 0.06);
     overflow-wrap: anywhere;
     word-break: break-word;
 
     p {
-        color: $grayish-blue-900;
+        color: $navy-deep;
         font-size: $text-md;
         line-height: 1.75;
 
@@ -191,7 +224,7 @@
 .releaseArticleRich {
     font-size: $text-md;
     line-height: 1.75;
-    color: $grayish-blue-900;
+    color: $navy-deep;
     min-width: 0;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -256,29 +289,32 @@
         padding: $space-sm $space-md;
         border-left: 4px solid $primary;
         background: rgba(39, 64, 96, 0.04);
-        color: $grayish-blue-800;
+        color: $text-body;
     }
 }
 
 @media (min-width: map-get($breakpoints, "md")) {
+    .releaseCurve svg {
+        height: 90px;
+    }
+
     .releaseHero {
         .releaseHeroInner {
-            padding-block: $space-5xl;
+            padding-block: 72px 64px;
         }
     }
 
     .releaseTitle {
-        font-size: $text-5xl;
+        font-size: 48px;
     }
 
     .releaseLead {
-        font-size: $text-base;
-        line-height: $line-height-base;
+        font-size: 18px;
     }
 
     .releaseContentSection {
         .releaseContentInner {
-            padding-block: $space-4xl;
+            padding-block: 56px 80px;
         }
     }
 
@@ -323,34 +359,82 @@
     align-items: center;
     justify-content: center;
     gap: $space-md;
-    min-height: 40px;
-    padding: $space-sm $space-xl;
-    border: 2px solid $primary;
-    border-radius: $radius-sm;
-    background-color: $white;
-    color: $primary;
+    min-height: 48px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    background-color: $secondary;
+    color: $navy-deep;
     font-size: $text-md;
     font-weight: $weight-semi-bold;
     line-height: 1.2;
     text-decoration: none;
     box-sizing: border-box;
-    transition:
-        background-color 0.15s ease,
-        color 0.15s ease,
-        border-color 0.15s ease;
+    transition: background-color 0.15s ease;
 
     &:hover {
-        background-color: rgba(39, 64, 96, 0.06);
-        color: $primary;
+        background-color: darken($secondary, 4%);
+        color: $navy-deep;
     }
 
     &:focus-visible {
-        outline: 2px solid $primary;
+        outline: 2px solid $navy-deep;
         outline-offset: 2px;
     }
 }
 
 .visitWebsiteArrow {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    line-height: 0;
+}
+
+.releaseDocumentLink {
+    color: $primary;
+    font-weight: $weight-semi-bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.releaseDocument {
+    margin-top: $space-lg;
+}
+
+.downloadDocumentButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-md;
+    min-height: 48px;
+    padding: 12px 24px;
+    border: 1.5px solid $navy-deep;
+    border-radius: 10px;
+    background-color: $white;
+    color: $navy-deep;
+    font-size: $text-md;
+    font-weight: $weight-semi-bold;
+    line-height: 1.2;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+        background-color: rgba($navy-deep, 0.04);
+        color: $navy-deep;
+    }
+
+    &:focus-visible {
+        outline: 2px solid $navy-deep;
+        outline-offset: 2px;
+    }
+}
+
+.downloadDocumentArrow {
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
