@@ -7,7 +7,7 @@ import {
     LatestNews,
     ReadyToShareCaribbeanMedia,
     ReadyToShareYourNews,
-    Testimonials,
+    IndustryInsights,
     WhatIsCaribNewsWire
 } from "@/components/composed";
 import { type PressReleaseRecord } from "@/lib/press-release-types";
@@ -24,7 +24,7 @@ export default function HomeClientPage({ latestReleases = [] }: HomeClientPagePr
             <WhatIsCaribNewsWire />
             <HowItWorks />
             <LatestNews releases={latestReleases} />
-            <Testimonials />
+            <IndustryInsights />
             <ReadyToShareCaribbeanMedia />
             <ReadyToShareYourNews />
         </>

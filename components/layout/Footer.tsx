@@ -23,22 +23,30 @@ const contactLinks = [
 
 const socialLinks = [
     {
-        label: "X", href: "#", icon: <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+        label: "X",
+        href: "https://x.com/caribnewswire?s=11",
+        icon: <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0.58675 9.99597L3.58275 5.73997L-0.00124998 -2.89679e-05H2.84075L5.09475 3.61197L7.62875 -2.89679e-05H8.53875L5.51475 4.29797L9.08475 9.99597H6.24275L4.01675 6.43997L1.49675 9.99597H0.58675ZM6.64875 9.25397H7.75475L2.43475 0.741971H1.32875L6.64875 9.25397Z" fill="white" fillOpacity="0.5" />
         </svg>
     },
     {
-        label: "LinkedIn", href: "#", icon: <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        label: "LinkedIn",
+        href: "https://www.linkedin.com/company/caribnewswire/",
+        icon: <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0.224813 10.15V3.09402H1.40081V10.15H0.224813ZM0.812813 1.59602C0.579479 1.59602 0.383479 1.52136 0.224813 1.37202C0.0754792 1.21336 0.000812538 1.01736 0.000812538 0.784024C0.000812538 0.550691 0.0754792 0.364024 0.224813 0.224024C0.383479 0.0746906 0.579479 2.40803e-05 0.812813 2.40803e-05C1.03681 2.40803e-05 1.22815 0.0746906 1.38681 0.224024C1.54548 0.364024 1.62481 0.550691 1.62481 0.784024C1.62481 1.01736 1.54548 1.21336 1.38681 1.37202C1.22815 1.52136 1.03681 1.59602 0.812813 1.59602ZM3.47609 10.15V3.09402H4.54009L4.59609 4.32602C4.82009 3.88736 5.13743 3.54669 5.54809 3.30402C5.96809 3.05202 6.44409 2.92602 6.97609 2.92602C7.52676 2.92602 8.00276 3.03802 8.40409 3.26202C8.80543 3.47669 9.11809 3.80802 9.34209 4.25602C9.56609 4.69469 9.67809 5.25469 9.67809 5.93602V10.15H8.50209V6.06202C8.50209 5.35269 8.34343 4.82069 8.02609 4.46602C7.71809 4.11136 7.27943 3.93402 6.71009 3.93402C6.31809 3.93402 5.96809 4.03202 5.66009 4.22802C5.35209 4.41469 5.10476 4.69002 4.91809 5.05402C4.74076 5.40869 4.65209 5.85202 4.65209 6.38402V10.15H3.47609Z" fill="white" fillOpacity="0.5" />
         </svg>
     },
     {
-        label: "Instagram", href: "#", icon: <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        label: "Instagram",
+        href: "https://www.instagram.com/caribnewswire?igsh=MW9oaWE3MTlzZ2Jwbw==",
+        icon: <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M-0.000843711 10.248V1.5974e-05H10.2472V10.248H-0.000843711ZM0.895156 9.35202H9.35116V0.896016H0.895156V9.35202ZM3.38716 6.86002V3.38802H6.85916V6.86002H3.38716Z" fill="white" fillOpacity="0.5" />
         </svg>
     },
     {
-        label: "Facebook", href: "#", icon: <svg width="5" height="11" viewBox="0 0 5 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        label: "Facebook",
+        href: "https://www.facebook.com/share/1HP3gdpUE8/?mibextid=wwXIfr",
+        icon: <svg width="5" height="11" viewBox="0 0 5 11" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M1.07903 10.08V1.93196C1.07903 1.48396 1.1537 1.11996 1.30303 0.839956C1.45236 0.550622 1.6717 0.340622 1.96103 0.209955C2.2597 0.0699556 2.6237 -4.43459e-05 3.05303 -4.43459e-05H3.85103V1.00796H3.23503C2.8897 1.00796 2.6377 1.07796 2.47903 1.21796C2.3297 1.35796 2.25503 1.60529 2.25503 1.95996V10.08H1.07903ZM0.00103127 4.01796V3.02396H4.03303V4.01796H0.00103127Z" fill="white" fillOpacity="0.5" />
         </svg>
     },
@@ -65,7 +73,12 @@ export default function Footer() {
                         <ul className={styles.socials}>
                             {socialLinks.map((social) => (
                                 <li key={social.label}>
-                                    <Link href={social.href} aria-label={social.label}>
+                                    <Link
+                                        href={social.href}
+                                        aria-label={social.label}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
                                         {social.icon}
                                     </Link>
                                 </li>

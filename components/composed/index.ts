@@ -4,7 +4,7 @@ export { default as WhatIsCaribNewsWire } from "./WhatIsCaribNewsWire";
 export { default as HowItWorks } from "./HowItWorks";
 export { default as LatestNews } from "./LatestNews";
 export { default as ReadyToShareYourNews } from "./ReadyToShareYourNews";
-export { default as Testimonials } from "./Testimonials";
+export { default as IndustryInsights } from "./IndustryInsights";
 export { default as AboutHeroSection } from "./AboutHeroSection";
 export { default as AboutWhatIsCaribNews } from "./AboutWhatIsCaribNews";
 export { default as WhyWeExist } from "./WhyWeExist";
