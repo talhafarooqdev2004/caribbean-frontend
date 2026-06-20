@@ -24,12 +24,6 @@ frontend:
             echo "MW_SITE_ACCESS_SECRET=$MW_SITE_ACCESS_SECRET"
             echo "SITE_ACCESS_CONTROL_SECRET=$SITE_ACCESS_CONTROL_SECRET"
           } >> .env.production
-        - |
-          if [ -n "$MONGODB_URI" ]; then
-            npm run init:enquiry-indexes
-          else
-            echo "Skipping enquiry index init (MONGODB_URI not set in Amplify env)."
-          fi
         - npm run build
   artifacts:
     baseDirectory: .next
