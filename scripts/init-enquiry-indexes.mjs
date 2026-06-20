@@ -1,15 +1,13 @@
 import { MongoClient } from "mongodb";
 
-function requiredEnv(name) {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Missing ${name} environment variable.`);
-    }
-    return value;
-}
-
 async function run() {
-    const uri = requiredEnv("MONGODB_URI");
+    const uri = process.env.MONGODB_URI?.trim();
+
+    if (!uri) {
+        console.warn("Skipping enquiry index init: MONGODB_URI is not set.");
+        return;
+    }
+
     const dbName = process.env.MONGODB_DB_NAME || process.env.MONGODB_DB;
     const client = new MongoClient(uri, { maxPoolSize: 10 });
 
