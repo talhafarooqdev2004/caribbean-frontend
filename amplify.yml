@@ -21,6 +21,8 @@ frontend:
             echo "S3_BACKUP_PREFIX=$S3_BACKUP_PREFIX"
             echo "CARIB_BACKEND_URL=$CARIB_BACKEND_URL"
             echo "NEXT_PUBLIC_CARIB_BACKEND_URL=$NEXT_PUBLIC_CARIB_BACKEND_URL"
+            echo "MW_SITE_ACCESS_SECRET=$MW_SITE_ACCESS_SECRET"
+            echo "SITE_ACCESS_CONTROL_SECRET=$SITE_ACCESS_CONTROL_SECRET"
           } >> .env.production
         - npm run init:enquiry-indexes
         - npm run build
