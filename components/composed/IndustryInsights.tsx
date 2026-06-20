@@ -35,7 +35,7 @@ export default function IndustryInsights() {
                         <div className={styles.attributionCopy}>
                             <cite className={styles.authorName}>Clint Chan Tack</cite>
                             <span className={styles.authorRole}>
-                                27 years in Caribbean media Former Senior Journalist, Trinidad and Tobago Newsday
+                                27 years in Caribbean media and former Senior Journalist, Trinidad and Tobago Newsday
                             </span>
                         </div>
                     </figcaption>
