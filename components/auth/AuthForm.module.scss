@@ -112,6 +112,6 @@
     min-height: 48px;
 
     &:hover:not(:disabled) {
-        background: darken($secondary, 4%);
+        background: shade($secondary);
     }
 }

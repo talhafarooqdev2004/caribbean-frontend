@@ -98,7 +98,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .featuredPressReleasesInner {
             padding-block: 70px;
             padding-inline: 140px;

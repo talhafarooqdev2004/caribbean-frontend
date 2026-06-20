@@ -66,7 +66,7 @@
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media(min-width: breakpoint('md')) {
         .whyJoinTheNetworkInner {
             padding-block: 96px;
 

@@ -297,13 +297,13 @@
     }
   }
 
-  @media (min-width: map-get($breakpoints, 'md')) {
+  @media (min-width: breakpoint('md')) {
     .curve svg {
       height: 90px;
     }
   }
 
-  @media (min-width: map-get($breakpoints, 'lg')) {
+  @media (min-width: breakpoint('lg')) {
     .inner {
       grid-template-columns: 280px 1fr;
       gap: $space-4xl;

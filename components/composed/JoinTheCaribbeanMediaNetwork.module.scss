@@ -34,7 +34,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .joinTheCaribbeanMediaNetworkInner {
             padding-block: $section-block-mobile;
 

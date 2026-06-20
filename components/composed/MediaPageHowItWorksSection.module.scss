@@ -25,7 +25,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .mediaHowItWorksInner {
             padding-block: $space-5xl;
 

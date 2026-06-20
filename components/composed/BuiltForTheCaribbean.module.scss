@@ -77,7 +77,7 @@
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media(min-width: breakpoint('md')) {
         .builtForTheCaribbeanInner {
             padding-block: $space-5xl;
             flex-direction: row;

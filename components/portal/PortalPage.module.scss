@@ -352,7 +352,7 @@
     gap: $space-xl;
     grid-template-columns: 1fr;
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         /* Three saved-release cards per row on tablet and up (equal widths). */
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -635,7 +635,7 @@
     margin-top: $space-md;
 }
 
-@media (max-width: map-get($breakpoints, "sm") - 1px) {
+@media (max-width: breakpoint("sm") - 1px) {
     .profileRow {
         grid-template-columns: 1fr;
         gap: $space-xs;
@@ -746,7 +746,7 @@
 }
 
 /* Tablet and below: match public pages — readable type, full-width CTAs, scrollable tabs, lighter panels */
-@media (max-width: map-get($breakpoints, "md") - 1px) {
+@media (max-width: breakpoint("md") - 1px) {
     .portalPage {
         min-height: auto;
     }
@@ -869,7 +869,7 @@
     }
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
     .curve svg {
         height: 90px;
     }

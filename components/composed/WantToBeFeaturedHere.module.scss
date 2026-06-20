@@ -111,7 +111,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         &::after {
             height: 70%;
             background-size: 1429px 556px;
@@ -159,7 +159,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .curve svg {
             height: 72px;
         }

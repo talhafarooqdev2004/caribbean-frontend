@@ -87,7 +87,7 @@
         color: #6B849A;
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         --metrics-padding-block: 51px;
 
         border-bottom: 1px solid rgba($soft-blue-100, 0.18);
@@ -155,7 +155,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .metric {
             padding-inline: $space-2xl;
         }

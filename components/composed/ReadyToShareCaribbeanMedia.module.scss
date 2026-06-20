@@ -93,7 +93,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .readyToShareInner {
             padding-block: $space-5xl;
 
@@ -152,7 +152,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .readyToShareInner>h2 {
             font-size: $text-5xl;
         }

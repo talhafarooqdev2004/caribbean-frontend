@@ -1,4 +1,9 @@
+@use "sass:color";
 @use "./primitive" as *;
+
+@function shade($color, $amount: 4%) {
+    @return color.adjust($color, $lightness: -$amount);
+}
 
 $primary: $blue-900;
 $secondary: $yellow-500;

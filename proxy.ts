@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
  * Site IP restriction — controlled ONLY by Admin → Site access (MongoDB toggle).
  * No env vars enable or disable this feature.
  *
- * On production hosts (not localhost/LAN), middleware loads policy from
+ * On production hosts (not localhost/LAN), proxy loads policy from
  * `/api/public/site-access` (same Amplify app → EC2 → DB). When restriction is off
  * in admin, everyone sees the site. When on, only allowlisted IPv4s pass.
  */
@@ -345,7 +345,7 @@ async function evaluateAccess(request: NextRequest): Promise<NextResponse | null
     return redirectToMaintenance(request, ip ? "deny" : "no-ip");
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     if (

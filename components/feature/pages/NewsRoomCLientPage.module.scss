@@ -106,7 +106,7 @@
     font-weight: $weight-semi-bold;
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
     .newsroomLoadMoreStrip {
         margin-top: $space-2xl;
     }

@@ -25,7 +25,7 @@
             }
         }
 
-        @media (min-width: map-get($breakpoints, 'md')) {
+        @media (min-width: breakpoint('md')) {
             max-width: 1200px;
 
             .note {

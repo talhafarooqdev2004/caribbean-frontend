@@ -210,13 +210,13 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'sm')) {
+    @media (min-width: breakpoint('sm')) {
         .header>h2 {
             font-size: 36px;
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .roles {
             grid-template-columns: 1fr 1fr;
             gap: $space-md;
@@ -296,7 +296,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'lg')) {
+    @media (min-width: breakpoint('lg')) {
         .whoShouldJoinInner {
             padding-block: 100px;
             padding-inline: 140px;

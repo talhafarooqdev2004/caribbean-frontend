@@ -115,7 +115,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .whatMakesUsDifferentInner {
             padding-block: 100px 0;
             padding-inline: 192px;

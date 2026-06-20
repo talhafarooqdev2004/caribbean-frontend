@@ -344,7 +344,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .heroSectionInner {
             padding-block: 56px 40px;
             gap: $space-2xl;
@@ -409,7 +409,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'lg')) {
+    @media (min-width: breakpoint('lg')) {
         background-image: none;
         overflow-x: visible;
 

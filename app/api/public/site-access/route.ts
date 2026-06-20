@@ -3,7 +3,7 @@ import { caribApiFetch, parseCaribApiJson } from "@/lib/backend-api";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Public read of site IP policy (from MongoDB via EC2). Used by Edge middleware on every request. */
+/** Public read of site IP policy (from MongoDB via EC2). Used by Edge proxy on every request. */
 export async function GET() {
     const response = await caribApiFetch("/site-access");
     const payload = await parseCaribApiJson(response);

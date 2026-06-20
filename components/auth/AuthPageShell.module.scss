@@ -106,7 +106,7 @@
     }
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
     .hero .heroInner {
         padding-block: 72px 64px;
 

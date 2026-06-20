@@ -155,7 +155,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .whatIsCaribNewsWireInner {
             padding-block: 72px 80px;
             gap: $space-2xl;
@@ -238,7 +238,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .whatIsCaribNewsWireInner {
             grid-template-columns: 1fr 1fr;
             gap: $space-4xl;

@@ -51,7 +51,7 @@
         }
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media(min-width: breakpoint('md')) {
         .whoThisIsForInner {
             >h1 {
                 font-size: $text-section-lg;

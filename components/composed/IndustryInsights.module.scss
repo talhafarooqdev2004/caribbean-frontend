@@ -139,7 +139,7 @@
         line-height: 1.55;
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .industryInsightsInner {
             padding-block: 110px;
             padding-inline: 280px;

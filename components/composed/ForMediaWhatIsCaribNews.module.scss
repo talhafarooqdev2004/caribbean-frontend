@@ -62,7 +62,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .whatIsCaribNewsWireInner {
             padding-block: 95px;
             flex-direction: row;

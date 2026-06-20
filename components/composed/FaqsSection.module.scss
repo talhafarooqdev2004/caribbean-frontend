@@ -121,7 +121,7 @@
     }
   }
 
-  @media (min-width: map-get($breakpoints, "md")) {
+  @media (min-width: breakpoint("md")) {
     .faqsSectionInner {
       padding-block: 90px;
 

@@ -71,13 +71,13 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'sm')) {
+    @media (min-width: breakpoint('sm')) {
         .heroSectionInner>h1 {
             font-size: 48px;
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .heroSectionInner {
             padding-block: 124px 100px;
 

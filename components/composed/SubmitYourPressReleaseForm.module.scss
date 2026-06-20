@@ -36,7 +36,7 @@
   padding-block: 20px 40px;
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
   .submitInner {
     padding-block: 40px 72px;
   }
@@ -607,7 +607,7 @@
   padding-inline: 20px;
 
   &:hover:not(:disabled) {
-    background-color: darken($navy-deep, 4%) !important;
+    background-color: shade($navy-deep) !important;
   }
 }
 
@@ -825,7 +825,7 @@
   min-height: 48px;
 
   &:hover:not(:disabled) {
-    background: darken(#C4922A, 4%) !important;
+    background: shade(#C4922A) !important;
   }
 
   &:disabled {
@@ -935,7 +935,7 @@
   }
 }
 
-@media (min-width: map-get($breakpoints, "sm")) {
+@media (min-width: breakpoint("sm")) {
   .previewActions {
     flex-direction: row;
     flex-wrap: wrap;
@@ -947,7 +947,7 @@
   }
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
   .curve svg {
     height: 90px;
   }
@@ -1067,7 +1067,7 @@
   }
 }
 
-@media (min-width: map-get($breakpoints, "lg")) {
+@media (min-width: breakpoint("lg")) {
   .submitInner {
     max-width: 1280px;
     padding-inline: 24px;

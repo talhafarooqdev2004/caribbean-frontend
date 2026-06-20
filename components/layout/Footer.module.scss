@@ -148,7 +148,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .footerInner {
             padding-block: 72px 40px;
             padding-inline: 120px;

@@ -281,7 +281,7 @@
     color: $white;
 
     &:hover {
-        background-color: darken($navy-deep, 4%);
+        background-color: shade($navy-deep);
         color: $white;
     }
 }
@@ -308,7 +308,7 @@
     pointer-events: none;
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
     .receiptPage {
         padding: 88px 24px 64px;
     }

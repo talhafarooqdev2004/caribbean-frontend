@@ -327,7 +327,7 @@
     }
   }
 
-  @media (min-width: map-get($breakpoints, "md")) {
+  @media (min-width: breakpoint("md")) {
     &[data-announcement="visible"] {
       --announcement-height: 42px;
     }
@@ -386,7 +386,7 @@
     }
   }
 
-  @media (min-width: map-get($breakpoints, "lg")) {
+  @media (min-width: breakpoint("lg")) {
     .headerRight {
       gap: 48px;
     }

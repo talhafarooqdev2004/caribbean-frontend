@@ -348,7 +348,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .sideAccent {
             display: block;
             width: 320px;
@@ -383,7 +383,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'lg')) {
+    @media (min-width: breakpoint('lg')) {
         .sideAccent {
             width: 400px;
         }

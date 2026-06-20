@@ -69,7 +69,7 @@
     width: 100%;
 }
 
-@media (min-width: map-get($breakpoints, 'md')) {
+@media (min-width: breakpoint('md')) {
     .adminLogin {
         padding-block: 96px;
     }

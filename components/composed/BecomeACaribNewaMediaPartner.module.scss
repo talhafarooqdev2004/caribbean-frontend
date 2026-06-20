@@ -207,7 +207,7 @@
         color: #991b1b;
     }
 
-    @media (min-width: map-get($breakpoints, 'sm')) {
+    @media (min-width: breakpoint('sm')) {
         .detailsSection>h2 {
             font-size: 36px;
         }
@@ -221,7 +221,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .becomeAPartnerInner {
             padding-block: 64px;
             gap: 40px;
@@ -298,7 +298,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'lg')) {
+    @media (min-width: breakpoint('lg')) {
         .becomeAPartnerInner {
             grid-template-columns: 1fr 0.8fr;
             gap: $space-4xl;

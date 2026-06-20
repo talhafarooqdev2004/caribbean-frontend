@@ -16,7 +16,7 @@
   box-shadow: 0 18px 48px rgba(15, 23, 42, 0.28);
   color: rgba($white, 0.9);
 
-  @media (min-width: map-get($breakpoints, "md")) {
+  @media (min-width: breakpoint("md")) {
     inset-inline: auto 24px;
     margin-inline: 0;
     bottom: 24px;
@@ -70,7 +70,7 @@
   color: $navy-deep;
 
   &:hover {
-    background-color: darken($secondary, 4%);
+    background-color: shade($secondary);
   }
 }
 
@@ -91,7 +91,7 @@
   color: $navy-deep;
 
   &:hover {
-    border-color: darken($card-border, 8%);
+    border-color: shade($card-border, 8%);
     background: #f8fafc;
   }
 }

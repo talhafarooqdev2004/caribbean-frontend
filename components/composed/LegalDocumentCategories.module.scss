@@ -49,7 +49,7 @@
     }
   }
 
-  @media (min-width: map-get($breakpoints, "md")) {
+  @media (min-width: breakpoint("md")) {
     .legalCategoriesInner {
       padding-inline: 170px !important;
     }

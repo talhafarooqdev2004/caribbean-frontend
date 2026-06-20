@@ -293,7 +293,7 @@
     }
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
     .releaseCurve svg {
         height: 90px;
     }
@@ -373,7 +373,7 @@
     transition: background-color 0.15s ease;
 
     &:hover {
-        background-color: darken($secondary, 4%);
+        background-color: shade($secondary);
         color: $navy-deep;
     }
 

@@ -201,7 +201,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .heroSectionInner {
             padding-block: 80px 48px;
         }
@@ -252,7 +252,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .heroSectionInner {
             padding-block: 120px 50px;
             padding-inline: 140px;

@@ -470,7 +470,7 @@
         min-height: 52px;
 
         &:hover:not(:disabled) {
-            background: darken($secondary, 4%);
+            background: shade($secondary);
         }
 
         &:disabled {
@@ -530,7 +530,7 @@
         text-align: center;
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .curve svg {
             height: 90px;
         }
@@ -563,7 +563,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .checkoutInner {
             padding-inline: 140px;
         }

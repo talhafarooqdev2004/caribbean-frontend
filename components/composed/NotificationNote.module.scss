@@ -71,7 +71,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .curve svg {
             height: 90px;
         }
@@ -104,7 +104,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .notificationNoteInner > h2 {
             font-size: $text-4xl;
             line-height: 1.25;

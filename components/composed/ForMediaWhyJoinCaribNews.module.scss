@@ -125,13 +125,13 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'sm')) {
+    @media (min-width: breakpoint('sm')) {
         .header>h2 {
             font-size: 36px;
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .whyJoinInner {
             padding-block: $space-5xl;
             padding-inline: 140px;

@@ -105,7 +105,7 @@
     color: $white;
 
     &:hover {
-        background-color: darken($navy-deep, 4%);
+        background-color: shade($navy-deep);
         color: $white;
     }
 }
@@ -117,7 +117,7 @@
 
     &:hover {
         background-color: rgba($secondary, 0.08);
-        color: darken($secondary, 8%);
+        color: shade($secondary, 8%);
     }
 }
 
@@ -126,7 +126,7 @@
     line-height: 1;
 }
 
-@media (min-width: map-get($breakpoints, "sm")) {
+@media (min-width: breakpoint("sm")) {
     .modal {
         padding: 50px 44px;
     }

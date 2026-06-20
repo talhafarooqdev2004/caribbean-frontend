@@ -81,7 +81,7 @@
         margin-top: 6px;
     }
 
-    @media(min-width: map-get($breakpoints, 'md')) {
+    @media(min-width: breakpoint('md')) {
         .applyForEarlyAccessInner {
             padding-block: 96px;
 

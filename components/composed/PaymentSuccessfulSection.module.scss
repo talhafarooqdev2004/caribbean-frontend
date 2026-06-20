@@ -214,7 +214,7 @@
   color: $primary;
 }
 
-@media (min-width: map-get($breakpoints, "md")) {
+@media (min-width: breakpoint("md")) {
   .paymentSuccessfulPage {
     padding: 104px 18px;
   }

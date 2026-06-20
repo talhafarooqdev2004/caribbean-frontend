@@ -182,7 +182,7 @@
     }
   }
 
-  @media (min-width: map-get($breakpoints, "md")) {
+  @media (min-width: breakpoint("md")) {
     .legalDocumentContentInner {
       padding-block: 52px 96px;
     }

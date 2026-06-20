@@ -214,7 +214,7 @@ $comparison-dash: #d1d5dc;
         }
     }
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         .comparisonContainer {
             padding-block: 64px 72px;
             padding-inline: $space-xl;
@@ -293,7 +293,7 @@ $comparison-dash: #d1d5dc;
         }
     }
 
-    @media (min-width: map-get($breakpoints, "lg")) {
+    @media (min-width: breakpoint("lg")) {
         .comparisonContainer {
             padding-block: 90px;
             padding-inline: 140px;
@@ -304,7 +304,7 @@ $comparison-dash: #d1d5dc;
         }
     }
 
-    @media (min-width: map-get($breakpoints, "xl")) {
+    @media (min-width: breakpoint("xl")) {
         .comparisonContainer {
             padding-inline: 192px;
         }

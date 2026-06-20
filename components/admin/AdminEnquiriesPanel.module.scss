@@ -1135,7 +1135,7 @@
     font-size: $text-sm;
 }
 
-@media (min-width: map-get($breakpoints, 'md')) {
+@media (min-width: breakpoint('md')) {
     .adminPanel {
         padding-block: 96px;
     }
@@ -1234,7 +1234,7 @@
     grid-template-columns: 1fr;
     gap: $space-lg;
 
-    @media (min-width: map-get($breakpoints, "md")) {
+    @media (min-width: breakpoint("md")) {
         grid-template-columns: 1fr 1fr;
     }
 }

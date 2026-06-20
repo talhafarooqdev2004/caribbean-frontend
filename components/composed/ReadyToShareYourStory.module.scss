@@ -106,7 +106,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'sm')) {
+    @media (min-width: breakpoint('sm')) {
         .footerCTAInner {
             .header {
                 .eyebrow {
@@ -135,7 +135,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'md')) {
+    @media (min-width: breakpoint('md')) {
         .footerCTAInner {
             padding-block: 80px 96px;
 
@@ -180,7 +180,7 @@
         }
     }
 
-    @media (min-width: map-get($breakpoints, 'lg')) {
+    @media (min-width: breakpoint('lg')) {
         .footerCTAInner {
             padding-block: $space-5xl;
 
