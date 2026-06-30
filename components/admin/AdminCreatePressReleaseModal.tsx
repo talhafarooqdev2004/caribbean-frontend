@@ -10,7 +10,9 @@ import {
 } from "@/lib/format-api-validation-errors";
 import {
     COVER_PHOTO_ACCEPT,
+    COVER_PHOTO_UPLOAD_HINT,
     DOCUMENT_ACCEPT,
+    DOCUMENT_UPLOAD_HINT,
     validateCoverPhotoFile,
     validateDocumentFile,
 } from "@/lib/press-release-upload-limits";
@@ -390,6 +392,7 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
                                 <div className={styles.editReleaseFileMeta}>
                                     <p className={styles.editReleaseAssetLabel}>Cover image</p>
                                     <span className={styles.editReleaseFileInputLabel}>Upload cover</span>
+                                    <p className={styles.editReleaseFieldNote}>{COVER_PHOTO_UPLOAD_HINT}</p>
                                     <input
                                         type="file"
                                         accept={COVER_PHOTO_ACCEPT}
@@ -411,6 +414,8 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
                                                     coverPhoto: validationError,
                                                 }));
                                                 setError(validationError);
+                                                setCoverFile(null);
+                                                event.target.value = "";
                                             }
                                         }}
                                     />
@@ -427,6 +432,7 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
                                 <div className={styles.editReleaseFileMeta}>
                                     <p className={styles.editReleaseAssetLabel}>Attached document</p>
                                     <span className={styles.editReleaseFileInputLabel}>Upload document</span>
+                                    <p className={styles.editReleaseFieldNote}>{DOCUMENT_UPLOAD_HINT}</p>
                                     <input
                                         type="file"
                                         accept={DOCUMENT_ACCEPT}
@@ -448,6 +454,8 @@ export function AdminCreatePressReleaseModal({ onClose, onCreated }: AdminCreate
                                                     document: validationError,
                                                 }));
                                                 setError(validationError);
+                                                setDocumentFile(null);
+                                                event.target.value = "";
                                             }
                                         }}
                                     />

@@ -10,6 +10,7 @@ const FIELD_LABELS: Record<string, string> = {
     organization: "Organization",
     releaseTitle: "Title",
     title: "Title",
+    summary: "Summary",
     category: "Category",
     island: "Region / island",
     preferredDistributionDate: "Preferred distribution date",

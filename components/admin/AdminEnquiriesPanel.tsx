@@ -16,6 +16,7 @@ import { roleOptions, territoryOptions } from "@/lib/enquiry-options";
 import { type ContactMessageAdminRecord } from "@/lib/contact-message-types";
 import { type PressReleaseRecord } from "@/lib/press-release-types";
 import { editorInitialHtmlFromStored } from "@/lib/press-release-content-format";
+import { apiValidationErrorsByField } from "@/lib/format-api-validation-errors";
 import { releaseCardExcerpt, stripTagsToPlainText } from "@/lib/press-release-list-excerpt";
 
 type PressReleaseQueueTab = "pending" | "approved" | "rejected";
@@ -31,10 +32,14 @@ const PRESS_RELEASE_QUEUE_TABS: { id: PressReleaseQueueTab; label: string }[] = 
 import { PRESS_RELEASE_CATEGORIES } from "@/lib/press-release-categories";
 import {
     COVER_PHOTO_ACCEPT,
+    COVER_PHOTO_UPLOAD_HINT,
     DOCUMENT_ACCEPT,
+    DOCUMENT_UPLOAD_HINT,
     validateCoverPhotoFile,
     validateDocumentFile,
 } from "@/lib/press-release-upload-limits";
+type EditUploadFieldKey = "coverPhoto" | "document";
+
 type PressReleaseEditModalState = {
     id: string;
     slug: string;
@@ -384,11 +389,13 @@ export default function AdminEnquiriesPanel({
     const [editSaveBusy, setEditSaveBusy] = useState(false);
     const [editCoverFile, setEditCoverFile] = useState<File | null>(null);
     const [editDocumentFile, setEditDocumentFile] = useState<File | null>(null);
+    const [editUploadFieldErrors, setEditUploadFieldErrors] = useState<Partial<Record<EditUploadFieldKey, string>>>({});
 
     useEffect(() => {
         if (!editModal) {
             setEditCoverFile(null);
             setEditDocumentFile(null);
+            setEditUploadFieldErrors({});
         }
     }, [editModal]);
 
@@ -1578,6 +1585,26 @@ export default function AdminEnquiriesPanel({
             return;
         }
 
+        if (editCoverFile) {
+            const coverError = validateCoverPhotoFile(editCoverFile);
+
+            if (coverError) {
+                setEditUploadFieldErrors((current) => ({ ...current, coverPhoto: coverError }));
+                setToast({ tone: "error", message: coverError });
+                return;
+            }
+        }
+
+        if (editDocumentFile) {
+            const documentError = validateDocumentFile(editDocumentFile);
+
+            if (documentError) {
+                setEditUploadFieldErrors((current) => ({ ...current, document: documentError }));
+                setToast({ tone: "error", message: documentError });
+                return;
+            }
+        }
+
         setEditSaveBusy(true);
 
         try {
@@ -1656,14 +1683,23 @@ export default function AdminEnquiriesPanel({
                 const filePayload = await fileResponse.json().catch(() => null);
 
                 if (!fileResponse.ok || !filePayload?.release) {
+                    const apiFieldErrors = apiValidationErrorsByField(filePayload);
+
+                    if (Object.keys(apiFieldErrors).length > 0) {
+                        setEditUploadFieldErrors((current) => ({ ...current, ...apiFieldErrors }));
+                    }
+
+                    const uploadErrorMessage = apiFieldErrors.coverPhoto
+                        ?? apiFieldErrors.document
+                        ?? (typeof filePayload?.error === "string"
+                            ? filePayload.error
+                            : typeof filePayload?.message === "string"
+                              ? filePayload.message
+                              : "Text saved, but file upload failed. Cover image must be under 5MB; documents under 10MB.");
+
                     setToast({
                         tone: "error",
-                        message:
-                            typeof filePayload?.error === "string"
-                                ? filePayload.error
-                                : typeof filePayload?.message === "string"
-                                  ? filePayload.message
-                                  : "Text saved, but file upload failed. Try a smaller image (cover under 5MB, document under 10MB).",
+                        message: uploadErrorMessage,
                     });
                     setEditModal(mapReleaseToEditModal(mergedRelease));
                     setEditCoverFile(null);
@@ -2527,14 +2563,42 @@ export default function AdminEnquiriesPanel({
                                                     </a>
                                                 ) : null}
                                                 <span className={styles.editReleaseFileInputLabel}>Replace cover</span>
+                                                <p className={styles.editReleaseFieldNote}>{COVER_PHOTO_UPLOAD_HINT}</p>
                                                 <input
                                                     type="file"
                                                     accept={EDIT_RELEASE_COVER_ACCEPT}
                                                     className={styles.editReleaseFileInputNative}
-                                                    onChange={(event) => setEditCoverFile(event.target.files?.[0] ?? null)}
+                                                    onChange={(event) => {
+                                                        const selectedFile = event.target.files?.[0] ?? null;
+                                                        setEditCoverFile(selectedFile);
+                                                        setEditUploadFieldErrors((current) => {
+                                                            const next = { ...current };
+                                                            delete next.coverPhoto;
+                                                            return next;
+                                                        });
+
+                                                        if (!selectedFile) {
+                                                            return;
+                                                        }
+
+                                                        const validationError = validateCoverPhotoFile(selectedFile);
+
+                                                        if (validationError) {
+                                                            setEditUploadFieldErrors((current) => ({
+                                                                ...current,
+                                                                coverPhoto: validationError,
+                                                            }));
+                                                            setToast({ tone: "error", message: validationError });
+                                                            event.target.value = "";
+                                                            setEditCoverFile(null);
+                                                        }
+                                                    }}
                                                 />
                                                 {editCoverFile ? (
                                                     <p className={styles.editReleaseFileSelected}>Selected: {editCoverFile.name}</p>
+                                                ) : null}
+                                                {editUploadFieldErrors.coverPhoto ? (
+                                                    <p className={styles.editReleaseFieldNote}>{editUploadFieldErrors.coverPhoto}</p>
                                                 ) : null}
                                             </div>
                                         </div>
@@ -2562,14 +2626,42 @@ export default function AdminEnquiriesPanel({
                                                     </a>
                                                 ) : null}
                                                 <span className={styles.editReleaseFileInputLabel}>Replace document</span>
+                                                <p className={styles.editReleaseFieldNote}>{DOCUMENT_UPLOAD_HINT}</p>
                                                 <input
                                                     type="file"
                                                     accept={EDIT_RELEASE_DOCUMENT_ACCEPT}
                                                     className={styles.editReleaseFileInputNative}
-                                                    onChange={(event) => setEditDocumentFile(event.target.files?.[0] ?? null)}
+                                                    onChange={(event) => {
+                                                        const selectedFile = event.target.files?.[0] ?? null;
+                                                        setEditDocumentFile(selectedFile);
+                                                        setEditUploadFieldErrors((current) => {
+                                                            const next = { ...current };
+                                                            delete next.document;
+                                                            return next;
+                                                        });
+
+                                                        if (!selectedFile) {
+                                                            return;
+                                                        }
+
+                                                        const validationError = validateDocumentFile(selectedFile);
+
+                                                        if (validationError) {
+                                                            setEditUploadFieldErrors((current) => ({
+                                                                ...current,
+                                                                document: validationError,
+                                                            }));
+                                                            setToast({ tone: "error", message: validationError });
+                                                            event.target.value = "";
+                                                            setEditDocumentFile(null);
+                                                        }
+                                                    }}
                                                 />
                                                 {editDocumentFile ? (
                                                     <p className={styles.editReleaseFileSelected}>Selected: {editDocumentFile.name}</p>
+                                                ) : null}
+                                                {editUploadFieldErrors.document ? (
+                                                    <p className={styles.editReleaseFieldNote}>{editUploadFieldErrors.document}</p>
                                                 ) : null}
                                             </div>
                                         </div>

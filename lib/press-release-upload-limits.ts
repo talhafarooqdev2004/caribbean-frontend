@@ -5,6 +5,11 @@ export const COVER_PHOTO_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.p
 export const DOCUMENT_ACCEPT =
     ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
+export const COVER_PHOTO_UPLOAD_HINT =
+    "JPG, PNG or WebP • Max 5MB • Recommended at least 1200px wide (landscape)";
+
+export const DOCUMENT_UPLOAD_HINT = "PDF, DOC or DOCX • Max 10MB";
+
 const COVER_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const DOCUMENT_TYPES = [
     "application/pdf",

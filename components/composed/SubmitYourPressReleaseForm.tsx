@@ -6,6 +6,19 @@ import { Check, FileText, ImageUp, Send } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import {
+  CHECKOUT_SESSION_EXPIRED_MESSAGE,
+  resolveCheckoutStartError,
+} from "@/lib/checkout-session-errors";
+import { apiValidationErrorsByField } from "@/lib/format-api-validation-errors";
+import {
+  COVER_PHOTO_ACCEPT,
+  COVER_PHOTO_UPLOAD_HINT,
+  DOCUMENT_ACCEPT,
+  DOCUMENT_UPLOAD_HINT,
+  validateCoverPhotoFile,
+  validateDocumentFile,
+} from "@/lib/press-release-upload-limits";
 import { formatReleaseDate, formatReleaseTime } from "@/lib/press-release-display";
 import { stripTagsToPlainText, truncatePlainExcerpt } from "@/lib/press-release-list-excerpt";
 import { PRESS_RELEASE_CATEGORIES } from "@/lib/press-release-categories";
@@ -154,12 +167,34 @@ const professionalCampaignContactHref = "/contact-us?for=proposal";
 const maxPressReleaseWords = 700;
 const maxReleaseTitleLength = 100;
 const maxSummaryLength = 300;
-const coverPhotoTypes = ["image/jpeg", "image/png", "image/webp"];
-const documentTypes = [
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
+
+function validateUploadFiles(
+  coverPhoto: File | null,
+  document: File | null,
+): Partial<SubmitYourPressReleaseErrors> {
+  const errors: Partial<SubmitYourPressReleaseErrors> = {};
+
+  if (!coverPhoto) {
+    errors.coverPhoto = "Cover image is required.";
+    return errors;
+  }
+
+  const coverError = validateCoverPhotoFile(coverPhoto);
+
+  if (coverError) {
+    errors.coverPhoto = coverError;
+  }
+
+  if (document) {
+    const documentError = validateDocumentFile(document);
+
+    if (documentError) {
+      errors.document = documentError;
+    }
+  }
+
+  return errors;
+}
 
 const initialValues: SubmitYourPressReleaseValues = {
   fullName: "",
@@ -507,18 +542,11 @@ export default function SubmitYourPressReleaseForm({
     }
 
     if (target === "coverPhoto") {
-      if (!coverPhotoTypes.includes(selectedFile.type)) {
-        setFieldErrors((current) => ({ ...current, coverPhoto: "Only JPG, PNG, WebP files are allowed" }));
-        setToast({ tone: "error", message: "Only JPG, PNG, WebP files are allowed" });
-        setCoverPhotoName("");
-        setCoverPhotoFile(null);
-        event.target.value = "";
-        return;
-      }
+      const validationError = validateCoverPhotoFile(selectedFile);
 
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        setFieldErrors((current) => ({ ...current, coverPhoto: "Image must be under 5MB" }));
-        setToast({ tone: "error", message: "Image must be under 5MB" });
+      if (validationError) {
+        setFieldErrors((current) => ({ ...current, coverPhoto: validationError }));
+        setToast({ tone: "error", message: validationError });
         setCoverPhotoName("");
         setCoverPhotoFile(null);
         event.target.value = "";
@@ -533,18 +561,11 @@ export default function SubmitYourPressReleaseForm({
       setCoverPhotoName(selectedFile.name);
       setCoverPhotoFile(selectedFile);
     } else {
-      if (!documentTypes.includes(selectedFile.type)) {
-        setFieldErrors((current) => ({ ...current, document: "Only PDF, DOC, DOCX files are allowed" }));
-        setToast({ tone: "error", message: "Only PDF, DOC, DOCX files are allowed" });
-        setDocumentName("");
-        setDocumentFile(null);
-        event.target.value = "";
-        return;
-      }
+      const validationError = validateDocumentFile(selectedFile);
 
-      if (selectedFile.size > 10 * 1024 * 1024) {
-        setFieldErrors((current) => ({ ...current, document: "Document must be under 10MB" }));
-        setToast({ tone: "error", message: "Document must be under 10MB" });
+      if (validationError) {
+        setFieldErrors((current) => ({ ...current, document: validationError }));
+        setToast({ tone: "error", message: validationError });
         setDocumentName("");
         setDocumentFile(null);
         event.target.value = "";
@@ -595,14 +616,12 @@ export default function SubmitYourPressReleaseForm({
       return;
     }
 
-    if (!coverPhotoFile) {
-      setFieldErrors((current) => ({ ...current, coverPhoto: "Cover image is required." }));
-      setToast({ tone: "error", message: "Upload a cover image before continuing." });
-      return;
-    }
+    const uploadErrors = validateUploadFiles(coverPhotoFile, documentFile);
 
-    if (fieldErrors.coverPhoto || fieldErrors.document) {
-      setToast({ tone: "error", message: "Please fix the highlighted file upload before continuing." });
+    if (Object.keys(uploadErrors).length > 0) {
+      setFieldErrors((current) => ({ ...current, ...uploadErrors }));
+      const firstUploadError = uploadErrors.coverPhoto ?? uploadErrors.document ?? "Please fix the highlighted file upload before continuing.";
+      setToast({ tone: "error", message: firstUploadError });
       return;
     }
 
@@ -664,10 +683,27 @@ export default function SubmitYourPressReleaseForm({
         const payload = await response.json().catch(() => null);
 
         if (!response.ok) {
-          setToast({
-            tone: "error",
-            message: typeof payload?.error === "string" ? payload.error : "We could not save your submission before checkout.",
-          });
+          const apiFieldErrors = apiValidationErrorsByField(payload);
+
+          if (Object.keys(apiFieldErrors).length > 0) {
+            setFieldErrors((current) => ({ ...current, ...apiFieldErrors }));
+          }
+
+          const errorMessage = typeof payload?.error === "string"
+            ? payload.error
+            : resolveCheckoutStartError(payload, response.status);
+
+          setToast({ tone: "error", message: errorMessage });
+
+          if (apiFieldErrors.coverPhoto || apiFieldErrors.document) {
+            onExpandedStepChange?.(4);
+            onStepChange?.(4);
+          }
+
+          if (response.status === 401 || errorMessage === CHECKOUT_SESSION_EXPIRED_MESSAGE) {
+            router.push(`/login?next=${encodeURIComponent(`/submit-your-press-release?package=${selectedPackage}`)}`);
+          }
+
           return;
         }
 
@@ -1316,7 +1352,7 @@ export default function SubmitYourPressReleaseForm({
                                   id="submit-press-release-cover-photo"
                                   name="coverPhoto"
                                   type="file"
-                                  accept=".jpg,.jpeg,.png,.webp"
+                                  accept={COVER_PHOTO_ACCEPT}
                                   className={styles.hiddenFileInput}
                                   onChange={(event) => handleFileSelection(event, "coverPhoto")}
                                 />
@@ -1324,7 +1360,7 @@ export default function SubmitYourPressReleaseForm({
                                   <ImageUp size={28} strokeWidth={1.8} />
                                 </span>
                                 <strong>{coverPhotoName || "Upload Image"}</strong>
-                                <span>PNG, JPG or WebP • Max 5MB</span>
+                                <span>{COVER_PHOTO_UPLOAD_HINT}</span>
                               </label>
                               {fieldErrors.coverPhoto ? (
                                 <p className={styles.fieldError}>{fieldErrors.coverPhoto}</p>
@@ -1341,7 +1377,7 @@ export default function SubmitYourPressReleaseForm({
                                   id="submit-press-release-document"
                                   name="document"
                                   type="file"
-                                  accept=".pdf,.doc,.docx"
+                                  accept={DOCUMENT_ACCEPT}
                                   className={styles.hiddenFileInput}
                                   onChange={(event) => handleFileSelection(event, "document")}
                                 />
@@ -1349,7 +1385,7 @@ export default function SubmitYourPressReleaseForm({
                                   <FileText size={28} strokeWidth={1.8} />
                                 </span>
                                 <strong>{documentName || "Upload Documents"}</strong>
-                                <span>PDF or Word • Max 10MB</span>
+                                <span>{DOCUMENT_UPLOAD_HINT}</span>
                               </label>
                               {fieldErrors.document ? (
                                 <p className={styles.fieldError}>{fieldErrors.document}</p>
