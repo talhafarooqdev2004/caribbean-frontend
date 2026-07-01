@@ -7,6 +7,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
+  CHECKOUT_PAYMENTS_NOTICE,
+  CHECKOUT_PAYMENTS_NOTICE_TITLE,
+  CHECKOUT_PAYMENTS_UNAVAILABLE,
+} from "@/lib/checkout-payments-unavailable";
+import {
   CHECKOUT_SESSION_EXPIRED_MESSAGE,
   resolveCheckoutStartError,
 } from "@/lib/checkout-session-errors";
@@ -478,6 +483,7 @@ export default function SubmitYourPressReleaseForm({
   const featuredPlacementPrice = isFeaturedPlacementEnabled ? 99 : 0;
   /** User has no credits but chose a paid package — continue to checkout instead of blocking. */
   const purchasingCredits = !hasUsableCredits && (selectedPackage === "single" || selectedPackage === "bundle");
+  const submitFormPaused = CHECKOUT_PAYMENTS_UNAVAILABLE;
   const paidPackageDollarTotal =
     purchasingCredits && selectedPackageData.price !== null
       ? selectedPackageData.price + featuredPlacementPrice
@@ -490,6 +496,12 @@ export default function SubmitYourPressReleaseForm({
   const summaryLength = formValues.summary.length;
   const isOverSummaryLimit = summaryLength > maxSummaryLength;
   const preferredDistributionDateMin = useMemo(() => toLocalDateInputValue(new Date()), []);
+
+  useEffect(() => {
+    if (submitFormPaused) {
+      onExpandedStepChange(null);
+    }
+  }, [onExpandedStepChange, submitFormPaused]);
 
   const stepsWithErrors = useMemo(() => {
     const steps = new Set<number>();
@@ -626,6 +638,11 @@ export default function SubmitYourPressReleaseForm({
     }
 
     setFieldErrors({});
+
+    if (submitFormPaused) {
+      setToast({ tone: "error", message: CHECKOUT_PAYMENTS_NOTICE });
+      return;
+    }
 
     if (purchasingCredits) {
       const orderSnapshot = {
@@ -920,6 +937,10 @@ export default function SubmitYourPressReleaseForm({
   }
 
   function goToNextStep() {
+    if (submitFormPaused) {
+      return;
+    }
+
     if (!validateStep(activeStep)) {
       return;
     }
@@ -932,6 +953,10 @@ export default function SubmitYourPressReleaseForm({
   }
 
   function toggleStep(step: number) {
+    if (submitFormPaused) {
+      return;
+    }
+
     if (expandedStep === step) {
       onExpandedStepChange(null);
       return;
@@ -955,11 +980,13 @@ export default function SubmitYourPressReleaseForm({
 
   const submitButtonLabel = isSubmitting
     ? "Saving..."
-    : hasUsableCredits || purchasingCredits
-      ? "Submit & Continue"
-      : selectedPackage === "custom"
-        ? "Request a Proposal"
-        : "Submit & Continue";
+    : submitFormPaused
+      ? "Submissions temporarily paused"
+      : hasUsableCredits || purchasingCredits
+        ? "Submit & Continue"
+        : selectedPackage === "custom"
+          ? "Request a Proposal"
+          : "Submit & Continue";
 
   const showPaymentNote =
     purchasingCredits
@@ -992,6 +1019,12 @@ export default function SubmitYourPressReleaseForm({
       {toast ? (
         <div className={`${styles.toast} ${toast.tone === "success" ? styles.toastSuccess : styles.toastError}`} role="status" aria-live="polite">
           {toast.message}
+        </div>
+      ) : null}
+      {submitFormPaused ? (
+        <div className={styles.paymentsUnavailableNotice} role="status" aria-live="polite">
+          <strong>{CHECKOUT_PAYMENTS_NOTICE_TITLE}</strong>
+          <p>{CHECKOUT_PAYMENTS_NOTICE}</p>
         </div>
       ) : null}
       {previewOpen && previewSnapshot ? (
@@ -1058,7 +1091,7 @@ export default function SubmitYourPressReleaseForm({
       ) : null}
 
       <Container className={styles.submitInner}>
-        <div className={styles.contentGrid}>
+        <div className={`${styles.contentGrid} ${submitFormPaused ? styles.contentGridPaused : ""}`}>
           <div className={styles.formColumn}>
             <form
               id="submit-your-press-release-form"
@@ -1067,7 +1100,7 @@ export default function SubmitYourPressReleaseForm({
               noValidate
             >
               {FORM_STEPS.map((step) => {
-                const isExpanded = expandedStep === step.id;
+                const isExpanded = !submitFormPaused && expandedStep === step.id;
                 const isCurrentStep = activeStep === step.id;
                 const hasStepError = stepsWithErrors.has(step.id);
 
@@ -1078,14 +1111,15 @@ export default function SubmitYourPressReleaseForm({
                     ref={(node) => {
                       stepRefs.current[step.id] = node;
                     }}
-                    className={`${styles.accordionStep} ${isExpanded ? styles.accordionStepExpanded : ""} ${hasStepError ? styles.accordionStepError : ""}`}
+                    className={`${styles.accordionStep} ${isExpanded ? styles.accordionStepExpanded : ""} ${hasStepError ? styles.accordionStepError : ""} ${submitFormPaused ? styles.accordionStepPaused : ""}`}
                   >
                     <button
                       type="button"
-                      className={styles.accordionHeader}
+                      className={`${styles.accordionHeader} ${submitFormPaused ? styles.accordionHeaderDisabled : ""}`}
                       onClick={() => toggleStep(step.id)}
                       aria-expanded={isExpanded}
                       aria-controls={`submit-step-panel-${step.id}`}
+                      disabled={submitFormPaused}
                     >
                       <span
                         className={`${styles.stepBadge} ${isCurrentStep ? styles.stepBadgeActive : ""}`}
@@ -1512,6 +1546,7 @@ export default function SubmitYourPressReleaseForm({
                           type="button"
                           className={`${styles.packageOption} ${selectedPackage === option.id ? styles.packageOptionActive : ""}`}
                           onClick={() => setSelectedPackage(option.id)}
+                          disabled={submitFormPaused}
                         >
                           <strong>{option.title}</strong>
                           <span>{option.subtitle}</span>
@@ -1558,6 +1593,7 @@ export default function SubmitYourPressReleaseForm({
                   className={styles.submitButton}
                   disabled={
                     isSubmitting
+                    || submitFormPaused
                     || (selectedPackage !== "custom"
                       && (isOverWordLimit
                         || isOverTitleLimit
@@ -1571,7 +1607,7 @@ export default function SubmitYourPressReleaseForm({
                   </span>
                 </Button>
 
-                {showPaymentNote ? (
+                {showPaymentNote && !submitFormPaused ? (
                   <p className={styles.paymentNote}>
                     You will be taken to payment after submitting
                   </p>
@@ -1592,7 +1628,7 @@ export default function SubmitYourPressReleaseForm({
                     variant="outline"
                     size="md"
                     className={styles.previewButton}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || submitFormPaused}
                     onClick={() => openPreview()}
                   >
                     Preview submission

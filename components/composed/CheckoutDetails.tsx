@@ -10,6 +10,11 @@ import { Container } from "../layout";
 import { Button, FormControl, FormLabel, Input, Select } from "../ui";
 import { territoryOptions } from "@/lib/enquiry-options";
 import {
+    CHECKOUT_PAYMENTS_NOTICE,
+    CHECKOUT_PAYMENTS_NOTICE_TITLE,
+    CHECKOUT_PAYMENTS_UNAVAILABLE,
+} from "@/lib/checkout-payments-unavailable";
+import {
     CheckoutSquareCardAttacher,
     CheckoutSquareCardSuspenseFallback,
     resetSquareWebClientConfigCache,
@@ -758,6 +763,11 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
+        if (CHECKOUT_PAYMENTS_UNAVAILABLE) {
+            setSubmissionMessage(CHECKOUT_PAYMENTS_NOTICE);
+            return;
+        }
+
         if (isMobileCheckout) {
             setSubmissionMessage(null);
             setToast({
@@ -875,6 +885,12 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
             </div>
 
             <Container className={styles.checkoutInner}>
+                {CHECKOUT_PAYMENTS_UNAVAILABLE ? (
+                    <div className={styles.paymentsUnavailableNotice} role="status" aria-live="polite">
+                        <strong>{CHECKOUT_PAYMENTS_NOTICE_TITLE}</strong>
+                        <p>{CHECKOUT_PAYMENTS_NOTICE}</p>
+                    </div>
+                ) : null}
                 {toast ? (
                     <div
                         className={`${styles.toast} ${styles.toastError}`}
@@ -1137,7 +1153,8 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
                                 className={`${styles.payButton} ${isSubmitting ? styles.payButtonBusy : ""}`}
                                 form="checkout-payment-form"
                                 disabled={
-                                    isSubmitting
+                                    CHECKOUT_PAYMENTS_UNAVAILABLE
+                                    || isSubmitting
                                     || isMobileCheckout
                                     || !squareCard
                                     || subtotal === null
@@ -1150,6 +1167,11 @@ export default function CheckoutDetails({ creditPackage = null }: CheckoutDetail
                                     <span className={styles.payButtonContent}>
                                         <Loader2 className={styles.payButtonSpinner} size={18} aria-hidden />
                                         Processing payment…
+                                    </span>
+                                ) : CHECKOUT_PAYMENTS_UNAVAILABLE ? (
+                                    <span className={styles.payButtonContent}>
+                                        <Lock size={16} strokeWidth={2} aria-hidden />
+                                        Card payments paused
                                     </span>
                                 ) : (
                                     <span className={styles.payButtonContent}>

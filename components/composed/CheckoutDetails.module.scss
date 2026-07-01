@@ -49,6 +49,29 @@
             border: 1px solid #fecdca;
             color: #b42318;
         }
+
+        .paymentsUnavailableNotice {
+            margin-bottom: $space-base;
+            width: 100%;
+            border-radius: 10px;
+            padding: 14px 16px;
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+
+            strong {
+                display: block;
+                margin-bottom: 6px;
+                font-size: $text-sm;
+                font-weight: $weight-semi-bold;
+            }
+
+            p {
+                margin: 0;
+                font-size: $text-sm;
+                line-height: 1.5;
+            }
+        }
     }
 
     .checkoutGrid {

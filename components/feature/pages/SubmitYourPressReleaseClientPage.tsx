@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
     SubmitYourPressReleaseForm,
     SubmitYourPressReleaseHeroSection,
 } from "@/components/composed";
+import { CHECKOUT_PAYMENTS_UNAVAILABLE } from "@/lib/checkout-payments-unavailable";
 
 type SubmitYourPressReleaseClientPageProps = {
     submitter: {
@@ -27,7 +28,15 @@ export default function SubmitYourPressReleaseClientPage({
     selectedPackage,
 }: SubmitYourPressReleaseClientPageProps) {
     const [activeStep, setActiveStep] = useState(1);
-    const [expandedStep, setExpandedStep] = useState<number | null>(1);
+    const [expandedStep, setExpandedStep] = useState<number | null>(
+        CHECKOUT_PAYMENTS_UNAVAILABLE ? null : 1,
+    );
+
+    useEffect(() => {
+        if (CHECKOUT_PAYMENTS_UNAVAILABLE) {
+            setExpandedStep(null);
+        }
+    }, []);
 
     return (
         <>
